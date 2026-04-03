@@ -1,0 +1,69 @@
+; CBS EA — Optimization: OFFSET SLOT
+; Run in Strategy Tester -> Optimization mode
+; Tests all offset hours (0-12) x all filter combos x all SL modes
+; Total combinations: 13 x 16 x 4 = 832 per instrument
+
+; === Offset Slot (OPTIMIZED) ===
+Off_Enable=true||false||0||true||N
+Off_StartHourUTC=0||0||1||12||Y
+Off_UseEMA=false||false||0||true||Y
+Off_UseH4=false||false||0||true||Y
+Off_UseCLU=false||false||0||true||Y
+Off_UseLLR=false||false||0||true||Y
+Off_SLMode=0||0||1||3||Y
+Off_BaseLot=0.01||0.01||0||0.01||N
+
+; === Intraday Slots (ALL DISABLED) ===
+Intra1_Enable=false||false||0||true||N
+Intra1_StartHour=12||12||0||12||N
+Intra1_DurationH=4||4||0||4||N
+Intra1_UseEMA=false||false||0||true||N
+Intra1_UseH4=false||false||0||true||N
+Intra1_UseCLU=false||false||0||true||N
+Intra1_UseLLR=false||false||0||true||N
+Intra1_SLMode=0||0||0||0||N
+Intra1_BaseLot=0.01||0.01||0||0.01||N
+
+Intra2_Enable=false||false||0||true||N
+Intra2_StartHour=9||9||0||9||N
+Intra2_DurationH=3||3||0||3||N
+Intra2_UseEMA=false||false||0||true||N
+Intra2_UseH4=false||false||0||true||N
+Intra2_UseCLU=false||false||0||true||N
+Intra2_UseLLR=false||false||0||true||N
+Intra2_SLMode=0||0||0||0||N
+Intra2_BaseLot=0.01||0.01||0||0.01||N
+
+Intra3_Enable=false||false||0||true||N
+Intra3_StartHour=22||22||0||22||N
+Intra3_DurationH=6||6||0||6||N
+Intra3_UseEMA=false||false||0||true||N
+Intra3_UseH4=false||false||0||true||N
+Intra3_UseCLU=false||false||0||true||N
+Intra3_UseLLR=false||false||0||true||N
+Intra3_SLMode=0||0||0||0||N
+Intra3_BaseLot=0.01||0.01||0||0.01||N
+
+; === Distance Tiers (FIXED — will adjust after discovery) ===
+DistTier_Enable=false||false||0||true||N
+DistTier1Pips=36.0||36.0||0||36.0||N
+DistTier1Mult=2.0||2.0||0||2.0||N
+DistTier2Pips=47.0||47.0||0||47.0||N
+DistTier2Mult=1.0||1.0||0||1.0||N
+DistFarMult=0.5||0.5||0||0.5||N
+
+; === Lot Sizing (FIXED 0.01) ===
+LotMode=0||0||0||0||N
+RiskPercent=0.20||0.20||0||0.20||N
+MaxLotSize=1.00||1.00||0||1.00||N
+
+; === Risk ===
+MagicBase=101000||101000||0||101000||N
+MaxSpreadPips=5.0||5.0||0||5.0||N
+SlippagePips=2||2||0||2||N
+DailyMaxLossPct=50.0||50.0||0||50.0||N
+
+; === Misc ===
+BrokerGMTOffset=2||2||0||2||N
+EnableJournal=false||false||0||true||N
+DebugMode=false||false||0||true||N
