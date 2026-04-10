@@ -1,6 +1,8 @@
 WHY IT WORKS?
 1. Couse it covers with important fibo levels
-2. Diamonds are also a "strength tests" from big players,\
+2. Diamonds are also a "strength tests" from big players,
+\
+https://mql.pl/handlowe/Magiczne_Srednie_MMD.php
 
 USUALLY ON H1 but also works for scalping on M1 or M5 on contracts
     1. so either you work only with trend on H1 and open trades on M1, M5 or you just be aware of the trades on the countrary to the trend and do not leave the trades opened for the longer period of time

@@ -1,201 +1,442 @@
-NAME: Price Action Cycle
+# Price Action Cycle (PAC)
 
-worth checking markets.news for news info (maybe parsing once per hour or so) or other source of news
+An intraday price action strategy combining candlestick signals, trend structure, Fibonacci levels, and session context to identify high-probability trade entries with defined targets.
 
-INSTRUMENTS: 
-CFD
-    XAUUSD
-    USOIL (WTIUSD, WTI.fs) - here we need to be aware of geopolitical situation
-    US500
-    US30
-    USTECH
-    GBPUSD
-    EURUSD
-    BTCUSD
-FUTURES
-    NAS100
-    GC
-    CL
-    ES
-    NQ
-    YM
-    6E
+---
 
-We need to observe what events affect more gold what btc and other cfd/futures etc.
-CHART:M5 (but we prefer Tickchart. afair we generate it dynamically but need to confirm how it will slow down the ea)
-Regarding tick chart. I have a tick chart generator for mt4, maybe it's worth
+## Instruments
 
-at 13-14 Polish time the tick chart should show 150-160 candles from midnight till 13-14 so we need to adjust the candle size for it
+### CFDs
+| Symbol | Notes |
+|--------|-------|
+| XAUUSD | Gold |
+| USOIL (WTIUSD / WTI.fs) | Monitor geopolitical events — supply disruptions, OPEC decisions, sanctions |
+| US500 | S&P 500 |
+| US30 | Dow Jones |
+| USTECH | Nasdaq 100 |
+| GBPUSD | Cable |
+| EURUSD | Fiber |
+| BTCUSD | Bitcoin |
 
-SIGNAL CANDLE
-    WICK below body for BULLISH
-    WICK above body for BEARISH
-    Impulse pullback signal
-    we want them to allign with EMA or volume or S/R lines or clusters, zones, fibo zones etc.
+### Futures
+| Symbol | Underlying |
+|--------|------------|
+| ES | S&P 500 E-mini |
+| NQ / NAS100 | Nasdaq 100 E-mini |
+| YM | Dow Jones E-mini |
+| GC | Gold |
+| CL | Crude Oil WTI |
+| 6E | Euro FX |
 
-GAP CANDLE
-    reversed to SIGNAL CANDLE 
-    those candles create lines that price tend to retest
-    
+> **Note:** Track which macro events move which instruments. Gold and BTC often react differently to the same catalyst (e.g., rate decisions favor gold, risk-on sentiment favors BTC). Consider parsing a news source (e.g., markets.news) on a schedule for event awareness.
 
-TRENDLINES (I'm sure there are quite few coded options in the internet to how to do it properly)
-    a line used to find "Direction of trend"
-    Trend lines determine S/R levels
+---
 
-    TO MAKE IT PROPERLY
-    1. Use first 2 swings LOW or HIGH (it can make a channel together)
-    2. Try to grab together WICKS
+## Timeframe & Chart Type
 
-    We might adjust it later when market shifts to consolidation of changes the direction
+**Primary chart:** M5
 
-    there are 3 types of trednlines
-    MAJOR - 1-2 per day depends
-    MINOR - 3-5 per day
-    MICRO - quite a lot it can be 15 or 20 or more
+**Preferred chart:** Tick chart (generated dynamically).
 
+Tick chart calibration target: **150-160 candles from midnight to ~13:00-14:00 Polish time**. Adjust tick size per instrument to hit this density. This gives enough structure to read intraday price action without excessive noise.
 
-MOVING AVERAGES
+> There is a tick chart generator for MT4 — evaluate performance impact on EA before committing to live use. If tick chart generation introduces unacceptable latency, fall back to M5.
 
-    EMA21 - used for intraday trades
-    SMA61 - used for swing trading
-    
-    It allows us to determine markets sentiment
-    If price is above ema21 and SMA61 then we can say that market has bullish sentiment
-    vice versa for bearish sentiment
+---
 
-    If the price is between Moving Averages this means that the sentiment is ending and we need to be more flexible
+## Signal Candle
 
-    the point of ema crossing sma can be seen as Switch in sentiment
+A signal candle indicates directional intent through its wick-to-body relationship.
 
-When the trend and sentiment is BULLISH so we are looking for BULLISH SIGNAL CANDLE
-It's important to observe how the price "work" (cross it and goes back or bounce from it) with the average and if the signal candle shows
+**Bullish signal candle:**
+- Prominent wick **below** the body (rejection of lower prices)
+- Small or no wick above
 
-If the price crosses both averages in a DYNAMIC way(1-5 M5 candles) we ca take values of crossing EMA21 and SMA61 as range as S/R which we can expect that will be retested and continue the trend
+**Bearish signal candle:**
+- Prominent wick **above** the body (rejection of higher prices)
+- Small or no wick below
 
-FIBO LEVELS
-    Traders use fibonacci levels to find best spot for pullback
-    38.2, 61.8, 1.382, 1.618 as GOLDEN RATIO MOST COMMONLY USED
+**Impulse-Pullback Signal:**
+- An impulse move followed by a shallow pullback, ending with a signal candle in the direction of the impulse
+- The pullback should not exceed the origin of the impulse
 
-    There are EXTENSIONS (AB) and EXPANSIONS (ABC)
-    another way to determine S/R
-    
-    EXTENSIONS
-        Where 
-            A - beginning of the impulse (to some direction) (we need to find in the internet how to identify the impulse) The impulse needs to be "visible", we do not add new story to some small movements
-            B - end of impulse
-        38.2 - 61.8 -> pullback zones. Support zone. In this zone price will test it after the impulse. The correction has to be visible. If the correction is only "gentle" we can expect another dip. If the behavior is "random" we look for other opportunities.
-        1.382 - 1.618 -> pullback zone. resistance zone.
+**Validation — a signal candle gains strength when it aligns with:**
+- EMA 21 or SMA 61 (touch/bounce)
+- A support/resistance zone or cluster
+- A Fibonacci level (retracement or expansion)
+- A trendline (major or minor)
+- Volume confirmation (above-average volume on the signal candle)
 
-    EXPANSIONS
-        Where
-            A - beginning of the impulse (to some direction) (we need to find in the internet how to identify the impulse)
-            B - end of impulse
-            C - dip of the correction. How deep into the correction the price went. If the next correction will be deeper then we need to recalculate it
-        38.2
-        61.8
-        1 - measured-move  
-        1.382
-        1.618
-        Goal of expansions is for price to reach Measured-Move or 1.382 or 1.618
-    
-    WITH THOSE VALUES AND LEVELS WE CAN MAKE CLUSTERS (~5 pips)
+A signal candle alone is not a trade entry. It is a **trigger** that must occur within the correct **context** (trend, sentiment, S/R confluence).
 
-    The values, levels cluster are the context of our trade
+---
 
-    In case when we want to make an order, places like reaction to impulse or reaction to cluster etc might be a good place to place an order (of course we need a signal candle)
+## Gap Candle
 
-ELLIOTT WAVES
-    M5 
-    When we observe change in sentiment we are not sure if the trend is shifting
-    3 - 5 (in some cases it can be more) waves (movements, or impulses) is a full trend. Between impulses, movements there are similar but oposite direction impulses
-    2 or 3 of same movement -> pullback
-    if we are in 4th and 5th impulse we shouldn't force to trade
+The inverse of a signal candle — the prominent wick points **in the direction** of the body (wick above body on a bullish candle, wick below body on a bearish candle).
 
-REVERSAL LINES
-    From support to resistance
-    we mark latest swing high/low (wick)
-    if we see a reaction to the level/zone marked by the swing then we can mark it
-    if no we just omit the swing
-    that way we can make a S/R zones
-    Those zones, reactions mix with trendlines (major and minor, NOT MICRO)
+Gap candles create **horizontal reference lines** (drawn from the wick tip or body edge) that price tends to retest. These lines act as magnets — treat them as potential S/R until invalidated.
 
-DOUBLE TOP&BOTTOM (M5)
-    If market moved into one direction and while doin a correction we se double top or bottom (where the distance between those swings need to be visible, no candle next to candle)
-    we use this behavior as CONTINUATION of movement. after the second "touch" we are looking for "dynamic" (3+ single color candles) reaction of the price. it works the best on the tick or range chart.
-    It is important that the wicks of double bottom or top do not allign perfectly we need to find a "center" of it
-    If the body of the candles close/open in the same "area" then the wicks does not really matter
-    Double bottom or top also shows that correction may end and the trend starts 
-    
-OHLC
-    D1
-    we take open, high, low, close values
+---
 
-    if current price is in the candle body zone it is "maybe" zone
-    for bearish D1 candle
-    if current price is in the open and end of the wick then we are in the "promotion for sellers zone"
-    if current price is in the close and end of the wick area then we are in the "promotion for buyers zone"
-    for bullis is vice versa
+## Trendlines
 
-SESSION OBJECTIVE
-    Polish TIME
-    ASIA 23:00 - 7:59
-    LONDON 09:00 - 13:00
-    AMERICA 14:00 - 21:00 
+Trendlines determine the **direction of trend** and define dynamic **S/R levels**.
 
-    After creation of the box(high and low values) we have 2 zones, one above and one below. Those are promo zones for EU. so either people will want to take profits in those areas or open a trade
-    It works the same for the LONDON box. Outside of it we see a US promo zone.
+### How to Draw
+1. Identify the first two swing lows (for uptrend) or swing highs (for downtrend)
+2. Connect the **wicks** — not the bodies — to capture the true extremes
+3. Parallel lines from opposite swings can form a **channel**
+4. Adjust when the market shifts to consolidation or reverses direction
 
-MEASURED-MOVE
-    Signal/gap candles are not important here
-    AB - Impulse begins on one side of EMA and clearly ends on the opposite side (we do not count cases when the wicks/candles are "touching" the EMA, we need a clear opposite movement)
-    BC (pullback) - point C must be clearly on the same side as point A
-    Measured-move(D) - in a trend used to define the target for the current momentum
-    AB=CD
-    we use fibo expansion to draw it on chart
-    mark ABC to get D
-    here we need to have in mind all of previous steps like fibo levels and so on
-    the movement needs to be "clean"
-    If price after moving from C reaches B level and makes deeper correction then C level it means that our measured move it pointless. it is basically rest of measured move
+### Three Types
 
-    for furutre strategy plans
-    3rd leg is measured from deepest correction after measured move and touches the ema so we see it as sort of valid setup but usually it bouces from some cluster or so
+| Type | Frequency | Scope |
+|------|-----------|-------|
+| **Major** | 1-2 per day | Defines the primary trend of the session |
+| **Minor** | 3-5 per day | Defines sub-trends and swing structure |
+| **Micro** | 15-20+ per day | Short-lived, used for very precise entries |
 
-    DOUBLE UP & DOUBLE DOWN
-        AB - impulse begins on the the one side of EMA and clearly ends on the opposite side
-        another view of Measured-move
-        we use fibo retracement to draw it
-        triple down is a S/R line
+> Major and minor trendlines are used for trade decisions. Micro trendlines are for fine-tuning entries only — do not base trade direction on them.
 
-    Combination of both mesured-move and double up and double down can work together very well to create a support area
-    the 3rd leg of measured move can allign with double up and double down value
+---
 
-Hidden Channel - rotation channel (2 paralalel lines)
-    Price hit the target or some important level, measured-move, double top or double bottom
-    There is a reaction and move with new momentum. There should be an impulse.
-    Grab Channel to know where is the best spot to follow the new momentum
-    lack of rotation
-    we look for clean impulse so we can create the channel.
-    there's a chance of "false retest" which means that only one side of channel is tested. In such cases we should wait.
-    so at the beginning of this rotation we can go with measured move
-    and with signal candle within correct context (bearish below ema or strongly crossing it vice versa for bullish)
-    the settlement of trade should be done few pips before the target
+## Moving Averages
 
-BATTLE ZONE
-    S/R zones based on swings
-    Resistance - the range where the sellers/buyers (the oposite direction traders) gained an advantage
-    Support - vice versa from resistance
-    Untested - swing on which a strong reaction appeared, range, not re-tested
-    verified - zone which was retested by price at least once
-    turncoat - zone with a possible change of character from support to resistance or vice versa
-    Battlezone - where swings are very close to each other, buyers win and sellers win etc. we mark it from the highest to lowest swing
-    if the battle zone is crossed in oposite direction (so the market trend was bearish but buyers crossed it) the battle zone is void. we may look an opportunity to open a BUY trade.
+| MA | Type | Period | Purpose |
+|----|------|--------|---------|
+| EMA | Exponential | 21 | Intraday trend and entry timing |
+| SMA | Simple | 61 | Swing-level trend and sentiment filter |
 
-    With each re-test zone becomes weaker
+### Sentiment Rules
 
-SPIKE & MOVE (Spike & channel)
-    Spike - sudden change in price over a short period of time (it does not need to be one candle it can be even 10 if it is sudden change in price)
-    Wait for pullback to 50% FIBB of Spike AB
-        A - open of spike
-        B - highest level of channel/move
-        C - 50% FIBB of Spike AB (price need to react on it but if it cross it then whole spike & move setup is burned)
-        D - measured move from ABC
+| Price Position | Sentiment |
+|----------------|-----------|
+| Above both EMA 21 and SMA 61 | **Bullish** — look for bullish signal candles |
+| Below both EMA 21 and SMA 61 | **Bearish** — look for bearish signal candles |
+| Between EMA 21 and SMA 61 | **Transitional** — sentiment is weakening, increase caution |
+| EMA 21 crosses SMA 61 | **Sentiment switch** — potential trend reversal |
+
+### Price Interaction with MAs
+
+Observe **how** price interacts with the averages:
+- **Bounce:** Price touches the MA and reverses — MA is acting as S/R. Look for a signal candle at the touch.
+- **Cross and return:** Price briefly crosses the MA then snaps back — false break, MA still holds.
+- **Dynamic cross:** Price cuts through both MAs within 1-5 M5 candles. The zone between the EMA 21 and SMA 61 values at the moment of crossing becomes a **S/R range** that is likely to be retested before the trend continues.
+
+---
+
+## Fibonacci Levels
+
+Used to identify pullback zones, targets, and S/R clusters.
+
+**Key ratios:** 0.382 (38.2%), 0.618 (61.8%), 1.0 (100%), 1.272 (127.2%), 1.382 (138.2%), 1.618 (161.8%)
+
+> **Note on terminology:** "Extension" and "Expansion" naming varies across platforms (MT4/MT5, TradingView label them differently). This document uses: **Extension = 2-point (AB)**, **Expansion = 3-point (ABC)**.
+
+### Extensions (2-Point: A-B)
+
+Used to project how far price may travel beyond an impulse.
+
+- **A** = Beginning of the impulse (must be a "visible" move — not a minor fluctuation)
+- **B** = End of the impulse
+
+| Level | Zone | Interpretation |
+|-------|------|----------------|
+| 38.2% - 61.8% | Pullback / Support | After the impulse, price corrects into this zone. The correction must be **visible** — if it's only a gentle retracement, expect a deeper dip. If price action in this zone is choppy/random, skip the setup. |
+| 127.2% - 161.8% | Target / Resistance | Profit-taking zone for trades entered at the pullback. |
+
+### Expansions (3-Point: A-B-C)
+
+Used to project targets after a correction completes.
+
+- **A** = Beginning of the impulse
+- **B** = End of the impulse
+- **C** = Deepest point of the correction (if the next correction goes deeper than C, recalculate)
+
+| Level | Role |
+|-------|------|
+| 38.2% | Conservative target |
+| 61.8% | Moderate target |
+| 100% (Measured Move) | Primary target — price frequently reaches this level |
+| 138.2% | Extended target |
+| 161.8% | Aggressive target |
+
+### Impulse Identification
+
+An impulse is a directional move that is:
+- Visually distinct from surrounding price action
+- Composed of candles predominantly in one direction
+- Larger in magnitude than recent swings
+- Not a minor fluctuation or noise — if you have to squint to see it, it's not an impulse
+
+### Clusters
+
+When multiple Fibonacci levels from different measurements land within **~5 pips** of each other, they form a **cluster**. Clusters are high-probability S/R zones.
+
+Clusters, combined with other confluences (trendlines, MAs, gap candle lines, battle zones), form the **context** of a trade. An entry requires a signal candle appearing at or near a cluster/confluence zone.
+
+---
+
+## Elliott Wave Structure
+
+Applied on M5 to count the momentum within a trend.
+
+### Basic Structure
+- A full trend typically consists of **5 impulse waves** (labeled 1-2-3-4-5)
+- Waves 2 and 4 are **corrective** (counter-trend pullbacks)
+- Waves 1, 3, and 5 move in the trend direction
+- Wave 3 is usually the longest and strongest
+
+### Practical Rules
+- After identifying a sentiment change, count the impulse waves
+- **Waves 1-3:** Highest probability — trade aggressively with the trend
+- **Wave 4-5:** Momentum fading — reduce position size or skip
+- **2-3 consecutive moves in one direction after the 5th wave** = likely a larger pullback/reversal forming
+- If wave count becomes ambiguous, defer to other PAC tools (MAs, trendlines, Fibonacci) for direction
+
+> Elliott Waves are a **supporting tool** in PAC, not the primary decision driver. Use them to gauge where you are in the trend cycle, not to predict exact turning points.
+
+---
+
+## Reversal Lines (S/R from Swing Reactions)
+
+A method for building S/R zones from observed price reactions at swing points.
+
+### Process
+1. Mark the latest **swing high or swing low** (use the wick, not the body)
+2. Wait for price to return to that level
+3. **If price reacts** (bounce, stall, or reversal) at the swing level — mark it as a **reversal line** (S/R)
+4. **If price ignores the level** — discard it; do not force zones
+5. Build S/R zones from confirmed reversal lines
+
+### Validation
+- Reversal lines should align with **major or minor trendlines** — not micro trendlines
+- Zones where multiple reversal lines and trendlines converge are high-conviction S/R
+
+---
+
+## Double Top & Bottom (M5)
+
+Used as a **trend continuation** signal, not a reversal signal in this context.
+
+### Setup
+1. During a correction within a trend, two swing highs (double top) or swing lows (double bottom) form
+2. The two swings must have **visible separation** — not consecutive candles
+3. The wicks do not need to align perfectly — find the **center** of the two swing points
+4. If the candle bodies (open/close) are in the same price area, wick differences are less important
+
+### Entry
+- After the second touch, look for a **dynamic reaction**: 3+ consecutive candles of the same color moving away from the double top/bottom
+- This works best on tick or range charts where noise is filtered
+- The dynamic move signals that the correction has ended and the trend is resuming
+
+---
+
+## OHLC Analysis (D1)
+
+Use the previous day's D1 candle (Open, High, Low, Close) to define **intraday bias zones**.
+
+### For a Bearish D1 Candle (Close < Open)
+
+| Price Zone | Location | Bias |
+|------------|----------|------|
+| Within the candle body | Between Open and Close | Neutral / "Maybe" zone — no clear edge |
+| Between Open and wick high | Above body, within upper wick | **Sellers' promotion zone** — favorable for shorts |
+| Between Close and wick low | Below body, within lower wick | **Buyers' promotion zone** — favorable for longs |
+
+### For a Bullish D1 Candle (Close > Open)
+Reverse the logic: above the body (within upper wick) = buyers' promo zone, below the body (within lower wick) = sellers' promo zone.
+
+> These zones provide a **daily directional filter**. If your intraday signal aligns with the D1 promo zone bias, the trade has higher conviction.
+
+---
+
+## Session Objective
+
+Trading session focus windows (Polish time — CET/CEST):
+
+| Session | Hours (Polish) | Role |
+|---------|----------------|------|
+| **Asia** | 23:00 - 07:59 | Establishes the overnight range |
+| **London** | 09:00 - 13:00 | European session; primary trading window before US |
+| **America** | 14:00 - 21:00 | US session; highest volatility, trend continuation or reversal |
+
+> These are **focus windows** for this strategy, not full exchange hours.
+
+### Session Box Logic
+
+**Asia Box** (High/Low of Asia session):
+- The zone **above** the Asia box = European buyers' promo zone (potential long setups or profit-taking by shorts)
+- The zone **below** the Asia box = European sellers' promo zone
+
+**London Box** (High/Low of London session):
+- The zone **above** the London box = US buyers' promo zone
+- The zone **below** the London box = US sellers' promo zone
+
+> Trades where price has **clearly broken out** of the session box are preferred. If price is wandering inside the box, the setup lacks conviction — wait.
+
+---
+
+## Measured Move (AB=CD)
+
+A pattern that projects the target for the current momentum leg.
+
+> Signal and gap candles are **not relevant** for identifying the measured move structure — only the swing points matter.
+
+### Structure
+
+- **A → B (Impulse):** Price begins on one side of EMA 21 and clearly ends on the opposite side. Wicks merely "touching" the EMA do not count — the move must be a **clean cross**.
+- **B → C (Pullback):** Point C must be clearly back on the **same side of EMA as point A**. This confirms the pullback.
+- **C → D (Measured Move):** D is the target where AB = CD in price distance.
+
+### Drawing
+Use the Fibonacci expansion tool: mark A, B, C — the 100% level gives you D.
+
+### Rules
+- The movement must be **clean** — clear impulse, clear pullback, no choppy/ambiguous price action
+- Keep all other PAC context in mind (Fibonacci clusters, S/R, trendlines) — the measured move target should ideally align with other levels
+- **Invalidation:** If price, after moving from C toward D, retraces back beyond C (deeper correction than C), the measured move is void
+
+### 3rd Leg (Advanced)
+After the measured move completes (D reached), if a correction occurs:
+- Measure from the deepest point of that correction
+- The 3rd leg often terminates at a cluster or when price touches the EMA
+- This is a lower-probability setup — treat it as supplementary, not primary
+
+### Double Up & Double Down
+
+An alternative view of the measured move using **Fibonacci retracement** instead of expansion:
+
+- **A → B:** Impulse begins on one side of EMA, clearly ends on the opposite side
+- Apply Fibonacci retracement to A-B
+- **Double Up (bullish) / Double Down (bearish):** The retracement levels project continuation targets
+- A **triple** (3rd occurrence) of this pattern creates a strong S/R line
+
+### Combining Both
+The measured move target (D) and the double up/down projection can align, creating a **support/resistance confluence area**. The 3rd leg of the measured move can coincide with the double up/down value — when they align, the level is high-conviction.
+
+---
+
+## Hidden Channel (Rotation Channel)
+
+A channel pattern that forms after a target is hit and new momentum begins.
+
+### Context
+Price has reached a significant level: a measured move target, double top/bottom, or other key level. A reaction occurs and price begins moving with new momentum.
+
+### Structure
+- Two parallel lines containing the price rotation (a channel)
+- Look for a **clean impulse** within the channel to define the boundaries
+- The channel represents a pause/rotation before the next directional move
+
+### Trading Rules
+
+1. **Wait for confirmation:** If only one side of the channel is tested ("false retest"), do not enter — wait for both sides to be tested
+2. **Entry:** Look for a signal candle within correct context:
+   - For bearish setups: signal candle below EMA or price strongly crossing EMA downward
+   - For bullish setups: signal candle above EMA or price strongly crossing EMA upward
+3. **Target:** Use the measured move projected from the channel. Settle the trade **a few pips before** the projected target
+4. At the beginning of the rotation, the measured move provides the initial target framework
+
+---
+
+## Battle Zone
+
+A swing-based S/R classification system.
+
+### Zone Types
+
+| Type | Definition |
+|------|------------|
+| **Resistance** | Range where counter-trend traders gained control (e.g., sellers pushed price down from this zone in an uptrend) |
+| **Support** | Range where trend-direction traders defended (e.g., buyers held price at this zone in an uptrend) |
+| **Untested** | A swing that produced a strong reaction but has **not been retested** — strongest conviction |
+| **Verified** | A zone retested by price **at least once** — confirmed but slightly weaker |
+| **Turncoat** | A zone where the character may be changing — former support becoming resistance, or vice versa |
+| **Battle Zone** | A range where multiple swings cluster tightly (buyers and sellers alternating control). Mark from the highest to the lowest swing in the cluster. |
+
+### Rules
+- If a battle zone is **crossed in the opposite direction** (e.g., market was bearish but buyers push through the zone), the battle zone is **void** — look for opportunities in the new direction
+- **Each retest weakens the zone** — untested zones are strongest, zones retested 3+ times are likely to break
+- Battle zones interact with all other PAC tools — a signal candle at a battle zone boundary, aligned with trend and Fibonacci levels, is a high-probability setup
+
+---
+
+## Spike & Move Patterns
+
+Patterns that form after a sudden, sharp price movement (spike). The spike can be a single candle or up to ~10 candles — what matters is the **speed and magnitude** of the move, not the candle count.
+
+> All examples below are described from the bullish perspective. Mirror for bearish.
+
+### Spike & Channel
+
+A spike followed by a **channel continuing in the spike's direction**.
+
+**Points:**
+- **A** = Open/base of the spike
+- **A'** = Top of the spike (where the channel begins)
+- **B** = Highest point reached in the channel
+- **C** = 50% Fibonacci retracement of the full A-B range
+
+**Rules:**
+1. Wait for a pullback to the **50% Fib of A-B** (point C)
+2. Price must **react** at the 50% level — if it breaks through, the entire setup is invalidated
+3. **Target (D):** Measured move from A-B-C (100% Fibonacci expansion)
+4. If price within the channel reaches the **138.2% Fib of A-A'**, expect exhaustion — the move is likely complete
+5. If price begins correcting before 138.2% but does **not break** the 50% level, and buyers reappear:
+   - Wait for price to cross back above EMA
+   - Draw a trendline from the channel high through the intermediate swing low
+   - Entry opportunity with target at 138.2% Fib of A-A'
+
+**Alternative view:** Spike & Channel is essentially a play on the 2nd leg. It can be reframed as a measured move where A'' = base of spike, B'' = top of channel, C'' = deepest correction — making it a waiting game for the 3rd leg.
+
+> This setup is often "ungrateful" — price frequently reaches 138.2% within the channel before a clean pullback entry materializes.
+
+### Spike & Flag
+
+A spike followed by a **channel in the opposite direction** (a flag — price drifts against the spike).
+
+**Points:**
+- **A** = Open/base of the spike
+- **B** = Highest point before the flag begins
+- **C** = 50% Fibonacci retracement of A-B
+
+**Rules:**
+1. **Do not** enter during the flag — do not chase the counter-trend drift
+2. Wait for a pullback to 50% Fib of A-B (point C). If price breaks through 50%, the setup is invalidated.
+3. **Target (D):** Measured move from A-B-C
+4. The **trigger** is a clean, sudden break of the flag's upper channel line:
+   - The candle **body** must close outside the channel (not just a wick)
+   - A signal candle at the breakout adds confidence
+   - If you miss the breakout entry, there is often a retest of the broken channel line — enter on the retest
+5. If price has not reached the spike high (B), you can either use B as a conservative target or go with the full measured move
+6. **Spike & Flag tends to skip corrections**, especially on Oil, US indices, and Gold — once the flag breaks, the move can be fast and one-directional
+
+### Spike & Range
+
+A spike followed by a **sideways range** (no channel, no flag — just consolidation).
+
+> **Do not trade this pattern.** It is very difficult to identify a directional bias from a range after a spike.
+
+---
+
+## Trend or Range Day Classification
+
+Use MMD Clouds (see `MMD/MMD_CLOUDS.md`) to determine whether the current session is trending or ranging. This classification affects which PAC setups to prioritize:
+- **Trend day:** Favor measured moves, spike patterns, and trend-continuation setups
+- **Range day:** Favor battle zone reactions, session box plays, and double top/bottom setups
+
+---
+
+## Trade Execution Checklist
+
+Before entering any trade, confirm:
+
+1. **Direction:** Trend and sentiment align (MAs, Elliott Wave count, trendlines)
+2. **Context:** Entry point sits at a confluence zone (Fibonacci cluster, battle zone, reversal line, session box boundary, trendline, MA)
+3. **Trigger:** A valid signal candle has formed at the confluence zone
+4. **D1 Bias:** Intraday direction aligns with the OHLC promo zone bias
+5. **Session:** Current session supports the trade (not in a dead zone between sessions)
+6. **Target:** A clear, measurable target exists (measured move, Fibonacci level, cluster)
+7. **Settlement:** Place TP a few pips before the target to account for spread and slippage

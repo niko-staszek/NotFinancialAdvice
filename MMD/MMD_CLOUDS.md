@@ -2,8 +2,6 @@
 
 Claude's understanding of the MMD system. Niko corrects when wrong.
 
-**Role in CBS:** Support indicator. MMD clouds provide trend context, S/R zones, and entry/exit signals that CBS can use to improve trade quality — particularly as features for the ML model.
-
 ---
 
 ## Core Concept
