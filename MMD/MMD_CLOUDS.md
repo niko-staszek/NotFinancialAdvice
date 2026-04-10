@@ -1,165 +1,366 @@
-# MMD Clouds — Reference & Analysis
+# MMD — Magiczne Średnie (Magic Moving Averages)
 
-Claude's understanding of the MMD system. Niko corrects when wrong.
+A multi-layer cloud system created by Mariusz Maciej Drozdowski that maps higher-timeframe moving average structure onto a single chart. It provides trend direction, dynamic S/R zones, entry signals, and candle-based price levels (diamonds).
 
----
-
-## Core Concept
-
-A "cloud" is the space between an SMA and EMA of the **same period**. Because SMA reacts slower than EMA, the gap between them forms a dynamic zone that acts as support/resistance. When price enters a cloud, it's in a contested area. When it passes through, the cloud flips from support to resistance (or vice versa).
-
-This is similar to Ichimoku's Kumo cloud but with multiple layers at different speeds, giving you a multi-timeframe trend and S/R map from a single chart.
+**Dual purpose:**
+1. **Standalone strategy** — clouds, diamonds, ribbons, and schemas provide complete trade setups with entries, targets, and exits
+2. **Indicator/filter for other strategies** — trend confirmation, S/R obstacle detection, regime classification (trending vs. consolidating), and entry timing for PAC, MRD, API, or any other system
 
 ---
 
-## Cloud Levels
+## Why It Works
 
-Each cloud is defined by its period (applied to both SMA and EMA):
+1. The cloud periods map directly to standard timeframes (H1, H4, D1, W1) — they capture the same institutional structure that big players use for decision-making
+2. Diamonds are effectively "strength tests" — they reveal where large players probed and were rejected, creating levels the market remembers
+3. The multi-layer design creates natural confluence — when several clouds align at a price level, that zone concentrates S/R from multiple timeframes
 
-| Layer | Period | Color | Role |
-|-------|--------|-------|------|
-| **MAIN** | 48 | Orange | Fast trend / consolidation detection |
-| **MAIN** | 288 | Blue | Medium trend |
-| **MAIN** | 1440 | Green | Slow trend (D1 equivalent on H1) |
-| ADDITIONAL | 12 | Red | Ultra-fast, entry trigger |
-| ADDITIONAL | 3456 | Purple | Ultra-slow, macro trend |
-| HELPER | 144 | Light blue | Between orange and blue |
-| HELPER | 720 | Light green | Between blue and green |
-| DELAYED | 12 shifted back 144 bars | — | "2nd wave" — lagging confirmation |
+---
 
-**Period logic on H1:** 48 = 2 days, 288 = 12 days (~2.5 weeks), 1440 = 60 days (~3 months). So on H1 the three main clouds roughly represent intra-week, multi-week, and quarterly trend. The same periods work on other timeframes — on M1, 48 would be ~48 minutes, 288 ~5 hours, etc.
+## Primary Timeframe
+
+**H1** is the default. The system also works for:
+- **M1 / M5** — scalping on CFDs/futures (shorter hold times, tighter targets)
+- **H4** — swing trading (wider targets, fewer signals)
+
+When using H1 for trend and M1/M5 for entries:
+- Only trade M1/M5 entries **in the direction of** the H1 cloud trend
+- Counter-trend scalps on M1/M5 are possible but must be closed quickly — do not hold them
+
+---
+
+## Knowledge Pyramid (Priority Order)
+
+The MMD system is learned and applied top-down:
+
+1. **Magic Clouds** — trend, S/R, regime (foundation)
+2. **Cloud Crossings** — entry signals and trend shift confirmation
+3. **Diamonds** — key price levels from candle patterns
+4. **Ribbons** — channel boundaries and volatility envelope
+5. **Schemas** — specific time-of-day and candle-based trade setups (applied last)
+
+---
+
+## Core Concept: What Is a Cloud?
+
+A cloud is the **shaded area between an SMA and an EMA of the same period**.
+
+Because the SMA reacts slower than the EMA, the gap between them forms a dynamic zone:
+- When price is **above** the cloud — the cloud is support
+- When price is **below** the cloud — the cloud is resistance
+- When price is **inside** the cloud — it's a contested area (no clear edge)
+- When price **passes through** a cloud — the cloud flips role (support becomes resistance, vice versa)
+
+This is conceptually similar to Ichimoku's Kumo cloud, but MMD uses **multiple clouds at different speeds**, creating a multi-timeframe S/R map on a single chart.
+
+---
+
+## Cloud Periods
+
+### Origin of the Numbers
+
+The periods are **not Fibonacci-based**. They are derived from converting standard timeframes into M5 candle counts:
+
+| Timeframe | Minutes | ÷ 5 (M5 candles) | MMD Period |
+|-----------|---------|-------------------|------------|
+| H1 | 60 | 12 | **12** |
+| H4 | 240 | 48 | **48** |
+| H12 | 720 | 144 | **144** |
+| D1 | 1440 | 288 | **288** |
+| D2.5 | 3600 | 720 | **720** |
+| W1 | 7200 | 1440 | **1440** |
+| ~MN | ~17280 | ~3456 | **3456** |
+
+> On H1: 48 periods = 2 days, 288 = 12 days (~2.5 weeks), 1440 = 60 days (~3 months). Each cloud on a lower timeframe represents the behavior of a higher timeframe's moving average.
+
+### Cloud Table
+
+| Layer | Period | Color | Represents | Role |
+|-------|--------|-------|------------|------|
+| **MAIN** | 48 | Orange | H4 | Fast trend / consolidation detection |
+| **MAIN** | 288 | Blue | D1 | Medium trend |
+| **MAIN** | 1440 | Green | W1 | Slow trend — primary trend direction |
+| ADDITIONAL | 12 | Red | H1 | Ultra-fast entry trigger |
+| ADDITIONAL | 3456 | Purple | ~MN | Ultra-slow macro trend |
+| HELPER | 144 | Light blue | H12 | Bridge between Orange and Blue |
+| HELPER | 720 | Light green | D2.5 | Bridge between Blue and Green |
+| DELAYED | 12 shifted back 144 bars | — | Lagging H1 | "2nd wave" — lagging confirmation signal |
+
+> The same period set works across all chart timeframes. On M5 the numbers above apply directly. On H1, period 48 = 48 hours (2 days), period 288 = 288 hours (12 days), etc.
 
 ---
 
 ## Trend Reading
 
-The vertical stacking order of the three main clouds tells you the market state:
+The vertical stacking order of the **three main clouds** (Orange 48, Blue 288, Green 1440) from top to bottom on the chart tells you the market state:
 
-**Bullish trend** — top to bottom: Orange, Blue, Green (fast above slow)
+| Stacking (top → bottom) | Market State |
+|--------------------------|--------------|
+| Orange, Blue, Green | **Bullish trend** — fast above slow, all aligned |
+| Green, Blue, Orange | **Bearish trend** — slow above fast, all aligned |
+| Blue, Orange, Green | **Correction in bullish trend** — Orange dipped below Blue, but Green still at the bottom = macro still bullish |
+| Green, Orange, Blue | **Correction in bearish trend** — Orange popped above Blue, but Green still on top = macro still bearish |
 
-**Bearish trend** — top to bottom: Green, Blue, Orange (slow above fast)
+### Directional Reads
 
-**Correction in bullish trend** — Blue, Orange, Green (orange dips below blue but green still underneath = still bullish macro, just correcting)
+| Condition | Meaning |
+|-----------|---------|
+| Orange above Blue | Short-term momentum is **up** — direction favors higher highs |
+| Blue above Orange | Short-term momentum is **down** — direction favors lower lows |
+| Orange consolidating near Blue (not yet crossing) | Orange is signaling **consolidation**. Once Orange crosses Blue → correction has begun |
 
-**Correction in bearish trend** — Green, Orange, Blue (orange pops above blue but green still on top = still bearish macro, just correcting)
+### Cloud Interaction with Trend
 
-**Direction for highs** — Orange above Blue (short-term momentum up)
-
-**Direction for lows** — Blue above Orange (short-term momentum down)
+- **Green (1440)** defines the macro trend
+- **Blue (288)** confirms the trend and shows medium-term momentum
+- **Orange (48)** is the fast read — it shows consolidation before crossing Blue and correction after crossing
 
 ---
 
 ## Cloud Behavior Rules
 
-1. Clouds are S/R zones — price reacts to them.
-2. Before reversing direction, price will "test" the clouds.
-3. If price passes through a cloud, it tends to continue to the next cloud and then retest the one it just broke.
-4. Cloud reactions can be confirmed with volume (and other tools).
+1. **Clouds are S/R zones** — price reacts to cloud boundaries (bounces, stalls, reversals)
+2. **Clouds are tested before reversals** — before changing direction, price will probe into a cloud to test whether the S/R holds
+3. **Break-and-retest** — if price passes through a cloud, it tends to continue to the **next cloud** and then **retest the one it just broke**
+4. **Volume confirms** — cloud reactions gain conviction when accompanied by above-average volume
 
-**For CBS:** This means if a CBS target sits behind a cloud, the cloud is an obstacle. If the target aligns with a cloud boundary, that's a confluence zone — higher probability. The cloud stacking tells us whether the CBS trade direction aligns with the broader trend.
+### As an Indicator for Other Strategies
+
+- If a trade target from another strategy (PAC, MRD, API) sits **behind** a cloud, the cloud is an **obstacle** — the target is less likely to be reached without a cloud break first
+- If a target **aligns with** a cloud boundary, that's a **confluence zone** — higher probability
+- Cloud stacking tells you whether your trade direction aligns with the broader trend — trading against the cloud stack requires extra conviction
 
 ---
 
 ## Important Crossings
 
-Crossings between clouds/price signal trade setups:
+Cloud-to-cloud and price-to-cloud crossings signal trade setups of increasing significance:
 
-1. **Price through Red (12)** — often happens at double tops/bottoms; the crossing point becomes the new extreme.
-2. **Red (12) through Orange (48)** — entry signal. Fast momentum shift.
-3. **Orange (48) through Blue (288)** — stronger entry signal. Medium-term trend shift.
-4. **Blue (288) through Green (1440)** — trend rotation confirmed. Major direction change.
+| Crossing | Significance | How to Use |
+|----------|-------------|------------|
+| **Price through Red (12)** | Minor — often at double tops/bottoms | The crossing point becomes the new local extreme |
+| **Red (12) through Orange (48)** | Entry signal | Fast momentum shift — look for entries in the cross direction |
+| **Orange (48) through Blue (288)** | Strong entry signal | Medium-term trend shift — higher-conviction entries |
+| **Blue (288) through Green (1440)** | Trend rotation confirmed | Major direction change — repositioning signal |
 
-On crossings 2 and 3: after the cross, price often retests the cloud (~10–15 pip reaction). This is playable on its own but also valuable as a CBS entry timing signal.
+### Post-Crossing Behavior
+
+After crossings 2 (Red/Orange) and 3 (Orange/Blue):
+- Price often **retests** the cloud it just broke — expect a ~10-15 pip reaction at the retest
+- This retest is tradeable on its own (as a standalone MMD play) and serves as an entry timing signal for other strategies
+
+---
+
+## Entry Method: "Na Maćka" (The Maćko Entry)
+
+The signature MMD entry setup:
+
+### Setup
+1. The **Red (12) cloud crosses through the Orange (48) cloud**
+2. After the cross, price pulls back and **retests the Orange cloud**
+3. The retest of the Orange cloud is the **entry point**
+4. Direction is determined by the cross: Red crossing **above** Orange → long, Red crossing **below** Orange → short
+
+### Confirmation with Accumulation / Distribution
+
+The "Na Maćka" entry can be combined with Wyckoff-style accumulation and distribution patterns for additional confirmation:
+
+**Accumulation (before a long entry):**
+
+| Phase | Price Action |
+|-------|-------------|
+| PS (Preliminary Support) | Price drops to a lower level — first significant buying appears |
+| SC (Selling Climax) | Panic selling exhausts — approximate bottom of range |
+| AR (Automatic Rally) | Sharp bounce off the low — sets upper boundary of range |
+| ST (Secondary Test) | Price revisits the SC area on lower volume — testing if selling is done |
+| Spring (Shakeout) | Brief dip **below** the range to trap sellers and trigger stops — the key manipulation event |
+| SOS (Sign of Strength) | Strong rally on expanding volume — demand has taken control |
+| LPS (Last Point of Support) | Pullback after SOS on declining volume — higher low vs. the Spring |
+| BU (Back-Up) | Final pullback to the top of the range (now support) — markup begins |
+
+> **Best entry:** At the **Spring** (tightest stop, best R:R) or at the **LPS** after the SOS (more confirmation, slightly worse R:R).
+
+**Distribution (before a short entry):**
+
+| Phase | Price Action |
+|-------|-------------|
+| PSY (Preliminary Supply) | First notable selling after an uptrend |
+| BC (Buying Climax) | Climactic buying on heavy volume — sets upper boundary |
+| AR (Automatic Reaction) | Selloff after BC — sets lower boundary |
+| SOW (Sign of Weakness) | Drop to or below the AR low on increasing volume |
+| LPSY (Last Point of Supply) | Weak rally on low volume — lower high within the range |
+| UTAD (Upthrust After Distribution) | False breakout above the range to trap buyers — mirror of the Spring |
+
+> **Best entry:** At the **UTAD** (tightest stop above the false breakout) or at the **LPSY** after the SOW.
+
+In both cases, **volume divergence** is the key confirmation: climactic volume at extremes followed by declining volume on tests.
 
 ---
 
 ## Diamonds
 
-Special candle patterns that create key price levels.
+Diamonds are specific **candle patterns** (not the classical chart pattern) that create horizontal price levels. They reveal where large players tested strength and were rejected.
 
 ### Types
 
-**Common Diamond:** A candle in the opposite direction to its neighbors — at least 2 candles the same direction on each side, with the diamond candle going against them. Usually has wicks in both directions (indecision + rejection).
+**Common Diamond:**
+- At least 2 candles of the same color on each side
+- The center candle is in the **opposite direction** to its neighbors
+- Usually has wicks in both directions (indecision + rejection)
+- Pattern: e.g., 2 Red → 1 Green → 2 Red (bearish diamond) or 2 Green → 1 Red → 2 Green (bullish diamond)
 
-**Reverse Diamond:** Not a single candle but a pair of opposite candles in the center, wrapped by the same conditions as a common diamond. Take the open and close from the "central" candle pair.
+**Reverse Diamond:**
+- Not a single center candle but a **pair of opposite candles** in the center
+- Wrapped by the same neighbor conditions as a Common Diamond
+- Take the Open and Close from the "central" candle pair to define the zone
 
-**Cross Diamond (Doji):** After a move, a Doji candle appears. If price then moves away from the Doji and retests it, the subsequent move will be deeper. Volume confirmation adds strength.
+**Cross Diamond (Doji):**
+- After a directional move, a **Doji candle** appears
+- If price moves away from the Doji and later **retests** it, the subsequent move will be deeper than the initial one
+- Volume confirmation strengthens the signal
 
-**Gap Diamond (Zbyszek's Diamond):** Large gap between candle bodies. Has its own 50% level. If that 50% is visually prominent (clean level), it's a strong retest target. On H1 or H4.
+**Gap Diamond (Zbyszek's Diamond):**
+- A large gap between candle bodies (measured body-to-body, not wick-to-wick)
+- Has its own **50% level** between the bodies
+- If the 50% level is visually clean and prominent, it becomes a strong retest target
+- Best on H1 or H4
 
 ### Diamond Zone
 
-Defined by the Open and Close of the diamond candle, with the **50% midpoint** being the most important level — price frequently retests it.
+The zone is defined by the **Open and Close** of the diamond candle(s).
 
-If price breaks through a diamond zone, previous resistance becomes support (and vice versa). Diamonds from higher timeframes can be traded on lower timeframes.
+- The **50% midpoint** of the zone is the most important level — price frequently retests it
+- If price breaks through a diamond zone, previous resistance becomes support (and vice versa)
+- Diamonds from **higher timeframes** can be traded on lower timeframes (e.g., H4 diamond levels traded on M5)
 
-**For CBS:** Diamond zones are S/R levels. A CBS target landing on a diamond zone (especially the 50% level) has additional confluence. Diamonds from H4 are particularly relevant since CBS already uses H4 for trend/swings.
+### Diamond Detection Logic
+
+Detection must focus on the **relationship with neighboring candles** (2+ candles on each side in the opposite direction), not on wick/body ratio thresholds of the diamond candle itself. The context pattern defines the diamond — not the candle internals.
 
 ---
 
 ## Ribbons
 
-Ribbons are the Blue (288) cloud displaced vertically — like Envelopes. The formula: `SMA/EMA ± SMA/EMA × multiplier`, where the multiplier is derived from the cloud periods (e.g., 0.144 from the 144 helper period).
+Ribbons are the **Blue (288) cloud displaced vertically**, creating a price channel similar to Envelopes.
 
-The exact multiplier needs to be calibrated per instrument. The result is a channel: price tends to bounce between the main Blue cloud and the upper/lower ribbon.
+### Formula
 
-In consolidation, "halves" of the top and bottom ribbons can also act as bounce levels, giving you a tighter inner channel.
+```
+Upper ribbon = SMA(288) + SMA(288) × multiplier
+Lower ribbon = SMA(288) - SMA(288) × multiplier
+```
 
-**For CBS:** Ribbons define a price channel. If a CBS target sits at or near a ribbon boundary, that's a confluence zone. The channel width also indicates volatility — narrow ribbons = low volatility = smaller targets more likely to settle.
+The same calculation applies to the EMA side:
+```
+Upper ribbon = EMA(288) + EMA(288) × multiplier
+Lower ribbon = EMA(288) - EMA(288) × multiplier
+```
+
+The multiplier is derived from the cloud period values (e.g., 144 → 0.144, 720 → 0.720). The exact multiplier **must be calibrated per instrument** — what works for EURUSD may not work for XAUUSD.
+
+> Only use the ribbon calculation on the **timeframe it was computed for** — do not apply H1 ribbon values to M5 charts.
+
+### How to Use
+
+- Price tends to **bounce between the Blue cloud and the upper/lower ribbon boundary** — this creates a tradeable channel
+- In **consolidating markets**, the "halves" of the top and bottom ribbons (midpoints between Blue cloud and ribbon edge) also act as bounce levels — a tighter inner channel
+- **Narrow ribbons** = low volatility = smaller moves, ranging environment
+- **Wide ribbons** = high volatility = larger moves, trending environment
+
+### As an Indicator
+
+- A trade target from another strategy landing at or near a ribbon boundary is a **confluence zone**
+- Ribbon width indicates regime: narrow = consolidation (favors mean-reversion strategies like API Box), wide = trend (favors directional strategies like PAC)
 
 ---
 
-## Schemas (Trading Patterns)
+## Schemas (Trading Setups)
 
-These are specific patterns/setups from MMD, not full strategies. They're played on specific timeframes and times of day.
+Specific time-of-day and candle-based setups. These are **discrete plays, not full strategies** — they can be traded standalone or used as entry timing signals within other strategies.
 
 ### Wick Schema
-Played **during** candle formation (H1, H4, or custom intervals). At candle open, if price moves away from open, pyramid limit orders in the opposite direction (4, 8, 12, then 20, 40 pips). Target is the open level — statistically, price retests it. Confirm with clouds (trend direction) and volume. If the trend favors your position, hold longer.
 
-### C/O Schema
-Played **after** a candle closes (H1). Trade toward the open level of the just-closed candle.
+**When:** During candle formation (H1, H4, or non-standard intervals like M16)
+
+**How:**
+1. Note the **open price** of the current forming candle
+2. If price moves **away** from the open, pyramid limit orders in the **opposite direction**:
+   - First orders: 4, 8, 12 pips from open
+   - If it goes deeper: 20, 40 pips from open
+3. **Target:** The open price — statistically, price retests the open level (may take the current candle or the next few)
+4. Observe candle formation, nearby cloud levels as S/R, and volume
+
+**Trend consideration:**
+- Always check the cloud stacking for trend direction
+- If the trend favors your position (you're fading into the trend direction), **hold longer** — don't close at the open level
+- If the trend is against your position, **close at the open level** or sooner
+
+### C/O Schema (Close/Open)
+
+**When:** After a candle closes (H1)
+
+**How:** Trade toward the **open level** of the just-closed candle. The premise is the same as the Wick Schema — price tends to retest the open — but the entry happens after the candle is complete, not during formation.
 
 ### 228 Schema
-M1 timeframe. At specific times (USDJPY 20:59 GMT+1, GBPUSD 19:59 GMT+1), play against the direction of the last candle. Pyramid sell limits 4, 8, 12 pips above close. Works because the market consolidates during these hours. No Doji candles. Confirm with clouds and volume.
 
-### Evening Setups
-- **"-3k"** (20:00–21:00 GMT+1): USDJPY, GBPUSD — Wick Schema only
-- **"-3"** (21:00–22:00 GMT+1): USDJPY, GBPUSD — C/O Schema only
-- **228**: as above
+**When:** M1 timeframe at specific times
+
+| Instrument | Time (GMT+1) | TP |
+|------------|-------------|-----|
+| USDJPY | 20:59 | 4 pips below close |
+| GBPUSD | 19:59 | 8 pips below close |
+
+**How:**
+1. Take the last M1 candle at the specified time
+2. Trade **against** the direction of that candle
+3. Pyramid sell limits: 4, 8, 12 pips above the close
+4. The setup works because the market **consolidates** during these hours
+
+**Filters:**
+- Confirm with clouds and volume — determine how many orders to open
+- **No Doji candles** — skip if the trigger candle is a Doji
+- If the market has tested a cloud and is moving toward the 228 schema candle, the TP at 4 pips below close (USDJPY) is well-supported
+
+### Evening Setups (GMT+1)
+
+| Setup | Time | Instruments | Schema |
+|-------|------|-------------|--------|
+| **"-3k"** | 20:00 - 21:00 | USDJPY, GBPUSD | Wick Schema only |
+| **"-3"** | 21:00 - 22:00 | USDJPY, GBPUSD | C/O Schema only |
+| **228** | As above | USDJPY, GBPUSD | 228 Schema |
 
 ### Morning Setups
-- **"6k"**: Wick Schema
-- **"6"**: C/O Schema
 
-**For CBS:** The schemas themselves are separate from CBS, but two things are directly useful: the time-of-day patterns (evening and morning setups confirm that certain hours favor certain behaviors) feed into our entry timing model, and the Wick Schema's principle of "price retests open" is essentially what CBS targets predict — a reversion level.
+| Setup | Schema |
+|-------|--------|
+| **"6k"** | Wick Schema |
+| **"6"** | C/O Schema |
 
----
-
-## How MMD Supports CBS — Summary
-
-| MMD Component | CBS Use |
-|---------------|---------|
-| Cloud stacking (trend) | Confirm CBS trade direction aligns with macro trend |
-| Cloud S/R zones | Obstacles between price and CBS target |
-| Cloud + CBS target overlap | Confluence = higher probability target |
-| Red/Orange crossing | Entry timing signal for CBS trades |
-| Diamond zones | Additional S/R levels, confluence with CBS targets |
-| Diamond 50% level | High-probability retest level near CBS targets |
-| Ribbons | Channel boundaries as confluence / obstacle detection |
-| Time-of-day schemas | Entry timing features for the ML model |
-| Volume confirmation | All MMD signals strengthen with volume — same applies to CBS |
+> All schemas are **setups, not strategies**. They define specific entries at specific times. Context from clouds, volume, and other PAC/MRD/API tools determines whether the setup is worth taking.
 
 ---
 
-## Open Questions & Decisions
+## Using MMD as an Indicator for Other Strategies
 
-1. **Ribbon multipliers** — need to calibrate per instrument. TBD through testing.
-2. **Diamond detection** — pattern recognition is about the relationship with neighbor candles (2+ candles on each side in opposite direction), not a wick/body ratio threshold. Detection logic needs to focus on the context pattern, not candle internals.
-3. **Cloud periods on different TFs** — unknown whether to compute on H1 only or overlay H4/D1 cloud readings. Needs discovery/experimentation.
-4. **Delayed cloud (12 shifted 144)** — likely a lagging confirmation signal. To be validated.
-5. **Schema integration** — Wick, C/O, 228, evening/morning setups stay as **separate manual plays**. Not part of CBS engine. On the roadmap for future implementation as part of a bigger multi-strategy trading bot.
+| MMD Component | What It Provides | Use In Other Strategies |
+|---------------|-----------------|------------------------|
+| Cloud stacking (trend) | Macro trend direction | Confirm trade direction aligns with trend (PAC, MRD) |
+| Cloud S/R zones | Dynamic support/resistance | Identify obstacles between price and target |
+| Cloud + target overlap | Confluence | Higher probability when target aligns with cloud boundary |
+| Red/Orange crossing | Momentum shift timing | Entry timing signal |
+| Post-crossing retest | ~10-15 pip reaction | Standalone quick play or entry timing |
+| Diamond zones | Horizontal S/R levels | Confluence with Fibonacci clusters, battle zones |
+| Diamond 50% level | High-probability retest level | Target validation |
+| Ribbons (width) | Volatility regime | Regime filter — consolidation vs. trend |
+| Ribbon boundaries | Channel S/R | Confluence with targets, obstacle detection |
+| Time-of-day schemas | Session behavior patterns | Entry timing features |
+| Volume confirmation | Signal strength | All MMD signals strengthen with volume |
 
 ---
 
-*Last updated: 2026-03-19*
-*Maintained by: Claude (corrected by Niko)*
+## Open Questions
+
+1. **Ribbon multipliers** — need calibration per instrument through testing (e.g., 0.144 works for EURUSD, but XAUUSD may need a different value)
+2. **Cloud periods on different TFs** — should clouds be computed on H1 only, or should H4/D1 cloud readings be overlaid? Needs experimentation
+3. **Delayed cloud (12 shifted 144 bars)** — expected to serve as a lagging confirmation signal ("2nd wave"). Needs validation through backtesting
+4. **Schema integration** — Wick, C/O, 228, evening/morning setups are currently **manual plays**. Future roadmap: automate as part of a multi-strategy trading bot
+5. **Diamond detection edge cases** — Reverse Diamonds and Gap Diamonds need precise detection rules. Inner Diamonds (within cloud zones) may be more reliable than Swing Diamonds (at swing points) — needs statistical validation
