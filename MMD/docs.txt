@@ -1,0 +1,149 @@
+WHY IT WORKS?
+1. Couse it covers with important fibo levels
+2. Diamonds are also a "strength tests" from big players,
+\
+https://mql.pl/handlowe/Magiczne_Srednie_MMD.php
+
+USUALLY ON H1 but also works for scalping on M1 or M5 on contracts
+    1. so either you work only with trend on H1 and open trades on M1, M5 or you just be aware of the trades on the countrary to the trend and do not leave the trades opened for the longer period of time
+
+MMD Knowledge pyramid (inverted)
+Magic clouds of average MMD
+intersection of clouds
+Diamonds
+MMD ribbons
+Statitics
+
+Cloud - it is a space between SMA and EMA of the same value
+    1. We use the to 
+        1. determine trend
+        2. define "corrections"
+        3. find direction in trend
+        4. entering, going through and exiting the trade
+        5. "saving" the trade
+    2. Clouds are the areas of support and resistance
+    3. Before changing the direction price with "test" the clouds
+    4. If price goes through the cloud then it will go to the next and will try to "retest" the previous one
+    5. Reaction of price on the clouds can be confirmed using other tools/metodologies/indicators (works very well with volume)
+
+    6. CLOUD LEVELS
+        1. MAIN - 48 (orange), 288 (blue), 1440 (green)
+        2. ADDITIONAL - 12 (red), 3456 (purple)
+        3. HELPERS - 144 (lightblue), 720 (lightgreen)
+        4. DELEYED(2nd wave) - 12 moved back 144 bars
+        *All those clouds work similar on all intervals
+
+    GREEN - this cloud shows trend
+    BLUE - faster than green also shows trend
+    ORANGE - faster than blue, before crossing the BLUE, ORANGE is showing consolidation. After crossing we are in correction
+
+    All collors below are showed how we see the clouds on the chart.
+
+    BULLISH TREND
+    ORANGE
+    BLUE
+    GREEN
+
+    BEARISH TREND
+    GREEN
+    BLUE
+    ORANGE
+
+    CORRECTION IN BULLISH TREND
+    BLUE
+    ORANGE
+    GREEN
+
+    CORRECTION IN BEARISH TREND
+    GREEN
+    ORANGE
+    BLUE
+
+    DIRECTION FOR HIGHS
+    ORANGE
+    BLUE
+
+    DIRECTION FOR LOWS
+    BLUE
+    ORANGE
+
+ENTERING THE TRADE #1 "NA MAĆKA" ()
+    - RED (12) cross the ORANGE (48)
+    - Then RED retest ORANGE
+    - we open trade
+
+    CLASSIC ACCUMULATION
+        - price drops to "lower level"
+        - price "stops"
+        - price jumps up "higher level"
+        - return to the zone and it's defending
+        - a clear breakout from the zone
+        - return to the zone
+        - retest 50%
+        - exit from the zone according to the jump
+
+    VICE VERSA FOR DISTRIBUTION
+
+    We can also utilize accumulatoin and distribution schemas made by WYCKOFF
+
+IMPORTANT CROSSINGS
+
+    1. Price goes through RED usually when there's double top/bottom then the point of crossing will be the higher top/lower bottom
+    2. RED goes through ORANGE - used for making an order
+    3. ORANGE goes through BLUE - used for making an order
+    4. BLUE goes through GREEN - confirmation of trend rotation
+
+    in 2. and 3. we can play on reaction. If price goes through the cloud then we can assume it will come back to retest the cloud (it works on all intervals around 10-15 pips on reaction)
+
+DIAMONDS
+Diamond is a candle but not an ordinary candle. 
+
+    1. KINDS
+        1. COMMON - It has at least 2 candles above and at least 2 candles below next to it. The DIAMOND candle is in the oposite direction than the remaining 4.Usually with wicks in both directions
+        2. REVERSE - it is not a single candle. it can be a pair of candles in oposite direction wrapped with similar conditions like COMMON DIAMOND (e.g. 2 bull candles, 1 bigger bear, 1 bull with wicks in boths directions, 1 very similar bear candle to the previous one, 2 bull candles - in that case we take the open and close values from "CENTRAL" candle )
+        3. CROSS (candle of balance, Doji candle) - after some movement and we observe DOJI candle and the price goes down and retests it then the movement down will be deeper. and vice versa (with Volume support it will be more valuable as any diamond)
+        4. GAP (ZBYSZEK's DIAMOND) - really big difference between candles. It has it's own 50%. If the 50% level is VERY visible for the market it will work better. If the price retests the 50% precisely we can open a trade. (we always we mearsure from the body of the candles) on H1 or H4
+    2. ZONE - OPEN and CLOSE of the DIAMOND and very important level of 50% of the distance. This level is frequently tested by the price
+    3. If the price goes through DIAMOND ZONE resistance become support (we can utilize diamonds from higher intervals and play on them in lower)
+
+RIBBONS
+Ribbon is a BLUE cloud moved up or down on the chart like in ENVELOPES indicator like (e.g. SMA50 + SMA50 *0.144 and SMA50 - SMA50*0.144. We basically take values from CLOUDS values like 144 but for divide for 0.144 etc. We need to figure which works best for each instrument). Potential support and resistance lines. We utilize calculation SMA/EMA calulation only on the interval it was calculated.
+There's a high statistically probalbe case when the price will bounce between the main BLUE clouds and higher or lower ribbon.
+In addition if we see that the market is consolidating the we could utilize "halves" of the first top and bottom ribbon and also trade on "bouncing"
+So those ribbons make us a channel
+
+STATISTICALLY PROFITABLE SCHEMAS ( but by default it's on H1 the 6th candle of the day GMT+1)
+
+    WICK SCHEMA (H1, H4 or other "weird" intervals (e.g. M16))
+        - WE PLAY IT DURING CREATION OF THE CANDLE
+        - we take the open level
+        - if the price from open went UP then we go pyramid SELL LIMIT with 4,8,12 if it goes deeper then 20 and 40 pips observe how the candle forms, see if there's cloud nearby as resistance etc. and volume and close on the OPEN as statistically it will test it (maybe in next candle or even further)
+        - and vice versa for oposite direction
+        
+        *- we need to take into consideration what's the trend of the market (CLOUDS from notes)
+        *- if the clouds shows the trend going in the direction that we have trades opened we do not need to close them immediately we can get a bit more
+
+    C/O SCHEMA -(H1) after candle is closed we play towards open level.
+        - WE PLAY IT AFTER THE CANDLE WAS CREATED
+
+    228 SCHEMA (USDJPY 20:59 GMT+1 TP 4 pips below close, GBPUSD 19:59 GMT+1 TP 8 pips below close)
+        - last 1 mininute candle 
+        - We play on M1
+        - we play against the direction of last candle
+        - we open SELL LIMIT 4, 8, 12 pips above CLOSE
+        - The key of this schema is that durin this time the market starts consolidating
+        - as always regarding how much orders we open we confirm with clouds and Volume
+        - it cannot be Doji candle
+
+    EVENING SETUPS
+        "-3k" - from 20:00 - 21:00 on USDJPY and USDGBP we play only WICK SCHEMA 
+        "-3" - from 21:00 - 22:00 on USDJPY and USDGBP we play only C/OF
+        228 schema
+
+    MORNING SCHEMAS
+        "6k" wick schema
+        "6" C/O schema
+        
+    ALL OF ABOVE ARE SCHEMAS NOT STARTEGIES 
+    for example we see that market tested the cloud and it's going towards the 228 schema candle then we can fairly assume that the TP will be like 4 pips below close in USDJPY.
+    and so on.
