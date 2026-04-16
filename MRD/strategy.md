@@ -52,9 +52,9 @@ Markets tend to establish a range early in the week (Monday-Tuesday) as liquidit
 
 ### Step 2 — Wednesday Trendline
 
-- On **Wednesday**, draw a trendline on H1 using the developing price structure:
-  - For a potential **bullish** setup: draw a descending trendline connecting Wednesday's swing highs (price is pulling back or drifting down)
-  - For a potential **bearish** setup: draw an ascending trendline connecting Wednesday's swing lows (price is pushing up or drifting higher)
+- On **Wednesday**, draw a trendline from swings mon-wed on H1 using the developing price structure:
+  - For a potential **bullish** setup: draw a descending trendline connecting Wednesday's swing lows (price is pulling back or drifting down)
+  - For a potential **bearish** setup: draw an ascending trendline connecting Wednesday's swing highs (price is pushing up or drifting higher)
 
 ### Step 3 — Entry Conditions
 

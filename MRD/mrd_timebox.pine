@@ -1,0 +1,179 @@
+//@version=6
+// @description
+// Midweek Range Division (MRD) — Mon-Tue Timebox
+//
+// Draws the Monday-Tuesday price range that forms the core reference box for the
+// MRD strategy. Markets accumulate liquidity on both sides during Mon-Tue; by
+// Wednesday institutional flow commits to a direction, either breaking out of
+// the box or sweeping its extremes before reversing.
+//
+// What this indicator draws:
+//   • Combined Mon-Tue box  — the highest high / lowest low of Mon+Tue, with
+//     dashed H/L extension lines that run through the rest of the week.
+//   • Midpoint line         — dotted centre of the box, useful as a first TP
+//     reference when entering from outside the box.
+//   • Mon sub-box           — Monday's individual range (light blue, dashed).
+//   • Tue sub-box           — Tuesday's individual range (purple, dashed).
+//   • Session midlines      — mid of each day's range, drawn when the next day
+//     begins.
+//
+// Trade logic (manual — requires trendline judgement on Wednesday):
+//   Bullish: price breaks below box low, then breaks a descending Wed trendline →
+//            entry long, SL at lowest swing low since Monday.
+//   Bearish: price breaks above box high, then breaks an ascending Wed trendline →
+//            entry short, SL at highest swing high since Monday.
+//   Inside-box on Wednesday → no trade.
+//
+// Settings:
+//   UTC offset   — set to your local offset (Poland: 2 in summer / CEST,
+//                  1 in winter / CET). Pine's dayofweek() uses this to align
+//                  day boundaries correctly regardless of broker server time.
+//   Box history  — number of past weeks to render (default 8).
+//
+// Timeframe: H1 (strategy is defined on the 1-hour chart).
+// Instruments: EURUSD, US500, US100.
+indicator("MRD Timebox", shorttitle="MRD Box", overlay=true,
+          max_lines_count=500, max_boxes_count=500, max_labels_count=500)
+
+// ─── Inputs ───────────────────────────────────────────────────────────────────
+utc_offset    = input.int(2,    "UTC offset (hours)", minval=-12, maxval=14, group="Settings",
+     tooltip="Polish time: 2 = CEST (summer, Mar–Oct), 1 = CET (winter, Oct–Mar).")
+box_lookback  = input.int(8,    "Box history (weeks)", group="Display", minval=1, maxval=52)
+show_sessions = input.bool(true, "Show Mon / Tue session ranges", group="Display")
+show_midpoint = input.bool(true, "Show box midpoint",             group="Display")
+
+// ─── Colors ───────────────────────────────────────────────────────────────────
+c_box_fill   = color.new(color.blue, 88)
+c_box_border = color.new(color.blue, 50)
+c_mon_fill   = color.new(#0288d1,    90)
+c_mon_border = color.new(#0288d1,    40)
+c_tue_fill   = color.new(#7b1fa2,    90)
+c_tue_border = color.new(#7b1fa2,    40)
+c_mid        = color.new(color.white, 60)
+
+// ─── Timezone-adjusted day helpers ───────────────────────────────────────────
+// Pass offset to dayofweek directly so Pine handles the UTC→local boundary
+// correctly (manual ms arithmetic mis-classifies 23:00 UTC as Sunday).
+tz_str   = utc_offset == 0 ? "UTC" : utc_offset > 0 ? "UTC+" + str.tostring(utc_offset) : "UTC" + str.tostring(utc_offset)
+dow      = dayofweek(time,    tz_str)
+dow_prev = dayofweek(time[1], tz_str)
+
+is_mon = dow == dayofweek.monday
+is_tue = dow == dayofweek.tuesday
+is_wed = dow == dayofweek.wednesday
+
+// Box spans Monday and Tuesday only; accept Sunday as prev-day so the 23:00 UTC
+// candle (= Mon 00:00 Polish with UTC+1) correctly fires is_week_start.
+is_box_day    = is_mon or is_tue
+is_week_start = is_mon and (dow_prev == dayofweek.friday or dow_prev == dayofweek.saturday or dow_prev == dayofweek.sunday)
+wed_start     = is_wed and dow_prev != dayofweek.wednesday
+is_mon_start  = is_mon and dow_prev != dayofweek.monday
+is_tue_start  = is_tue and dow_prev != dayofweek.tuesday
+
+// ─── Mon-Tue Combined Box ─────────────────────────────────────────────────────
+var box   cur_box       = na
+var float box_high      = na
+var float box_low       = na
+var line  ext_high_line = na
+var line  ext_low_line  = na
+var line  mid_line      = na
+
+box_window = box_lookback * 168   // H1 bars per week
+
+if is_week_start
+    if not na(ext_high_line)
+        line.set_extend(ext_high_line, extend.none)
+        ext_high_line := na
+    if not na(ext_low_line)
+        line.set_extend(ext_low_line, extend.none)
+        ext_low_line := na
+    box_high := high
+    box_low  := low
+    cur_box  := bar_index >= last_bar_index - box_window ?
+         box.new(bar_index, high, bar_index + 1, low,
+                 bgcolor=c_box_fill, border_color=c_box_border, border_width=1) : na
+
+if is_box_day
+    box_high := math.max(box_high, high)
+    box_low  := math.min(box_low,  low)
+    if not na(cur_box)
+        box.set_top(cur_box,    box_high)
+        box.set_bottom(cur_box, box_low)
+        box.set_right(cur_box,  bar_index)
+
+if wed_start
+    if not na(cur_box)
+        box.set_right(cur_box, bar_index - 1)
+    if not na(ext_high_line)
+        line.delete(ext_high_line)
+    if not na(ext_low_line)
+        line.delete(ext_low_line)
+    if not na(mid_line)
+        line.delete(mid_line)
+    if bar_index >= last_bar_index - box_window
+        ext_high_line := line.new(bar_index - 1, box_high, bar_index, box_high,
+                                  color=c_box_border, style=line.style_dashed, width=1,
+                                  extend=extend.right)
+        ext_low_line  := line.new(bar_index - 1, box_low,  bar_index, box_low,
+                                  color=c_box_border, style=line.style_dashed, width=1,
+                                  extend=extend.right)
+        if show_midpoint
+            mid_line := line.new(bar_index - 1, (box_high + box_low) / 2.0,
+                                 bar_index,      (box_high + box_low) / 2.0,
+                                 color=c_mid, style=line.style_dotted, width=1,
+                                 extend=extend.right)
+
+// ─── Mon / Tue Session Boxes ──────────────────────────────────────────────────
+var box   s_mon_box = na
+var float s_mon_h   = na
+var float s_mon_l   = na
+var box   s_tue_box = na
+var float s_tue_h   = na
+var float s_tue_l   = na
+
+if show_sessions
+    if is_mon_start
+        s_mon_h   := high
+        s_mon_l   := low
+        s_mon_box := bar_index >= last_bar_index - box_window ?
+             box.new(bar_index, high, bar_index + 1, low,
+                     bgcolor=c_mon_fill, border_color=c_mon_border,
+                     border_style=line.style_dashed, border_width=1,
+                     text=" Mon", text_color=c_mon_border,
+                     text_size=size.tiny, text_halign=text.align_left,
+                     text_valign=text.align_top) : na
+
+    if is_mon and not na(s_mon_box)
+        s_mon_h := math.max(s_mon_h, high)
+        s_mon_l := math.min(s_mon_l, low)
+        box.set_top(s_mon_box,    s_mon_h)
+        box.set_bottom(s_mon_box, s_mon_l)
+        box.set_right(s_mon_box,  bar_index)
+
+    if is_tue_start
+        if not na(s_mon_box)
+            line.new(box.get_left(s_mon_box), (s_mon_h + s_mon_l) / 2.0,
+                     box.get_right(s_mon_box), (s_mon_h + s_mon_l) / 2.0,
+                     color=c_mon_border, style=line.style_dashed, width=1)
+        s_tue_h   := high
+        s_tue_l   := low
+        s_tue_box := bar_index >= last_bar_index - box_window ?
+             box.new(bar_index, high, bar_index + 1, low,
+                     bgcolor=c_tue_fill, border_color=c_tue_border,
+                     border_style=line.style_dashed, border_width=1,
+                     text=" Tue", text_color=c_tue_border,
+                     text_size=size.tiny, text_halign=text.align_left,
+                     text_valign=text.align_top) : na
+
+    if is_tue and not na(s_tue_box)
+        s_tue_h := math.max(s_tue_h, high)
+        s_tue_l := math.min(s_tue_l, low)
+        box.set_top(s_tue_box,    s_tue_h)
+        box.set_bottom(s_tue_box, s_tue_l)
+        box.set_right(s_tue_box,  bar_index)
+
+    if wed_start and not na(s_tue_box)
+        line.new(box.get_left(s_tue_box), (s_tue_h + s_tue_l) / 2.0,
+                 box.get_right(s_tue_box), (s_tue_h + s_tue_l) / 2.0,
+                 color=c_tue_border, style=line.style_dashed, width=1)
+
