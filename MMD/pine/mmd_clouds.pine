@@ -1,0 +1,142 @@
+
+//@version=6
+indicator("MMD System — Magic Moving Averages", shorttitle="MMD", overlay=true, max_lines_count=300)
+
+// ─── Inputs: Display ─────────────────────────────────────────────────────────
+lookback = input.int(1000, "Max bars back", group="Display", minval=100, maxval=5000,
+     tooltip="Only render clouds and diamonds for the last N bars. Keeps the indicator fast on long histories.")
+
+// ─── Inputs: Timeframe ────────────────────────────────────────────────────────
+calc_tf = input.timeframe("", "Calculation Timeframe (blank = chart)", group="Timeframe",
+     tooltip="Set to 60 for H1, 240 for H4, D for daily — view higher-TF cloud structure on a lower-TF chart.")
+_tf = calc_tf == "" ? timeframe.period : calc_tf
+
+// ─── Inputs: Cloud Periods ────────────────────────────────────────────────────
+p12   = input.int(12,   "Period 1 — Red (H1)",          group="Cloud Periods")
+p48   = input.int(48,   "Period 2 — Orange (H4)",        group="Cloud Periods")
+p144  = input.int(144,  "Period 3 — Light Blue (H12)",   group="Cloud Periods")
+p288  = input.int(288,  "Period 4 — Blue (D1)",          group="Cloud Periods")
+p720  = input.int(720,  "Period 5 — Light Green (D2.5)", group="Cloud Periods")
+p1440 = input.int(1440, "Period 6 — Green (W1)",         group="Cloud Periods")
+p3456 = input.int(3456, "Period 7 — Purple (~MN)",       group="Cloud Periods")
+
+// ─── Inputs: Visibility ───────────────────────────────────────────────────────
+show_12      = input.bool(true,  "Red (12)",          group="Visibility")
+show_48      = input.bool(true,  "Orange (48)",        group="Visibility")
+show_144     = input.bool(true,  "Light Blue (144)",   group="Visibility")
+show_288     = input.bool(true,  "Blue (288)",         group="Visibility")
+show_720     = input.bool(true,  "Light Green (720)",  group="Visibility")
+show_1440    = input.bool(true,  "Green (1440)",       group="Visibility")
+show_3456    = input.bool(true,  "Purple (3456)",      group="Visibility")
+show_delayed = input.bool(true,  "Delayed (12 × 144)", group="Visibility")
+show_ribbons = input.bool(true,  "Ribbons",            group="Visibility")
+
+// ─── Inputs: Ribbons ──────────────────────────────────────────────────────────
+ribbon_mode = input.string("ATR-based", "Ribbon Mode", group="Ribbons", options=["Fixed %", "ATR-based"],
+     tooltip="Fixed %: width = SMA288 × multiplier (constant fraction of price).\nATR-based: width = ATR(288) × multiplier (auto-scales with volatility — recommended).")
+ribbon_mult = input.float(0.00144, "Fixed % Multiplier", group="Ribbons", step=0.00001,
+     tooltip="Used in Fixed % mode only. Typical: 0.00144 for EURUSD.")
+ribbon_atr  = input.float(2.0,    "ATR Multiplier",      group="Ribbons", step=0.1,
+     tooltip="Used in ATR-based mode. Width = ATR(288) × this value. Increase for wider ribbons, decrease for tighter.")
+
+// ─── Inputs: Diamonds ────────────────────────────────────────────────────────
+show_diamonds = input.bool(true, "Show Diamonds",               group="Diamonds")
+dia_n         = input.int(2,     "Min candles each side (2–4)", group="Diamonds", minval=2, maxval=4)
+dia_extend    = input.int(100,   "Zone extend (bars right)",    group="Diamonds", minval=10, maxval=500)
+
+// ─── Lookback gate ────────────────────────────────────────────────────────────
+is_recent = bar_index >= last_bar_index - lookback
+
+// ─── Moving Averages ─────────────────────────────────────────────────────────
+[sma12,   ema12]   = request.security(syminfo.tickerid, _tf, [ta.sma(close, p12),   ta.ema(close, p12)],   lookahead=barmerge.lookahead_off)
+[sma48,   ema48]   = request.security(syminfo.tickerid, _tf, [ta.sma(close, p48),   ta.ema(close, p48)],   lookahead=barmerge.lookahead_off)
+[sma144,  ema144]  = request.security(syminfo.tickerid, _tf, [ta.sma(close, p144),  ta.ema(close, p144)],  lookahead=barmerge.lookahead_off)
+[sma288,  ema288]  = request.security(syminfo.tickerid, _tf, [ta.sma(close, p288),  ta.ema(close, p288)],  lookahead=barmerge.lookahead_off)
+[sma720,  ema720]  = request.security(syminfo.tickerid, _tf, [ta.sma(close, p720),  ta.ema(close, p720)],  lookahead=barmerge.lookahead_off)
+[sma1440, ema1440] = request.security(syminfo.tickerid, _tf, [ta.sma(close, p1440), ta.ema(close, p1440)], lookahead=barmerge.lookahead_off)
+[sma3456, ema3456] = request.security(syminfo.tickerid, _tf, [ta.sma(close, p3456), ta.ema(close, p3456)], lookahead=barmerge.lookahead_off)
+
+sma12_d = sma12[144]
+ema12_d = ema12[144]
+
+// ─── Ribbon Width ─────────────────────────────────────────────────────────────
+atr288 = ta.atr(p288)
+ribbon_width = ribbon_mode == "ATR-based" ? atr288 * ribbon_atr : sma288 * ribbon_mult
+
+// ─── Cloud Colors ─────────────────────────────────────────────────────────────
+col_red    = color.new(color.red,    80)
+col_orange = color.new(color.orange, 80)
+col_lblue  = color.new(#00bcd4,      80)
+col_blue   = color.new(color.blue,   80)
+col_lgreen = color.new(#66bb6a,      80)
+col_green  = color.new(color.green,  80)
+col_purple = color.new(color.purple, 80)
+col_delay  = color.new(color.gray,   85)
+
+// ─── Plots: Main Clouds (gated to lookback window) ────────────────────────────
+p_s12   = plot(show_12   and is_recent ? sma12   : na, "SMA 12",   color.new(color.red,    0), 1)
+p_e12   = plot(show_12   and is_recent ? ema12   : na, "EMA 12",   color.new(color.red,    0), 1)
+p_s48   = plot(show_48   and is_recent ? sma48   : na, "SMA 48",   color.new(color.orange, 0), 1)
+p_e48   = plot(show_48   and is_recent ? ema48   : na, "EMA 48",   color.new(color.orange, 0), 1)
+p_s144  = plot(show_144  and is_recent ? sma144  : na, "SMA 144",  color.new(#00bcd4,      0), 1)
+p_e144  = plot(show_144  and is_recent ? ema144  : na, "EMA 144",  color.new(#00bcd4,      0), 1)
+p_s288  = plot(show_288  and is_recent ? sma288  : na, "SMA 288",  color.new(color.blue,   0), 1)
+p_e288  = plot(show_288  and is_recent ? ema288  : na, "EMA 288",  color.new(color.blue,   0), 1)
+p_s720  = plot(show_720  and is_recent ? sma720  : na, "SMA 720",  color.new(#66bb6a,      0), 1)
+p_e720  = plot(show_720  and is_recent ? ema720  : na, "EMA 720",  color.new(#66bb6a,      0), 1)
+p_s1440 = plot(show_1440 and is_recent ? sma1440 : na, "SMA 1440", color.new(color.green,  0), 2)
+p_e1440 = plot(show_1440 and is_recent ? ema1440 : na, "EMA 1440", color.new(color.green,  0), 2)
+p_s3456 = plot(show_3456 and is_recent ? sma3456 : na, "SMA 3456", color.new(color.purple, 0), 2)
+p_e3456 = plot(show_3456 and is_recent ? ema3456 : na, "EMA 3456", color.new(color.purple, 0), 2)
+
+p_sd = plot(show_delayed and is_recent ? sma12_d : na, "SMA 12 Delayed", color.new(color.gray, 30), 1, display=display.pane)
+p_ed = plot(show_delayed and is_recent ? ema12_d : na, "EMA 12 Delayed", color.new(color.gray, 30), 1, display=display.pane)
+r_us = plot(show_ribbons and is_recent ? sma288 + ribbon_width : na, "Ribbon Upper SMA", color.new(color.blue, 60), 1, display=display.pane)
+r_ue = plot(show_ribbons and is_recent ? ema288 + ribbon_width : na, "Ribbon Upper EMA", color.new(color.blue, 60), 1, display=display.pane)
+r_ls = plot(show_ribbons and is_recent ? sma288 - ribbon_width : na, "Ribbon Lower SMA", color.new(color.blue, 60), 1, display=display.pane)
+r_le = plot(show_ribbons and is_recent ? ema288 - ribbon_width : na, "Ribbon Lower EMA", color.new(color.blue, 60), 1, display=display.pane)
+
+fill(p_s12,   p_e12,   col_red,    title="Cloud 12")
+fill(p_s48,   p_e48,   col_orange, title="Cloud 48")
+fill(p_s144,  p_e144,  col_lblue,  title="Cloud 144")
+fill(p_s288,  p_e288,  col_blue,   title="Cloud 288")
+fill(p_s720,  p_e720,  col_lgreen, title="Cloud 720")
+fill(p_s1440, p_e1440, col_green,  title="Cloud 1440")
+fill(p_s3456, p_e3456, col_purple, title="Cloud 3456")
+fill(p_sd,    p_ed,    col_delay,  title="Cloud Delayed")
+fill(r_us,    r_ue,    color.new(color.blue, 88), title="Ribbon Upper Fill")
+fill(r_ls,    r_le,    color.new(color.blue, 88), title="Ribbon Lower Fill")
+
+// ─── Diamond Detection ────────────────────────────────────────────────────────
+bool _bb = true
+bool _pb = true
+bool _ba = true
+bool _pa = true
+for j = 1 to dia_n
+    _bb := _bb and close[dia_n + j] > open[dia_n + j]
+    _pb := _pb and close[dia_n + j] < open[dia_n + j]
+    _ba := _ba and close[j - 1]     > open[j - 1]
+    _pa := _pa and close[j - 1]     < open[j - 1]
+
+bool bull_dia = show_diamonds and is_recent and close[dia_n] < open[dia_n] and _bb and _ba
+bool bear_dia = show_diamonds and is_recent and close[dia_n] > open[dia_n] and _pb and _pa
+
+plotshape(bull_dia and dia_n == 2, "Bull Diamond", shape.diamond, location.belowbar, color.new(color.green, 0), offset=-2, size=size.tiny, display=display.pane)
+plotshape(bull_dia and dia_n == 3, "Bull Diamond", shape.diamond, location.belowbar, color.new(color.green, 0), offset=-3, size=size.tiny, display=display.pane)
+plotshape(bull_dia and dia_n == 4, "Bull Diamond", shape.diamond, location.belowbar, color.new(color.green, 0), offset=-4, size=size.tiny, display=display.pane)
+plotshape(bear_dia and dia_n == 2, "Bear Diamond", shape.diamond, location.abovebar, color.new(color.red,   0), offset=-2, size=size.tiny, display=display.pane)
+plotshape(bear_dia and dia_n == 3, "Bear Diamond", shape.diamond, location.abovebar, color.new(color.red,   0), offset=-3, size=size.tiny, display=display.pane)
+plotshape(bear_dia and dia_n == 4, "Bear Diamond", shape.diamond, location.abovebar, color.new(color.red,   0), offset=-4, size=size.tiny, display=display.pane)
+
+if bull_dia or bear_dia
+    bool  is_bull = bull_dia
+    float d_top   = math.max(open[dia_n], close[dia_n])
+    float d_bot   = math.min(open[dia_n], close[dia_n])
+    float d_mid   = (open[dia_n] + close[dia_n]) / 2.0
+    int   cb      = bar_index - dia_n
+    int   right_b = bar_index + dia_extend
+    color c_zone  = is_bull ? color.new(color.green, 70) : color.new(color.red, 70)
+    color c_mid   = is_bull ? color.new(color.green, 20) : color.new(color.red, 20)
+    line.new(cb, d_top, right_b, d_top, color=c_zone, width=1, style=line.style_dotted)
+    line.new(cb, d_bot, right_b, d_bot, color=c_zone, width=1, style=line.style_dotted)
+    line.new(cb, d_mid, right_b, d_mid, color=c_mid,  width=1, style=line.style_dashed)
