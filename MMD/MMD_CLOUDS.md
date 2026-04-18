@@ -236,6 +236,18 @@ The zone is defined by the **Open and Close** of the diamond candle(s).
 
 Detection must focus on the **relationship with neighboring candles** (2+ candles on each side in the opposite direction), not on wick/body ratio thresholds of the diamond candle itself. The context pattern defines the diamond — not the candle internals.
 
+### Current Implementation Status (Pine)
+
+The reference Pine implementation (`pine/mmd_clouds.pine`) currently detects **Common Diamonds only**, with `N` candles of the same direction before and after an opposite-direction centre (`N` configurable 2–4). The wick requirement is **not enforced** in code — any body-direction pattern matching the neighbour rule fires a diamond, regardless of wick shape.
+
+Not yet implemented (tracked for future work):
+
+- **Reverse Diamond** — two-candle opposite centre
+- **Cross Diamond** — Doji centre with subsequent retest
+- **Gap Diamond** — body-to-body gap with its own 50% level
+
+The Python port should match Pine's Common-Diamond detection first, then add the other three variants as separate detectors.
+
 ---
 
 ## Ribbons
@@ -244,18 +256,24 @@ Ribbons are the **Blue (288) cloud displaced vertically**, creating a price chan
 
 ### Formula
 
+A single `ribbon_width` is computed once and added to / subtracted from both the SMA(288) and EMA(288) baselines:
+
 ```
-Upper ribbon = SMA(288) + SMA(288) × multiplier
-Lower ribbon = SMA(288) - SMA(288) × multiplier
+ribbon_width = SMA(288) × multiplier        # Fixed %
+ribbon_width = ATR(288) × multiplier        # ATR-based
+
+Upper SMA boundary = SMA(288) + ribbon_width
+Lower SMA boundary = SMA(288) - ribbon_width
+Upper EMA boundary = EMA(288) + ribbon_width
+Lower EMA boundary = EMA(288) - ribbon_width
 ```
 
-The same calculation applies to the EMA side:
-```
-Upper ribbon = EMA(288) + EMA(288) × multiplier
-Lower ribbon = EMA(288) - EMA(288) × multiplier
-```
+Two modes are supported:
 
-The multiplier is derived from the cloud period values (e.g., 144 → 0.144, 720 → 0.720). The exact multiplier **must be calibrated per instrument** — what works for EURUSD may not work for XAUUSD.
+- **Fixed %** — width is a constant fraction of price (`SMA(288) × mult`). Multiplier scales with pip-level price moves; typical default is **`0.00144`** for EURUSD (≈17 pips at 1.17 spot). The value `0.00144` comes from the cloud period 144 reinterpreted as a pip-scale fraction, not a percentage (earlier docs stating "144 → 0.144" were off by 100× and would yield absurd widths on FX).
+- **ATR-based** (recommended) — width is `ATR(288) × ATR_multiplier`. Auto-scales with realised volatility, so the same multiplier carries across instruments. Typical default is `2.0`.
+
+The multiplier **must be calibrated per instrument** — what works for EURUSD may not work for XAUUSD. ATR mode reduces but does not eliminate this need.
 
 > Only use the ribbon calculation on the **timeframe it was computed for** — do not apply H1 ribbon values to M5 charts.
 
