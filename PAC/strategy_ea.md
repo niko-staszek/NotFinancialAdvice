@@ -226,3 +226,133 @@ The PAC trading community uses Polish local time as the standard reference for s
 Activity-share percentages are drawn from `chatdump_analysis/PHASE_0_REPORT.md` setup distribution highlights: London and America together account for approximately 95% of all catalog setups; Asia-session entries are rare.
 
 **DST handling:** In 2026, the CET→CEST transition occurs on Sunday 29 March at 02:00 CET (clocks move forward to 03:00). The CEST→CET transition occurs on Sunday 25 October at 03:00 CEST (clocks move back to 02:00). Rather than hard-coding these dates, the EA derives the correct UTC offset from the current date using the last-Sunday-of-March and last-Sunday-of-October rule: during the period from the last Sunday of March through (but not including) the last Sunday of October, the offset is UTC+2 (summer/CEST); outside that period, the offset is UTC+1 (winter/CET). The EA obtains current UTC time via `TimeGMT()` and adds 1 or 2 hours as derived from the rule above to produce Polish local time. Hard-coded transition dates (e.g., `if year == 2026 && month == 3 && day == 29`) are explicitly prohibited — the rule-based computation ensures correctness across years without requiring annual config updates. EA input: `TimezoneOverride` (optional string, default `auto`). When set to a numeric value (e.g., `"2"` for UTC+2), the EA bypasses the DST computation and uses the specified fixed offset. This is intended for testing and backtesting scenarios only — it must not be left active in live deployment.
+
+---
+
+## 3. Direction Filter
+
+The direction filter is the first gate in the PAC entry pipeline. Before any signal candle (§4), entry logic (§5), or stop/target calculation (§7) is evaluated, the EA must establish a directional bias — bull or bear — on the current bar. If no clear bias can be established, the EA outputs `neutral` and all downstream gates are bypassed without evaluation for that bar.
+
+The direction filter is composed of four independent sub-components (§3.1–§3.4), each of which produces a typed output. §3.5 defines the composite rule that combines those four outputs into a single `direction: bull|bear|neutral` signal passed to §4.
+
+---
+
+### 3.1 EMA 21 / SMA 61 sentiment
+
+**Rule:** Sentiment is classified by comparing the current M5 bar's close price against two moving averages — an EMA(21) and an SMA(61) — both computed on M5 close prices. Sentiment is `bull` when the close is strictly above both moving averages; `bear` when the close is strictly below both; `transitional` (no entry signal) when the close is between the two averages regardless of which average is higher. A "dynamic cross" event is flagged separately when price moves impulsively from one side of both averages to the other within `dynamic_cross_max_bars` bars — this is not itself a direction signal, but it marks a tradeable retest opportunity that the §4 signal-candle logic can use to trigger a retrace entry. The EMA(21) and SMA(61) represent fast and medium-term momentum respectively; their combined reading filters out the highest-noise portion of M5 price action while remaining sufficiently responsive to intraday trend changes.
+
+**Inputs:** `bars[]` (M5 OHLC, minimum 62 bars of history required for SMA initialisation); `iMA(symbol, PERIOD_M5, 21, 0, MODE_EMA, PRICE_CLOSE)` handle (EMA21); `iMA(symbol, PERIOD_M5, 61, 0, MODE_SMA, PRICE_CLOSE)` handle (SMA61). Sentiment check uses bar 0 close (current forming bar). Dynamic-cross check requires the close values at bars 0, 1, and 2.
+
+**Output:** `sentiment: bull|bear|transitional`; `dynamic_cross: bool` (true when price crossed both MAs impulsively within `dynamic_cross_max_bars` completed bars, crossing from below-both to above-both or vice versa).
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| ema_period | 21 | strategy.md "Moving Averages" |
+| sma_period | 61 | strategy.md "Moving Averages" |
+| dynamic_cross_max_bars | 2 | review.md "Moving Averages" — cross must be impulsive and fluid, not a sideways meander; 2-bar window enforces decisiveness |
+
+**Mentor data anchor:** 35 mentor / 287 student (10.9% share). `component_frequency.md` row 10. EMA 21 / SMA 61 is the top-2 most-cited component in the entire corpus by mentor reference frequency, confirming it is a core rather than peripheral PAC element.
+
+**Automation feasibility:** Trivial. Both `iMA` handles are standard MQL5 indicator handles with no external dependencies. Dynamic-cross detection requires maintaining a small 3-bar close history (bars 0, 1, 2) and checking that close[1] or close[2] was on the opposite side of both MAs from close[0] — a handful of comparison operations per tick with no looping. No external data feed or indicator attachment required.
+
+**Drop trigger:** Drop the sentiment filter if Phase 4 backtest shows that trades taken without the sentiment filter (`transitional` bars included) produce equal or higher aggregate edge than trades restricted to `bull`/`bear` bars. The `transitional` state is deliberately conservative and may be rejecting borderline-profitable setups near the MAs; if the backtest shows an excessive false-rejection rate on `transitional` bars, revisit the `transitional` → `neutral` mapping in §3.5 before dropping the component entirely.
+
+---
+
+### 3.2 MMD cloud confluence
+
+**Rule:** The MMD (Magic Moving Averages) cloud system produces three primary cloud bands — Orange (period 48), Blue (period 288), and Green (period 1440) — which on an M5 chart correspond to H4, D1, and W1 trend respectively. Each cloud band is a price level: when price is above the cloud, that timeframe is bullish; below is bearish. Cloud "stacking" is the alignment of all three bands in the same directional relationship to price. When all three cloud values are below the current close (clouds stacked below price), higher-timeframe trend is bullish and MMD alignment is `confirmed` relative to a bull §3.1 sentiment. When two of three are aligned with §3.1 sentiment and one disagrees, MMD alignment is `weakened` — trades are still permitted in non-strict mode but logged as reduced-conviction. When all three cloud values disagree with §3.1 sentiment (fully opposite stacking), MMD alignment is `vetoed` and no trade fires regardless of EA mode. This three-level output distinguishes the MMD filter from a binary on/off gate and allows the EA to carry graded-conviction information downstream through §3.5.
+
+**Inputs:** MMD indicator handle loaded via `iCustom` (see `NFA/MMD/MMD_CLOUDS.md` for indicator parameter specification); Orange cloud value at bar 0 (period-48 band); Blue cloud value at bar 0 (period-288 band); Green cloud value at bar 0 (period-1440 band). Current M5 close price for direction comparison.
+
+**Output:** `mmd_alignment: confirmed|weakened|vetoed`.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| mmd_main_cloud_periods | [48, 288, 1440] | MMD_CLOUDS.md "Cloud Table" — Orange, Blue, Green bands |
+| mmd_veto_threshold | all 3 clouds opposite to §3.1 sentiment | MMD_CLOUDS.md "Trend Reading" — full counter-stack is the veto condition |
+| mmd_weakened_threshold | 1 of 3 clouds aligned with sentiment, 2 opposed | implicit from above (complement of confirmed and vetoed states) |
+
+**Mentor data anchor:** 0 mentor / 16 student. `component_frequency.md` row 28. The zero mentor reference count reflects two distinct factors: (a) mentor under-detection per §0.2 caveat — the corpus captures only 8 mentor trade-call rows of 167 total, so mentor-reference frequency for specialist indicators is structurally suppressed; and (b) MMD is documented as a separate sibling analytical framework in `NFA/MMD/MMD_CLOUDS.md` rather than referenced inline by mentors during PAC-specific trade calls. The MMD filter is included here as a PAC-essential override because `strategy.md`'s "Trend or Range Day Classification" section explicitly cites MMD for trend-or-range classification — its inclusion is strategy-doc-mandated, not frequency-inferred.
+
+**Automation feasibility:** Requires the MMD indicator to be attached to the chart or loaded as a background `iCustom` handle. Source implementations exist in `NFA/MMD/mt4/` (MQL4) and `NFA/MMD/pine/` (Pine Script); the PAC EA reads the three cloud values per bar from the indicator output buffer — no cloud recomputation is performed by the EA itself. Phase 2 work item: if the existing MQL4 source has not yet been ported to MQL5, either port it directly or establish an MQL4→MQL5 inter-platform bridge. The three cloud values are buffer reads — computationally trivial once the handle is initialised. Flag: if the MMD indicator cannot be loaded at EA initialisation (e.g., indicator file not present on the broker's data directory), the EA must fall back to `mmd_alignment = weakened` rather than blocking all trades — log the fallback prominently.
+
+**Drop trigger:** Drop the MMD confluence filter if Phase 4 backtest shows that the `vetoed` state eliminates more high-edge setups (positive-expectancy trades that were blocked) than low-edge ones (trades that would have lost had they been taken). The `weakened` state is non-binding in the default rule (§3.5 allows it in strict mode), so the principal risk is the `vetoed` state being overly aggressive. Evaluate by comparing the equity curve of the `vetoed` trades in isolation — if they are net-positive, the veto is destroying edge.
+
+---
+
+### 3.3 D1 OHLC promo zone
+
+**Rule:** The previous calendar day's D1 bar OHLC defines two "promotional zones" — directional bias areas derived from the relationship between the day's open, close, high, and low. For a bearish D1 day (close < open): the upper wick zone (from the session open down to the candle body top, i.e., between `Open` and `High`) is the sellers' promotional zone — price was pushed up into that region and rejected, making it a structurally favoured area for short setups. The lower wick zone (between `Low` and the candle body bottom, i.e., between `Low` and `Close`) is the buyers' promotional zone — buyers defended that area, making it structurally favoured for long setups. The body itself (between `Open` and `Close` on a bearish D1) is a "neutral" zone: no clear directional bias, as the body represents the range over which neither side achieved a decisive push. For a bullish D1 day (close > open), the zones mirror: sellers' promo is the upper wick (`High` to `Close`); buyers' promo is the lower wick (`Open` to `Low`); body is neutral. The first time price visits a promo zone within the current trading day carries the highest reaction probability; subsequent visits to the same zone within the same day are progressively weaker and are tracked separately via the `first_touch` variant outputs. The intent is to align M5 entries with the directional "promotion" implied by the prior day's market structure.
+
+**Inputs:** Previous D1 bar values via `iHigh(symbol, PERIOD_D1, 1)`, `iLow(symbol, PERIOD_D1, 1)`, `iOpen(symbol, PERIOD_D1, 1)`, `iClose(symbol, PERIOD_D1, 1)`. Current M5 bar close for zone classification. Per-symbol state struct tracking which promo zones have been touched within the current calendar day (reset at the start of each trading day, not at each session boundary).
+
+**Output:** `d1_zone: bull_promo|bear_promo|neutral|first_touch_bull_promo|first_touch_bear_promo`. The `first_touch_*` variants are emitted only on the first M5 bar that closes inside the respective promo zone after the daily reset; subsequent touches emit the non-prefixed variant.
+
+**Quantitative thresholds:** None numeric. Zone classification is a purely binary determination from D1 OHLC geometry — a price is either inside the wick band or inside the body or outside both (which maps to `neutral` on the current day before price has reached either promo zone). No pip buffer, no ATR scaling.
+
+**Mentor data anchor:** 1 mentor / 19 student. `component_frequency.md` row 22. The low mentor count reflects the §0.2 under-detection caveat. D1 OHLC analysis is a `strategy.md` "OHLC Analysis (D1)" staple — it is categorised in the curriculum as a foundational daily-bias tool, not an optional overlay — making frequency under-representation an artefact of the parse rather than evidence of low importance.
+
+**Automation feasibility:** Trivial. Fetching previous D1 OHLC requires four MQL5 history calls, each returning a single value. The zone classification is four floating-point comparisons. "First touch" tracking requires a small per-symbol state struct with two boolean flags (`bull_promo_touched_today`, `bear_promo_touched_today`) and a date field for the reset check. Total state footprint per symbol: ~24 bytes. No external data, no multi-timeframe indicator, no iCustom dependency.
+
+**Drop trigger:** Drop the D1 promo filter if Phase 4 backtest shows that D1 zone alignment contributes zero incremental edge — i.e., the win rate of trades taken inside a D1 promo zone is statistically indistinguishable from the win rate of trades taken in the D1 body or neutral zone, after controlling for §3.1 sentiment and §3.4 session-box position. If the `first_touch_*` variants show edge but the non-prefixed variants do not, demote non-first-touch entries to a lower-priority subtype rather than dropping the component entirely.
+
+---
+
+### 3.4 Session box position
+
+**Rule:** Each active trading session has a "session box" defined by the highest high and lowest low printed during that session's time window (§2.3). For the London session the box accumulates from 08:00 PLT until the current M5 bar; for the Asia session the box accumulates from 23:00 PLT on the prior calendar day through 07:59 PLT. Price above the session box at the time of a trade signal indicates upper-side bias — participants from subsequent sessions are inheriting an up-close — and favours long setups. Price below the session box indicates lower-side bias and favours short setups. Price inside the box is a "wait" state: the range is still being established, or price is digesting within established limits, and the directional implication is unclear. Clean breakout beyond the box edge — defined as the current M5 close printing strictly outside the box with no part of the body inside — is preferred over a wick-only poke. If the box range (high minus low) is below the narrow-box threshold (0.5 × ATR(20)), the session is classified as a range or consolidation session and the entire session-box filter returns `inside` regardless of where price sits relative to the box, because a very narrow box does not provide meaningful positional information. The Asia box is computed for contextual reference during London and America sessions — it is not used as the primary filter because Asia trading is deferred to v2 (§2.3). The London box is the primary session-box filter during both the London and America session windows.
+
+**Inputs:** Real-time tick-by-tick high/low tracking within the session window, maintained as a per-symbol, per-session state struct. For box-edge comparison: current M5 bar close (bar 0). For ATR filter: `iATR(symbol, PERIOD_M5, 20, PRICE_CLOSE)` handle; ATR value at bar 1 (most recent completed bar). Session boundary timestamps in UTC derived from PLT session windows via the DST logic in §2.3.
+
+**Output:** `session_box_position: above|inside|below`; `box_range_pips` (numeric, exposed for diagnostic logging and for the narrow-box filter computation).
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| min_box_range_atr_multiple | 0.5 | review.md "Session Boxes" — skip sessions with a narrow consolidation box; 0.5 × ATR(20) is the minimum meaningful range |
+| breakout_threshold_pips | 0 | strategy.md implicit — price above or below the box edge with no buffer; a strict close outside the box is required but no additional pip buffer |
+
+**Mentor data anchor:** 7 mentor / 68 student (9.3% share). `component_frequency.md` row 16. The 7 mentor references represent one of the higher mentor-citation counts among the direction-filter components, consistent with session boxes being a prominent structural concept in the PAC curriculum ("Session Objective & Session Boxes" is one of the strategy.md primary sections).
+
+**Automation feasibility:** Straightforward. The session box state struct tracks two floats (session high, session low) and a datetime for the session-start reset. Updated on every M5 bar open by comparing the new bar's high/low against the stored session high/low. The narrow-box filter adds a single ATR comparison: `if (session_high - session_low) < (0.5 × ATR_value) then return inside`. No external data or iCustom dependency. DST-correct session boundaries are inherited from the §2.3 time-conversion module — no additional time logic required in this component.
+
+**Drop trigger:** Drop the session-box filter if Phase 4 backtest reveals either of two failure modes: (a) narrow-box sessions dominate the loss population — the filter is removing too many otherwise-valid setups by blocking all trades in a narrow session; or (b) breakout-after-narrow-box setups dominate the win population — the filter is wrongly classifying the most profitable setup type as `inside`. In failure mode (a), raise `min_box_range_atr_multiple` to reduce the narrow-box trigger rate. In failure mode (b), add a specific `narrow_box_breakout` sub-state rather than dropping the filter wholesale.
+
+---
+
+### 3.5 Composite direction rule
+
+Sections §3.1 through §3.4 each produce an independent typed output. The EA combines these four outputs into a single `direction: bull|bear|neutral` signal using the rule below. A configurable strictness input governs how many sub-filters must agree before a directional signal is issued; the rule is written for the default strict mode (`direction_strict = true`) and the relaxation behaviour for loose mode is described separately.
+
+**Composite rule (strict mode, `direction_strict = true`):**
+
+```
+direction = "bull"   iff ALL of:
+    sentiment(§3.1)                == bull
+    AND mmd_alignment(§3.2)        in {confirmed, weakened}      // vetoed blocks entirely
+    AND d1_zone(§3.3)              in {bull_promo, first_touch_bull_promo, neutral}
+    AND session_box_position(§3.4) != inside                     // above or below, not ranging
+
+direction = "bear"   iff ALL of:
+    sentiment(§3.1)                == bear
+    AND mmd_alignment(§3.2)        in {confirmed, weakened}      // vetoed blocks entirely
+    AND d1_zone(§3.3)              in {bear_promo, first_touch_bear_promo, neutral}
+    AND session_box_position(§3.4) != inside
+
+direction = "neutral"   otherwise
+    → no entry trigger fires; §4 signal-candle evaluation is bypassed for this bar
+```
+
+**EA input parameter — `direction_strict: bool` (default `true`):** When `true`, all four sub-filters must pass per the rule above. When `false`, only §3.1 sentiment is required to determine direction; §3.2 MMD alignment, §3.3 D1 zone, and §3.4 session-box position become advisory — they are evaluated and logged as graded-conviction metadata but do not gate the direction output. Loose mode is intended for backtesting diagnostic runs to isolate the incremental contribution of each filter layer; it should not be used in live trading without a completed Phase 4 backtest comparison.
+
+**EA input parameter — `mmd_strict: bool` (default `false`):** Sub-input within the §3.2 MMD gate. When `true`, only `mmd_alignment = confirmed` passes the §3.2 gate; the `weakened` state is treated identically to `vetoed` and blocks the direction signal. When `false` (default), both `confirmed` and `weakened` pass, consistent with the composite rule above. This input is orthogonal to `direction_strict` — it tightens the MMD sub-gate independently of the other three components and remains active even when `direction_strict = false` (in which case it affects only the logged conviction level, not the gate outcome).
+
+**Note on `weakened` in strict mode:** When `mmd_alignment = weakened` and the direction signal passes all other gates, the EA logs the resulting trade entry as a "reduced-conviction" event. Downstream reporting (§8 operational configuration, TBD) should surface these entries distinctly so the operator can evaluate whether the `weakened` cohort is contributing positive expectancy.
+
+**Note on `neutral` D1 zone:** The D1 "maybe" zone (price inside the previous day's body) is not a directional veto. Trades can fire in either direction when `d1_zone = neutral`, subject to all other gates passing. This is intentional: the D1 body represents an area where neither buyers nor sellers achieved a promotional push — it is structurally agnostic, not structurally opposed. The composite rule reflects this by including `neutral` in both the bull and bear filter lists. When `d1_zone = neutral`, the §3.4 session-box position carries proportionally more weight in the overall conviction assessment, because the D1 layer is providing no bias signal of its own.
