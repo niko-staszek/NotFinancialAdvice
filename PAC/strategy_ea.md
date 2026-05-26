@@ -810,4 +810,57 @@ This becomes the `bool ShouldOpen()` function in the MQL5 EA (Phase 2).
 
 **Order of evaluation:** Steps 1–5 must short-circuit on first failure — do not compute downstream conditions if an upstream condition fails. This is a performance optimization since §4–§5 are the heavier compute. Step 6 evaluates only if steps 1–5 all pass.
 
+---
+
+## Appendix A — Dropped Components
+
+These PAC components appear in `strategy.md` but are NOT in the v1 EA. Drop reasons fall into three categories: (1) unautomatable on M5 — Elliott, Trendlines, Hidden Channel, Gap Candle; (2) deferred to v2 pending v1 backtest results — Battle Zone, Double Top/Bottom, Spike & Flag, Range Trap, Range Fail, Reversal Line; (3) infrastructure deferral — Tick chart. Revisit each in a Phase 4 follow-up after the v1 EA produces backtest data.
+
+| Component | Mentor refs | Drop category | Drop reason | Documented in |
+|---|---|---|---|---|
+| Elliott Wave | 13 | Unautomatable | Unreliable on M5 per academic Elliott literature; PAC's removal of falsification rules (waves don't have to respect classical 1-2-3 invalidations) leaves no algorithmic way to know when a wave count is wrong. Implementing it would mean accepting any count the algorithm produces. | `literature_comparison.md §5` |
+| Trendlines | 1 | Unautomatable | Drawing is inherently discretionary; two skilled human traders draw different trendlines on the same chart. No reliable algorithmic definition exists. v2 could revisit using slope-fitting heuristics but the curriculum's "draw what feels right" approach defies codification. | `review.md "Trendlines"` |
+| Hidden Channel | 1 | Unautomatable | "Wait for both sides to be tested" is unquantified; "look for a signal candle in the correct context" effectively restates the whole strategy. The pattern is recognizable in hindsight but not specifiable in advance with the precision an EA needs. | `review.md "Hidden Channel"` |
+| Gap Candle | 0 | Unautomatable | No invalidation rule. Gap candle reference lines would accumulate without pruning logic; once 50+ are stacked, none has clear primacy. Curriculum doesn't address when an old gap candle becomes irrelevant. | `review.md "Gap Candle"` |
+| Battle Zone | 2 | Deferred v2 | Well-structured concept (untested/verified/turncoat classification) with concrete state transitions but lower priority than the 10 included components. v2 candidate after v1 backtest results show whether trade outcomes correlate with battle zone proximity. | `strategy.md "Battle Zones"` |
+| Double Top/Bottom | 2 | Deferred v2 | Clearly defined as a continuation signal but only 2 mentor references suggests it's used sparingly. Pattern is straightforward to detect (two pivot lows/highs within tolerance) — worth implementing in v2 once core components are validated. | `strategy.md "Double Top & Bottom"` |
+| Spike & Flag | 1 | Deferred v2 | `review.md` likes the pattern (clean entry signal on flag-resolution break) but only 1 mentor reference. Spike & Channel (§6.3) is included as a sibling pattern; if Spike & Channel performs well, expand to Spike & Flag in v2. | `strategy.md "Spike & Flag"` |
+| Range Trap | 2 | Deferred v2 | Student-asked vocabulary in chat ("Range 2 try trap"); not a mentor-taught pattern despite the 2 mentor refs. May be a misclassification by the keyword analyzer — Phase 0 noted under-detection concerns. Revisit in v2 with explicit chat-context disambiguation. | `strategy.md "Range Trap"` |
+| Range Fail | 0 | Deferred v2 | Mentor=0 confirms student-only vocabulary. Same context as Range Trap — student question vocabulary rather than core PAC pattern. Defer to v2. | `strategy.md "Range Fail"` |
+| Reversal Line | 1 | Deferred v2 | S/R from swing reactions is reasonable but the "what counts as a reaction" definition is fuzzy without backtest data to tune it. v2 candidate once §5/§6 are validated and a tuning baseline exists. | `review.md "Reversal Lines"` |
+| Tick chart requirement | n/a | Infrastructure | Broker-dependent data quality on retail CFD makes tick charts unreliable as a primary chart type. M5 is universally available and Phase 4 Strategy Tester runs deterministically on it. Revisit if v1 backtest results plateau and tick-chart precision becomes the suspected bottleneck. | `literature_comparison.md §14` |
+
+Each row above is a candidate for Phase 4 follow-up work. v2 of strategy_ea.md will revisit the Deferred-v2 components first based on which v1 components performed best; the Unautomatable components require methodology breakthroughs and remain v2+ candidates.
+
+---
+
+## Appendix B — Component → strategy.md Mapping
+
+Traceability table mapping each section of this EA spec back to the source curriculum section(s) in `strategy.md`. A future reader can navigate either direction: from a curriculum concept to its implementation in this spec, or from a spec section back to the curriculum origin.
+
+| `strategy_ea.md` section | `strategy.md` section(s) |
+|---|---|
+| §3.1 EMA 21 / SMA 61 Sentiment | "Moving Averages" |
+| §3.2 MMD Cloud Confluence | "MMD Integration" + `NFA/MMD/MMD_CLOUDS.md` (whole doc) |
+| §3.3 D1 OHLC Promo Zone | "OHLC Analysis (D1)" |
+| §3.4 Session Box Position | "Session Objective & Session Boxes" |
+| §3.5 Composite Direction Rule | Synthesis of §3.1–§3.4 sources; no direct strategy.md section |
+| §4.1 Signal Candle Definition | "Signal Candle" |
+| §4.2 EMA-Side Hard Rule | "Signal Candle" (EMA 21 directional filter subsection) |
+| §4.3 Confluence Requirement | "Trade Execution Checklist" item 3 (Context) |
+| §5.1 Measured Move (AB=CD with EMA-Cross Anchor) | "Measured Move (AB=CD)" + "3-Leg Rules" |
+| §5.2 Fibonacci Levels & Clusters | "Fibonacci Levels" + "Clusters" |
+| §5.3 Extended Measured Move (138.2% / 161.8%) | "Extended Measured Move" + "Double Up & Down" |
+| §5.4 Settle Buffer | "Trade Execution Checklist" item 10 (Settlement) |
+| §6.1 Trap Setup (Two-Try False Break) | "Trap Setup (To-Try Trap)" |
+| §6.2 Fail Setup (Deep Correction Failed-Second-Attempt) | "Fail Setup" |
+| §6.3 Spike & Channel (Continuation Pattern) | "Spike & Channel" |
+| §7.1 SL Placement | "SL/TP Framework" |
+| §7.2 Order Type | "SL/TP Framework" + universal MT5 practice |
+| §7.3 Optional Partials | Not in strategy.md — standard FX trading practice |
+| §7.4 Optional Trailing Stop | Not in strategy.md — standard FX trading practice |
+| §7.5 Trade Execution Checklist | "Trade Execution Checklist" (adapted with quantitative gates from §1–§6) |
+
+Sections in this spec without a corresponding `strategy.md` row (§1 Risk Management, §2 Universe & Sessions) are intentional additions per the design spec — §1 fills the risk-rules gap that `review.md` flagged, and §2 codifies what is implicit in `strategy.md`'s session and instrument discussions.
+
 **Rejection logging:** Each failed gate emits a structured log entry: `{ts, symbol, direction, failed_gate: enum, gate_detail: str}` with severity `info` (not warning), since rejection is the EA's normal disciplined behavior, not an error.
