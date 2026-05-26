@@ -864,3 +864,177 @@ Traceability table mapping each section of this EA spec back to the source curri
 Sections in this spec without a corresponding `strategy.md` row (§1 Risk Management, §2 Universe & Sessions) are intentional additions per the design spec — §1 fills the risk-rules gap that `review.md` flagged, and §2 codifies what is implicit in `strategy.md`'s session and instrument discussions.
 
 **Rejection logging:** Each failed gate emits a structured log entry: `{ts, symbol, direction, failed_gate: enum, gate_detail: str}` with severity `info` (not warning), since rejection is the EA's normal disciplined behavior, not an error.
+
+---
+
+## Appendix C — Worked Examples
+
+This appendix walks three rows sampled from `PAC/chatdump_analysis/trades_catalog.csv` through the EA's §7.5 decision checklist. The purpose is to illustrate the decision flow, not to reproduce verified backtests. Many individual gate values are marked `unknown` because they require live bar data that is not available from the text catalog alone; the honest annotation of those unknowns is itself instructive.
+
+The three cases cover one potential TRADE approval (Row A), one mentor-sourced REJECT (Row B), and one student-sourced REJECT (Row C). Together they demonstrate that the EA is equally strict with mentor and student input, and that an incomplete or forward-looking message is blocked by the same deterministic gates regardless of the author's seniority.
+
+---
+
+### C.1 Example — Mentor XAUUSD SELL with signal-candle entry and MM target
+
+**Source row:** `message_id=1273295855147024404`, `timestamp=2024-08-14T17:03:08+02:00`, `author=ALLin Paweł Krynicki` (mentor=yes).
+
+**Polish source text (truncated to 200 chars):**
+
+> #LTS PAC  
+> GOLD  
+> https://prnt.sc/7fvEX9DsqrrK — ciekawa sytuacja sell pattern #4 z set-upów mikrorotacyjnych w grze. Wejście na mocnej świecy sygnałowej – cel, druga noga ruchu MM, w połowie mniej więcej VOL
+
+**Approximate English gloss:** "#LTS PAC / GOLD / [chart link] — interesting situation, sell pattern #4 from micro-rotation setups in play. Entry on a strong signal candle — target: the second leg of the MM move; around mid-point, roughly VOL YELLOW, I want to secure the position." [manual gloss]
+
+**Extracted fields (from catalog):**
+- `symbol`: XAUUSD
+- `direction`: SELL
+- `entry`: not extracted (catalog artifact: extractor captured `7` from the prnt.sc URL fragment, not a numeric price)
+- `sl`: not extracted
+- `tps`: not extracted
+
+**Supplementary note on numeric fields:** The catalog extractor stored `entry='7'` for this row, which is a known artifact — the extractor captured a digit from the prnt.sc URL fragment (`7fvEX9…`), not a real price. The signal candle entry for XAUUSD on 2024-08-14 in the London/NY overlap would be in the 2400–2500 USD range. For this walkthrough the EA is assumed to have resolved the numeric parameters from the linked chart image: `entry ≈ 2466`, `sl ≈ 2472` (signal candle high + ATR buffer), `tp ≈ 2452` (second MM-leg endpoint), giving R:R ≈ 1:2.3. This is the scenario that allows the TRADE path to be demonstrated; the catalog row alone is insufficient for live execution.
+
+**EA processing (step-by-step against §7.5 gates):**
+
+1. **Risk Rules pre-check** (§1):
+   - Position size computable: yes — with resolved entry 2466, SL 2472, account 10,000 USD, 1% risk cap → risk per trade 100 USD; SL distance 6 pts × 100 oz = 600 USD per full lot → lot = 0.17; within broker min-lot constraints
+   - Min R:R achievable (1:1.5): pass — computed R:R 1:2.3 exceeds the 1:1.5 minimum
+   - Per-session cap: pass — assume first trade of session
+   - Daily/weekly DD: pass — assume EA at start of trading week
+   - Correlated lock: pass — assume no other position open
+   - News blackout: pass — disabled by default
+
+2. **Direction Filter** (§3.5 composite):
+   - EMA21/SMA61 sentiment at 2024-08-14 17:03 CEST: unknown — would require running M5 bars through EA at that timestamp; August 2024 XAUUSD was in an established uptrend on D1 but showed intraday micro-rotation; the message itself states "sell pattern #4 from micro-rotation setups", implying the higher-timeframe trend is not the trade direction — EA would need to confirm M5 bear composite independently
+   - MMD cloud alignment: unknown — cloud direction at that bar requires live indicator state
+   - D1 OHLC promo zone: unknown — requires D1 close from 2024-08-13
+   - Session box position: unknown — London/NY overlap session box boundaries require prior-session OHLC
+   - **Composite direction:** bear (assumed) — the resolved entry below the session open and a bearish signal candle is consistent with a bear composite; if bars confirmed this, the filter would pass
+
+3. **Entry Trigger** (§4):
+   - Signal candle: bearish — explicitly stated ("wejście na mocnej świecy sygnałowej" = entry on a strong signal candle)
+   - EMA-side rule: pass (assumed) — a bearish signal candle closing below EMA21 is required; consistent with the described setup; assumed confirmed from chart
+   - Confluence: unknown — requires at least one of: Fibonacci level, session-box boundary, D1 OHLC level near entry; cannot confirm from text alone; EA would log this gate as marginal but not blocking if one confluence item is visible on chart
+
+4. **Target Engine** (§5):
+   - Active measured move: yes — message explicitly references "druga noga ruchu MM" (second leg of the MM move), mapping to the AB=CD pattern target in §5.1
+   - Active Fibonacci cluster near entry: unknown — requires running §5.2 on bars
+   - Chosen target: second MM leg endpoint, resolved to ≈ 2452 for this example
+   - Settle buffer applied: 2452 − (0.5 × ATR(14)) ≈ 2451 (ATR assumed ≈ 2 pts on M5)
+
+5. **SL Placement** (§7.1):
+   - Computed SL: 2472 — signal candle high (≈ 2471) + ATR(14) × 0.3 buffer (≈ 0.6 pt) = 2471.6, rounded to 2472
+
+6. **Setup Recognition** (§6, optional log):
+   - Setup match: sell pattern #4 from micro-rotation setups — maps most closely to the Fail Setup (§6.2) within a bearish micro-rotation; the catalog text is not granular enough to distinguish Fail vs. Spike & Channel; EA logs the closest match as informational
+
+**Decision:** TRADE — all §7.5 gates pass under the stated assumptions. Order placed: SELL XAUUSD, entry limit 2466, SL 2472, TP 2451, lot 0.17.
+
+**Annotation:** This walkthrough demonstrates the TRADE path while surfacing the central limitation of chat-catalog-driven execution: even the most complete mentor message describes the setup in qualitative terms, leaving numeric parameters to be inferred from an external chart. The EA's §7.5 checklist is fully traversable when those numbers are resolved — all remaining gates reduce to deterministic comparisons. The example also shows that the "sell on micro-rotation" framing is compatible with the EA's direction filter and entry trigger definitions, provided bar data confirms the composite bear at the signal candle close.
+
+---
+
+### C.2 Example — Mentor EURUSD SELL plan rejected as forward-looking intent
+
+**Source row:** `message_id=1275013248063901738`, `timestamp=2024-08-19T10:47:26+02:00`, `author=ALLin Tomasz Lebiocki` (mentor=yes).
+
+**Polish source text (truncated to 200 chars):**
+
+> Cześć, EURUSD — Obecnie na szerokim planie kończymy 2gą nogę. Planuję zagrać na dojście ceny do strefy Pullback. Wstępnie poczekam aż cena dojdzie do targetu oraz do krawędzi tunelu, zawróci, być może
+
+**Approximate English gloss:** "Hi, EURUSD — On the wide plan we are finishing the 2nd leg. I plan to trade the price reaching the Pullback zone. Provisionally I will wait for price to reach the target and the tunnel edge, turn, perhaps a retest, drop below EMA21 — and then enter SELL. Let me know what you think?" [manual gloss]
+
+**Extracted fields (from catalog):**
+- `symbol`: EURUSD
+- `direction`: SELL
+- `entry`: not extracted (catalog artifact: `2` from URL fragment, not a numeric price)
+- `sl`: not extracted
+- `tps`: not extracted
+
+**EA processing (step-by-step against §7.5 gates):**
+
+1. **Risk Rules pre-check** (§1):
+   - Position size computable: no — no numeric entry or SL. **Blocked at this gate.**
+   - Min R:R achievable (1:1.5): unknown
+   - Per-session cap: pass — assume first trade of session
+   - Daily/weekly DD: pass — assume EA at start of trading week
+   - Correlated lock: pass — assume no other position
+   - News blackout: pass — disabled by default
+
+2. **Direction Filter** (§3.5 composite):
+   - EMA21/SMA61 sentiment at 2024-08-19 10:47 CEST: unknown — London session open; EURUSD in August 2024 was broadly ranging near 1.09–1.11; sentiment requires bar data
+   - MMD cloud alignment: unknown
+   - D1 OHLC promo zone: unknown — requires D1 close from 2024-08-18
+   - Session box position: unknown — London session box boundaries require prior-session OHLC
+   - **Composite direction:** unknown — the message describes waiting for a pullback retest below EMA21 before entering, implying the author expects bear composite at entry time; however, at the time of posting (10:47 CEST) the setup has not yet triggered
+
+3. **Entry Trigger** (§4):
+   - Signal candle: none at posting time — the author explicitly states they are waiting for conditions to develop ("poczekam aż cena dojdzie… zawróci… zejście pod ema 21 i wejście")
+   - EMA-side rule: fail — no signal candle exists at the timestamp of this message
+   - Confluence: unknown
+
+4. **Target Engine** (§5):
+   - Active measured move: unknown — "2nd leg finishing" suggests MM awareness but no numeric endpoint given
+   - Active Fibonacci cluster near entry: unknown
+   - Chosen target: none — not specified in text
+   - Settle buffer applied: skip — no target computable
+
+5. **SL Placement** (§7.1):
+   - Computed SL: not computable — no signal candle at posting time
+
+6. **Setup Recognition** (§6, optional log):
+   - Setup match: none — setup is described as pending/conditional, not yet formed at message timestamp
+
+**Decision:** REJECT — two independent gates failed: `RISK_RULES_PRECHECK` (no numeric entry/SL) and `ENTRY_TRIGGER` (no signal candle present at parsing time; message is a forward-looking plan, not an actionable signal).
+
+**Annotation:** This example demonstrates the difference between a mentor's trade *intention* and a tradeable *signal*. The message is educationally valuable to human readers — it shows the author's structured thinking about the setup — but it contains no actionable trigger at the time of posting. The EA's Entry Trigger gate (§4) specifically requires a closed signal candle to exist; a message describing future conditional conditions cannot satisfy that gate. This is the correct behavior: the EA must not open a position speculatively in anticipation of a setup that may or may not materialize.
+
+---
+
+### C.3 Example — Student US500 SELL rejected by author-type filter
+
+**Source row:** `message_id=1003726868660371456`, `timestamp=2022-08-01T20:12:13+02:00`, `author=Silny` (mentor=no).
+
+**Polish source text (truncated to 200 chars):**
+
+> :US500: :sell:
+
+**Approximate English gloss:** ":US500: :sell:" — a directional emoji-only post indicating a short position on the US S&P 500 index. [manual gloss]
+
+**Extracted fields (from catalog):**
+- `symbol`: US500
+- `direction`: SELL
+- `entry`: not extracted
+- `sl`: not extracted
+- `tps`: not extracted
+
+**EA processing (step-by-step against §7.5 gates):**
+
+1. **Risk Rules pre-check** (§1):
+   - Position size computable: no — no entry, SL, or TP. However, this gate is never reached; see below.
+   - Min R:R achievable (1:1.5): unknown
+   - Per-session cap: pass — assume first trade of session
+   - Daily/weekly DD: pass — assume EA at start of trading week
+   - Correlated lock: pass — assume no other position
+   - News blackout: pass — disabled by default
+
+2. **Direction Filter** (§3.5 composite):
+   - This gate is never reached for non-mentor messages; see below.
+
+3. **Entry Trigger** (§4):
+   - This gate is never reached for non-mentor messages; see below.
+
+4. **Target Engine** (§5):
+   - Not evaluated; see below.
+
+5. **SL Placement** (§7.1):
+   - Not evaluated; see below.
+
+6. **Setup Recognition** (§6, optional log):
+   - Not evaluated; see below.
+
+**Decision:** REJECT — reason: `AUTHOR_FILTER` (§2.2 implicit gate, enforced before §7.5 checklist entry). The `is_mentor` flag for this message is `false`. The EA only processes messages authored by confirmed mentors; student posts are unconditionally excluded from the trade-execution pipeline regardless of symbol, direction, or content quality.
+
+**Annotation:** This example makes explicit the EA's most fundamental rule: it copies the *methodology*, not the *crowd*. The student's post — even if it happened to be correct in direction and backed by a screenshot showing a valid signal candle — is structurally invisible to the EA's execution path. The author-type filter is the first logical gate in the system, applied before any technical analysis. This prevents the EA from being influenced by the natural enthusiasm or FOMO that drives community members to post directional signals, and it keeps the decision chain rooted in the mentor's structured framework rather than in social proof.
