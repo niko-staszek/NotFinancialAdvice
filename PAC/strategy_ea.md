@@ -174,3 +174,55 @@ The result is rounded down to the nearest broker-permitted lot step (`SYMBOL_VOL
 ---
 
 *End of §0 Preamble and §1 Risk Management. §2 onward covers session definitions, signal components, entry logic, stop placement, take-profit targeting, symbol-specific parameters, and operational configuration.*
+
+---
+
+## 2. Universe & Sessions
+
+### §2.1 Tradable Instruments
+
+This section locks the v1 EA instrument whitelist based on Phase 1a refreshed catalog data (`chatdump_analysis/PHASE_0_REPORT.md` line 119). The 8 instruments below represent approximately 98% of all mentor and student catalog activity across the full dataset.
+
+| Symbol | Class | Catalog rows | Notes |
+|---|---|---|---|
+| XAUUSD | Metal (spot) | 60 | Top instrument by activity. `GOLD` alias canonicalized to XAUUSD at detector level (Phase 1a). |
+| USOIL | Commodity | 39 | `CL` alias canonicalized to USOIL at detector level (Phase 1a). |
+| US500 | Index | 20 | S&P 500 CFD. |
+| NAS100 | Index | 13 | Nasdaq 100 CFD. |
+| EURUSD | Forex major | 8 | |
+| GC | Metal (futures) | 6 | Gold futures (CME) contract, **distinct from XAUUSD spot CFD** — intentionally NOT aliased. Opt-in via EA input `EnableGCFutures` (default false). |
+| GBPUSD | Forex major | 4 | Minor activity. |
+| USDCAD | Forex major | 4 | Minor activity. |
+
+**Default whitelist:** XAUUSD, USOIL, US500, NAS100, EURUSD, GBPUSD, USDCAD — 7 symbols active by default. GC is opt-in only, disabled by default, because gold futures require separate margin treatment and are not universally available on retail CFD brokers that carry the spot instrument.
+
+**EA input:** `TradableSymbols` (semicolon-separated string). Default value is the 7 default symbols listed above. At EA startup, each symbol in `TradableSymbols` is verified against the broker's symbol list via `SymbolInfoString`. Any symbol not present on the broker's platform is skipped with a log entry identifying the missing symbol by name; the remaining symbols initialise normally. This prevents hard failures when an EA configured for USOIL is loaded on a broker that uses a different oil-contract naming convention.
+
+---
+
+### §2.2 Timeframes
+
+**Primary chart timeframe: M5 (5-minute bars).** All EA logic computes on M5 unless explicitly noted otherwise in the relevant section. Signal detection, ATR(20), bar-pattern recognition, and all time-gating calculations operate on M5 bars.
+
+**D1 reference (§3.3):** The D1 OHLC promo zone (§3.3) uses the previous day's D1 open, high, low, and close values obtained via `iHigh`, `iLow`, `iOpen`, and `iClose` called on the D1 timeframe. This is a direct D1 data query — no M5 calculation is involved. The D1 values are fetched once per day at the start of each trading day and cached until the next D1 bar opens.
+
+**Higher-timeframe context (§3.2 MMD clouds):** The MMD indicator references cloud periods of 12, 48, 144, 288, 720, 1440, and 3456 bars. On an M5 chart these periods correspond to H1, H4, H12, D1, approximately D2.5, W1, and approximately one calendar month respectively. The MMD indicator computes these cloud bands internally; the EA reads the resulting MMD bias output (bullish / bearish / neutral) rather than computing multi-timeframe logic itself.
+
+**Tick chart deferred to v2.** `strategy.md` mandates tick charts for several PAC components: the Reversal Zone, Double Top and Double Bottom patterns, Spike & Move entries, and Measured Move timing precision. v1 uses M5 bars only for three reasons. First, tick chart data quality is broker-dependent in retail CFD trading — feed availability, replay fidelity, and tick chart rendering vary substantially across MT5 brokers (`literature_comparison.md §14`). Second, Phase 4 Strategy Tester requires price history in a standardised format: M5 OHLCV history is universally available and consistent across broker history servers, whereas tick-level data for the Strategy Tester is not reliably complete on most platforms. Third, the four PAC components that require tick charts are all described within §6 setup types where M5-bar entries remain tradable, just with lower timing precision — the setups are still identifiable and executable on M5, only the entry refinement is degraded. Tick chart support is listed as an §0.5 open question for v2.
+
+---
+
+### §2.3 Polish-Local Session Windows
+
+The PAC trading community uses Polish local time as the standard reference for session definitions, as established in `strategy.md` "Session Objective & Session Boxes." Sessions are defined in Polish local time — CET (UTC+1) in winter, CEST (UTC+2) in summer. The EA must convert from MT5 server time to Polish local time using DST-aware logic at runtime. Fixed UTC offsets (+1 or +2 hard-coded) will produce incorrect session-boundary calculations around DST transitions and must not be used.
+
+| Session | Start (Polish local) | End (Polish local) | Activity share | Notes |
+|---|---|---|---|---|
+| Asia | 23:00 | 07:59 (next day) | ~3% | Wraps midnight. Asia trading deferred to v2 — direction filter for context only in v1. |
+| London | 08:00 | 13:59 | ~48% | Primary European window. |
+| America | 14:00 | 21:59 | ~48% | US session. Highest volatility. |
+| Dead | 22:00 | 22:59 | 0% | Off-hours. No trading permitted. |
+
+Activity-share percentages are drawn from `chatdump_analysis/PHASE_0_REPORT.md` setup distribution highlights: London and America together account for approximately 95% of all catalog setups; Asia-session entries are rare.
+
+**DST handling:** In 2026, the CET→CEST transition occurs on Sunday 29 March at 02:00 CET (clocks move forward to 03:00). The CEST→CET transition occurs on Sunday 25 October at 03:00 CEST (clocks move back to 02:00). Rather than hard-coding these dates, the EA derives the correct UTC offset from the current date using the last-Sunday-of-March and last-Sunday-of-October rule: during the period from the last Sunday of March through (but not including) the last Sunday of October, the offset is UTC+2 (summer/CEST); outside that period, the offset is UTC+1 (winter/CET). The EA obtains current UTC time via `TimeGMT()` and adds 1 or 2 hours as derived from the rule above to produce Polish local time. Hard-coded transition dates (e.g., `if year == 2026 && month == 3 && day == 29`) are explicitly prohibited — the rule-based computation ensures correctness across years without requiring annual config updates. EA input: `TimezoneOverride` (optional string, default `auto`). When set to a numeric value (e.g., `"2"` for UTC+2), the EA bypasses the DST computation and uses the specified fixed offset. This is intended for testing and backtesting scenarios only — it must not be left active in live deployment.
