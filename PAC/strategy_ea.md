@@ -1053,3 +1053,85 @@ The three cases cover one potential TRADE approval (Row A), one mentor-sourced R
 The key point is that the decision is anchored in deterministic M5 geometry at the bar — not in the social signal of the chat post.
 
 **Annotation:** This example demonstrates that the EA is rule-driven, not signal-following. A student post — even one that happens to be directionally correct — has no privileged status, but neither is it disqualified by authorship. The EA evaluates the same gates it would for any other bar moment. If the student's chart timing coincided with a valid PAC setup the EA would have *independently* identified, it would have traded; if not (the more common case for emoji-only impulsive posts), the EA rejects via the deterministic technical gates. The student/mentor distinction lives in the chatdump *analysis* pipeline (driving inclusion decisions for the spec), not in the EA's execution path.
+
+---
+
+## Appendix D — Threshold Derivation Methodology
+
+Every numeric threshold in §1-§7 carries a `Source:` line in its Quantitative Thresholds table. Each citation falls into one of 5 categories. This appendix defines those categories with examples drawn from the spec body. The categories exist so a future maintainer can understand *why* each value was chosen and *when* it should be revisited.
+
+### D.1 Curriculum-Fixed (No Debate)
+
+These thresholds are taken directly from `strategy.md` and reflect Paweł Krynicki's stated parameters. They are not subject to revision in this v1 spec — if Phase 4 backtest data suggests a different value, the right response is to update the curriculum (or note the deviation in `review.md`), not to silently override the value in `strategy_ea.md`.
+
+- EMA period 21 (§3.1) — strategy.md "Moving Averages"
+- SMA period 61 (§3.1) — strategy.md "Moving Averages"
+- Fibonacci retracement ratios [0.382, 0.5, 0.618] (§5.2) — strategy.md "Fibonacci Levels"
+- Fibonacci extension ratios [1.382, 1.618, 2.618] (§5.2) — strategy.md "Fibonacci Levels"
+- Session window hours Asia 23-08, London 08-14, America 14-22 in Polish local time (§2.3) — strategy.md "Session Objective & Session Boxes"
+- MMD cloud periods [48, 288, 1440] (§3.2) — `NFA/MMD/MMD_CLOUDS.md` "Cloud Table"
+- Trap setup first-try Fibonacci level 0.382 (§6.1) — strategy.md "Trap Setup"
+- Fail setup min first-attempt Fibonacci depth 0.382 (§6.2) — strategy.md "Fail Setup"
+- Spike & channel pullback invalidation Fibonacci 0.5 (§6.3) — strategy.md "Spike & Channel"
+- Spike & channel exhaustion Fibonacci 1.382 (§6.3) — strategy.md "Spike & Channel"
+
+### D.2 review.md-Recommended (Where Curriculum Is Silent)
+
+`review.md` flagged the absence of quantitative thresholds for several PAC concepts that `strategy.md` describes qualitatively. Where `strategy.md` says "signal candle has a prominent wick" without specifying a ratio, we adopt `review.md`'s recommendation. These thresholds can be revisited in Phase 4 backtest if needed — they are recommendations, not curriculum.
+
+- Signal candle wick:body ratio ≥ 2.0 (§4.1) — review.md "Signal Candle"
+- Signal candle range ≥ 0.5 × ATR(20) (§4.1) — review.md "Signal Candle"
+- Signal candle close in upper/lower third (33%) (§4.1) — review.md "Signal Candle"
+- Measured Move clean impulse ≥ 1.5 × ATR(20) (§5.1) — review.md "Measured Move + Double Up/Down"
+- Fibonacci cluster pips threshold 0.3 × ATR(20) (§5.2) — review.md "Fibonacci" (tightened from strategy.md's "~5 pips" to ATR-relative)
+- Fibonacci cluster member minimum 2 (§5.2) — review.md "Fibonacci"
+- Trap setup failure_threshold_pips 0.2 × ATR(20) (§6.1) — review.md "Battle Zones" tolerance reused
+- SL wick buffer = 1 × current_spread (§7.1) — review.md "SL/TP Framework"
+
+### D.3 Industry-Default Risk Rules (Where Neither Curriculum Nor Critique Specifies)
+
+The §1 Risk Management rules have NO source in `strategy.md` (which famously omits risk management — this is the gap `review.md` flagged). `review.md` provided directional guidance ("need min R:R", "need DD limits") but not specific numeric defaults. This category contains the numeric defaults aligned with sibling-strategy norms in the NFA repo and standard prop-firm rules.
+
+- Position size 1.0% per trade (§1.1) — industry-standard retail-FX risk-per-trade; matches sibling NFA MRD and ORB defaults
+- Min R:R 1:1.5 (§1.2) — permissive enough for most PAC setups; tightens later if backtest shows acceptable trade volume
+- Max trades per session 3 (§1.3) — one per Asia/London/America window; matches `review.md` "max 3" recommendation
+- Daily DD circuit-breaker -3% (§1.4) — leaves headroom inside FTMO-style 5% hard limit
+- Weekly DD circuit-breaker -5% (§1.5) — gives ~half the monthly budget per week
+- Correlated-pair groups {XAUUSD,US500}, {US500,US30,USTECH}, {USOIL,US500} (§1.6) — risk-off and US-index clustering conventions
+- News blackout 15 min before/after (§1.7, default off) — sibling ORB strategy convention
+- Max slippage 3 pips (§7.2) — typical retail-broker market-order slippage tolerance
+- Partials trigger 1R, close fraction 50% (§7.3, default off) — standard FX retail practice
+- Trailing activation 1.5R, distance 1×ATR(20) (§7.4, default off) — standard FX retail practice
+
+### D.4 Data-Anchored (Where Chatdump Supports Specific Tuning)
+
+These thresholds are derived directly from the refreshed Phase 0/1a chatdump analysis. They are anchored in observed mentor + student behavior across 15,231 messages and represent the empirical center of gravity of the strategy.
+
+- Symbol whitelist: XAUUSD (60), USOIL (39), US500 (20), NAS100 (13), EURUSD (8), GBPUSD (4), USDCAD (4) (§2.1) — PHASE_0_REPORT.md Phase 1a refresh line 119 (top symbols by catalog row count)
+- GC opt-in (gold futures) (§2.1) — PHASE_0_REPORT.md Phase 1a refresh (6 rows distinct from XAUUSD spot)
+- Session restriction: London + America only by default (§2.3) — PHASE_0_REPORT.md "London + America ≈ 95% of catalog activity"
+- DOW filter informational only (§0.5 open question) — PHASE_0_REPORT.md "Mon-Wed dense, Thu common, Fri moderate"
+- Asia trading deferred to v2 (§2.3) — PHASE_0_REPORT.md "Asia rare ~3% of catalog"
+- Mentor mentor-share rankings used for component inclusion order (§3-§6) — component_frequency.md rows ranked by mentor reference count
+
+### D.5 Stub / TBD-After-Backtest (Phase 4 Will Refine)
+
+These thresholds are v1 starting values chosen as reasonable defaults but explicitly marked for tuning after Phase 4 produces backtest data. Each is annotated with "v1 default; revisable after Phase 4 walk-forward" in its source threshold table.
+
+- Trap setup max_bars_between_tries 20 (§6.1)
+- Trap setup max_first_try_penetration_fib 0.20 (§6.1)
+- Fail setup max_first_attempt_depth_fib 1.0 (§6.2) — strategy.md gives a qualitative cap ("near impulse origin"); 1.0 is the numeric interpretation
+- Fail setup second_attempt_shortfall_min_pips 0.3 × ATR(20) (§6.2)
+- Fail setup max_bars_between_attempts 30 (§6.2)
+- Spike & channel spike_min_bars 3 (§6.3) — qualitative qualifier "3, 4, 5, 8, 10, 12+ bars"
+- Spike & channel spike_min_magnitude_atr 3.0 × ATR(20) (§6.3)
+- Spike & channel spike_max_counter_bars 1 (§6.3)
+- Spike & channel channel_min_bars 5 (§6.3)
+- Extended MM overshoot_bars_min 3 (§5.3) — strategy.md gives qualitative "several candles past D"
+- Measured Move max_active_measured_moves 5 (§5.1)
+- SL min_sl_distance_atr_multiple 0.3 × ATR(20) (§7.1)
+- Settle buffer 0.5 × ATR(20) (§5.4)
+
+---
+
+The 5 categories above are referenced throughout the threshold tables in §1-§7. When Phase 4 backtest data becomes available, the v1 defaults in categories D.4 and D.5 are the first candidates for tuning. Categories D.1 (curriculum) and D.2 (review.md) should be revised only with documented justification cross-referencing the source. Category D.3 (industry-default risk rules) can be tuned per-instrument or per-account-size based on broker constraints and prop-firm requirements.
