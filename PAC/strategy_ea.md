@@ -177,7 +177,7 @@ The result is rounded down to the nearest broker-permitted lot step (`SYMBOL_VOL
 
 ---
 
-## 2. Universe & Sessions
+## §2 Universe & Sessions
 
 ### §2.1 Tradable Instruments
 
@@ -229,7 +229,7 @@ Activity-share percentages are drawn from `chatdump_analysis/PHASE_0_REPORT.md` 
 
 ---
 
-## 3. Direction Filter
+## §3 Direction Filter
 
 The direction filter is the first gate in the PAC entry pipeline. Before any signal candle (§4), entry logic (§5), or stop/target calculation (§7) is evaluated, the EA must establish a directional bias — bull or bear — on the current bar. If no clear bias can be established, the EA outputs `neutral` and all downstream gates are bypassed without evaluation for that bar.
 
@@ -237,7 +237,7 @@ The direction filter is composed of four independent sub-components (§3.1–§3
 
 ---
 
-### 3.1 EMA 21 / SMA 61 sentiment
+### §3.1 EMA 21 / SMA 61 Sentiment
 
 **Rule:** Sentiment is classified by comparing the current M5 bar's close price against two moving averages — an EMA(21) and an SMA(61) — both computed on M5 close prices. Sentiment is `bull` when the close is strictly above both moving averages; `bear` when the close is strictly below both; `transitional` (no entry signal) when the close is between the two averages regardless of which average is higher. A "dynamic cross" event is flagged separately when price moves impulsively from one side of both averages to the other within `dynamic_cross_max_bars` bars — this is not itself a direction signal, but it marks a tradeable retest opportunity that the §4 signal-candle logic can use to trigger a retrace entry. The EMA(21) and SMA(61) represent fast and medium-term momentum respectively; their combined reading filters out the highest-noise portion of M5 price action while remaining sufficiently responsive to intraday trend changes.
 
@@ -261,7 +261,7 @@ The direction filter is composed of four independent sub-components (§3.1–§3
 
 ---
 
-### 3.2 MMD cloud confluence
+### §3.2 MMD Cloud Confluence
 
 **Rule:** The MMD (Magic Moving Averages) cloud system produces three primary cloud bands — Orange (period 48), Blue (period 288), and Green (period 1440) — which on an M5 chart correspond to H4, D1, and W1 trend respectively. Each cloud band is a price level: when price is above the cloud, that timeframe is bullish; below is bearish. Cloud "stacking" is the alignment of all three bands in the same directional relationship to price. When all three cloud values are below the current close (clouds stacked below price), higher-timeframe trend is bullish and MMD alignment is `confirmed` relative to a bull §3.1 sentiment. When two of three are aligned with §3.1 sentiment and one disagrees, MMD alignment is `weakened` — trades are still permitted in non-strict mode but logged as reduced-conviction. When all three cloud values disagree with §3.1 sentiment (fully opposite stacking), MMD alignment is `vetoed` and no trade fires regardless of EA mode. This three-level output distinguishes the MMD filter from a binary on/off gate and allows the EA to carry graded-conviction information downstream through §3.5.
 
@@ -285,7 +285,7 @@ The direction filter is composed of four independent sub-components (§3.1–§3
 
 ---
 
-### 3.3 D1 OHLC promo zone
+### §3.3 D1 OHLC Promo Zone
 
 **Rule:** The previous calendar day's D1 bar OHLC defines two "promotional zones" — directional bias areas derived from the relationship between the day's open, close, high, and low. For a bearish D1 day (close < open): the upper wick zone (from the session open down to the candle body top, i.e., between `Open` and `High`) is the sellers' promotional zone — price was pushed up into that region and rejected, making it a structurally favoured area for short setups. The lower wick zone (between `Low` and the candle body bottom, i.e., between `Low` and `Close`) is the buyers' promotional zone — buyers defended that area, making it structurally favoured for long setups. The body itself (between `Open` and `Close` on a bearish D1) is a "neutral" zone: no clear directional bias, as the body represents the range over which neither side achieved a decisive push. For a bullish D1 day (close > open), the zones mirror: sellers' promo is the upper wick (`High` to `Close`); buyers' promo is the lower wick (`Open` to `Low`); body is neutral. The first time price visits a promo zone within the current trading day carries the highest reaction probability; subsequent visits to the same zone within the same day are progressively weaker and are tracked separately via the `first_touch` variant outputs. The intent is to align M5 entries with the directional "promotion" implied by the prior day's market structure.
 
@@ -303,7 +303,7 @@ The direction filter is composed of four independent sub-components (§3.1–§3
 
 ---
 
-### 3.4 Session box position
+### §3.4 Session Box Position
 
 **Rule:** Each active trading session has a "session box" defined by the highest high and lowest low printed during that session's time window (§2.3). For the London session the box accumulates from 08:00 PLT until the current M5 bar; for the Asia session the box accumulates from 23:00 PLT on the prior calendar day through 07:59 PLT. Price above the session box at the time of a trade signal indicates upper-side bias — participants from subsequent sessions are inheriting an up-close — and favours long setups. Price below the session box indicates lower-side bias and favours short setups. Price inside the box is a "wait" state: the range is still being established, or price is digesting within established limits, and the directional implication is unclear. Clean breakout beyond the box edge — defined as the current M5 close printing strictly outside the box with no part of the body inside — is preferred over a wick-only poke. If the box range (high minus low) is below the narrow-box threshold (0.5 × ATR(20)), the session is classified as a range or consolidation session and the entire session-box filter returns `inside` regardless of where price sits relative to the box, because a very narrow box does not provide meaningful positional information. The Asia box is computed for contextual reference during London and America sessions — it is not used as the primary filter because Asia trading is deferred to v2 (§2.3). The London box is the primary session-box filter during both the London and America session windows.
 
@@ -326,7 +326,7 @@ The direction filter is composed of four independent sub-components (§3.1–§3
 
 ---
 
-### 3.5 Composite direction rule
+### §3.5 Composite Direction Rule
 
 Sections §3.1 through §3.4 each produce an independent typed output. The EA combines these four outputs into a single `direction: bull|bear|neutral` signal using the rule below. A configurable strictness input governs how many sub-filters must agree before a directional signal is issued; the rule is written for the default strict mode (`direction_strict = true`) and the relaxation behaviour for loose mode is described separately.
 
@@ -359,13 +359,13 @@ direction = "neutral"   otherwise
 
 ---
 
-## 4. Entry Trigger
+## §4 Entry Trigger
 
 The entry trigger is the second gate in the PAC entry pipeline, evaluated only after §3 issues a non-neutral `direction` signal. An entry trigger requires all three sub-components to pass simultaneously: a signal candle (§4.1) conforming to the geometric rejection pattern, the candle positioned on the correct side of EMA21 (§4.2), and the candle's rejection wick falling within proximity of an active Target Engine level (§4.3). All three conditions are conjunctive — passing two of three is not an entry. Each sub-component is evaluated at new-bar events only (not on every tick) to avoid triggering on a partially formed bar.
 
 ---
 
-### 4.1 Signal candle definition
+### §4.1 Signal Candle Definition
 
 **Rule:** A signal candle carries a prominent wick on the side OPPOSITE its body direction, indicating that price tested a level in one direction and was sharply rejected back. A bullish signal candle has a prominent lower wick — price pushed down, found sellers absent or buyers defending, and closed back up in the upper portion of the bar's range, leaving a long lower shadow as the rejection footprint. A bearish signal candle has a prominent upper wick — price was driven up, met selling pressure, and closed back down in the lower portion of the bar's range. The wick must be visually dominant per the quantitative thresholds below: it must be at least 2× the body length, the candle's total range must be at least 0.5 × ATR(20) to exclude micro-candle noise, and the close must sit within the third of the range opposite the rejection wick. The signal candle is the entry trigger geometry but is meaningless in isolation — it requires §4.2 (EMA-side) and §4.3 (confluence) gates to also pass before any order fires.
 
@@ -389,7 +389,7 @@ The entry trigger is the second gate in the PAC entry pipeline, evaluated only a
 
 ---
 
-### 4.2 EMA-side hard rule
+### §4.2 EMA-Side Hard Rule
 
 **Rule:** A bullish signal candle is only valid when the candle's close is strictly ABOVE EMA21. A bearish signal candle is only valid when the close is strictly BELOW EMA21. No exceptions and no override is available. A signal candle whose close sits on the wrong side of EMA21 for its declared direction is rejected outright — this is a binary check, not a configurable threshold. The logic behind this hard rule is directional coherence: a bearish rejection wick that forms above EMA21 is still structurally above the medium-term trend; the market is rejecting a local high but may not have crossed the critical trend line. Conversely, a bullish rejection wick forming below EMA21 has not yet reclaimed trend territory. Allowing entry before the close crosses EMA21 introduces setups that are geometrically correct but structurally premature. The curriculum treats EMA21 as the primary trend separator, so crossing it is the minimum threshold for a directional commitment. Note that the EMA21 handle used here is the same `iMA` handle initialised in §3.1 — no new indicator handle is required.
 
@@ -407,7 +407,7 @@ The entry trigger is the second gate in the PAC entry pipeline, evaluated only a
 
 ---
 
-### 4.3 Confluence requirement
+### §4.3 Confluence Requirement
 
 **Rule:** A signal candle that passes both §4.1 and §4.2 only becomes an entry trigger when its rejection wick — the wick in the direction of the trade (lower wick for a bullish signal, upper wick for a bearish signal) — falls within `confluence_pips_threshold` of an active Target Engine level. The active level set comprises all levels currently maintained by the §5 Target Engine: any §5.1 measured-move A, B, C, or D point; any §5.2 Fibonacci retracement or extension level; and any §5.2 detected cluster price. A cluster is an area where two or more Fibonacci or measured-move levels converge within the cluster-tolerance band, and it counts as a single confluence level (albeit a high-conviction one). Standalone signal candles that pass §4.1 and §4.2 but whose wicks are not in proximity to any active level do NOT trigger entries under any configuration — the proximity check is not configurable to `off` in v1. The rationale is PAC's core principle: entries are only taken where the rejection candle forms at a structurally significant price level, not in open space. Without the confluence requirement the EA degenerates into a pure momentum-reversal system with no structural anchor.
 
