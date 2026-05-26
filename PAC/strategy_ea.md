@@ -677,3 +677,137 @@ bearish spike & channel: mirror
 **Automation feasibility:** Spike detection: rolling-window check that for the last `spike_min_bars` bars, all but `spike_max_counter_bars` are in the trend direction AND cumulative magnitude exceeds `spike_min_magnitude_atr`. After spike detection, track channel boundaries using a high/low envelope (max and min over channel bars). Pullback detection: monitor for price returning to 50% Fib of A→B; trigger evaluation when price comes within `0.1 × ATR(20)` of the 50% level. State struct: `{phase: idle|spike_detected|channel_active|pullback_active|triggered|invalidated, a_bar, a_price, a_prime_bar, a_prime_price, b_bar, b_price, c_price}`. Phase 2 implementation: shared spike-detection logic with §5.1 swing detection but a separate state machine for the spike-and-channel sequence.
 
 **Drop trigger:** Drop spike & channel if Phase 4 backtest shows the pattern is too rare on the v1 symbol set to generate at least 50 backtest samples per year. Spike & channel is the least frequent setup pattern in the chatdump (16 mentor refs vs 24 for trap), so low sample size is a real risk; rarity alone justifies removal even if the win rate and R figures are acceptable.
+
+---
+
+## §7 Order Management
+
+This section defines how the EA places, manages, and exits trades once §1–§6 have agreed an entry is valid. §7.1 covers SL placement; §7.2 the order type; §7.3–§7.4 the optional position-management adjustments (both disabled by default); §7.5 the binary entry gate that consumes ALL prior sections and must pass in full before any market order is sent.
+
+---
+
+### §7.1 SL Placement
+
+**Rule:** Stop loss is placed beyond the wick extreme of the signal candle (§4.1) that triggered entry, plus a spread and buffer. For BULLISH entries: `SL = signal_candle.low - current_spread - wick_buffer_pips`. For BEARISH entries: `SL = signal_candle.high + current_spread + wick_buffer_pips`. The wick extreme — not the body — is used because price re-testing the wick is the canonical PAC invalidation event per strategy.md "SL/TP Framework". A minimum SL distance of `0.3 × ATR(20)` is enforced: if the raw wick-anchored SL is closer than this floor, it is pushed out to the floor to prevent micro-stops being triggered by normal market noise on small signal candles.
+
+**Inputs:** Signal candle from §4.1, current spread via `SymbolInfoInteger(symbol, SYMBOL_SPREAD)`, instrument pip value (per §0.4 notation), `iATR(20)` for the minimum-distance floor.
+
+**Output:** `sl_price: float`.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| wick_buffer_pips | 1 × current_spread | review.md "SL/TP Framework" — small absolute buffer scaled to current spread |
+| min_sl_distance_atr_multiple | 0.3 × ATR(20) | v1 default — prevents micro-stops on micro-signal-candles that would be eaten by noise |
+
+**Mentor data anchor:** Universal practice per strategy.md "SL/TP Framework". Not separately classified in component_frequency.md.
+
+**Automation feasibility:** Trivial — single computation per entry. The min-SL-distance check ensures that on tiny signal candles the SL is pushed out to `0.3 × ATR(20)` minimum, preventing the EA from placing unreasonably tight stops that market noise will trigger before any setup plays out.
+
+**Drop trigger:** Tune `wick_buffer_pips` and `min_sl_distance_atr_multiple` in Phase 4 backtest. The rule itself (wick-anchored SL) should not drop — it is the curriculum-mandatory PAC SL approach.
+
+---
+
+### §7.2 Order Type (Market vs Limit)
+
+**Rule:** v1 uses MARKET orders on signal-candle close (next-bar open). The market order is placed at the start of the bar immediately following the signal candle. Limit orders are deferred to v2 — strategy.md "Spike & Flag" subsection mentions limit orders on the breakout-candle close, but Spike & Flag is in the §A dropped components list, so v1 has no need for limit orders.
+
+**Inputs:** Entry trigger from §4.3 (`entry_triggered: true`), confirmed at the close of the signal-candle bar.
+
+**Output:** Order ticket via `OrderSend(symbol, ORDER_TYPE_BUY|ORDER_TYPE_SELL, lot_size, price, slippage, sl, tp, ...)`.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| max_slippage_pips | 3 | v1 default — accommodates typical retail-broker market-order fills on M5 |
+
+**Mentor data anchor:** Strategy.md "SL/TP Framework". Universal practice.
+
+**Automation feasibility:** Trivial. `OrderSend` is standard MQL5. The slippage ceiling is configurable via the `MaxSlippage` EA input. Lot size is derived from §1.1 RiskPercent and SL distance — see §7.5 for the order-placement workflow.
+
+**Drop trigger:** N/A — order type is implementation, not strategy. Revisit if a v2 setup pattern requires limit orders.
+
+---
+
+### §7.3 Optional Partials (off by default)
+
+**Rule:** Optional partial close at 1R: if `partials_enabled = true`, when price reaches `entry_price + 1R` (longs) or `entry_price - 1R` (shorts), the EA closes `partials_close_fraction` of the position (default 50%) and moves the SL on the remaining position to break-even (entry price). The remaining half continues to the original §5 TP or the §7.4 trailing stop if also enabled. Disabled by default — see drop trigger.
+
+**Inputs:** Open position (entry_price, current SL, current TP, position_size), current market price.
+
+**Output:** Optional `OrderClose` call for the partial volume, then `OrderModify` for the new SL.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| partials_enabled | false | v1 default — disabled until backtest confirms it improves expectancy |
+| partials_trigger_R | 1.0 | v1 default — 1R is the canonical "secure-some-profit" level |
+| partials_close_fraction | 0.5 | v1 default — close half, ride the rest |
+| partials_breakeven_after | true | v1 default — move SL to entry price after the partial fires |
+
+**Mentor data anchor:** Not in chatdump. Standard FX retail practice. Not separately classified in component_frequency.md.
+
+**Automation feasibility:** Trivial — periodic price check vs `entry_price ± 1R` per active position. `OrderClose` with the partial volume; `OrderModify` for the remaining position's SL. State per position: `{partial_taken: bool}` to avoid repeated firing on the same position.
+
+**Drop trigger:** Enable in v2 if Phase 4 backtest shows partials improve aggregate expectancy. The default-off design is intentional: partials reduce expectancy in trending setups by cutting winners short but reduce per-trade variance — the trade-off is empirical, not theoretical.
+
+---
+
+### §7.4 Optional Trailing Stop (off by default)
+
+**Rule:** Optional trailing stop after the position reaches `trailing_activation_R` (default 1.5R): if `trailing_enabled = true`, when price reaches `entry + 1.5R` (longs) or `entry - 1.5R` (shorts), the EA begins trailing the SL by `trailing_distance_atr_multiple × ATR(20)` below the highest high (longs) or above the lowest low (shorts) achieved since activation. The trail only ratchets in the favorable direction — it never widens the SL. Disabled by default. Mutually compatible with §7.3 partials: if both are enabled, partials fire at 1R and trailing activates at 1.5R on the remaining position.
+
+**Inputs:** Open position, current market high/low since trailing activation, `iATR(20)` value at the activation bar (frozen for the lifetime of the position to prevent ATR drift from widening the trail).
+
+**Output:** `OrderModify` call with updated SL when the trail price ratchets up (longs) or down (shorts).
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| trailing_enabled | false | v1 default |
+| trailing_activation_R | 1.5 | v1 default — activate after a meaningful favorable move, not immediately |
+| trailing_distance_atr_multiple | 1.0 × ATR(20) | v1 default — wide enough to avoid noise wicks, tight enough to lock in gains |
+| trailing_freeze_atr_at_activation | true | v1 default — use ATR at the 1.5R moment, not current ATR, to prevent volatility-expansion drift |
+
+**Mentor data anchor:** Not in chatdump. Standard practice.
+
+**Automation feasibility:** Trivial — periodic price check + `OrderModify`. State per position: `{trailing_active: bool, atr_frozen: float, peak_price_since_activation: float}`.
+
+**Drop trigger:** Enable in v2 if Phase 4 backtest shows trailing improves aggregate expectancy. Same trade-off framing as §7.3: trailing increases per-trade variance in choppy markets but locks in trends — the decision is empirical.
+
+---
+
+### §7.5 Trade Execution Checklist
+
+The final gate that consumes all prior sections. Every potential trade runs through this checklist in order. The EA places a market order via §7.2 only if ALL conditions are TRUE; otherwise the trade is rejected and the failed condition is logged.
+
+This becomes the `bool ShouldOpen()` function in the MQL5 EA (Phase 2).
+
+1. **Risk Rules pass** (§1 — RiskManager.Accept):
+   - Position size computable from SL distance and §1.1 RiskPercent.
+   - Min R:R achievable (§1.2): `abs(tp - entry) / abs(entry - sl) >= MinRR`.
+   - Per-session trade cap not hit (§1.3).
+   - Daily DD circuit-breaker not active (§1.4).
+   - Weekly DD circuit-breaker not active (§1.5).
+   - No correlated-pair lock (§1.6).
+   - News blackout not active (§1.7) — only checked when `NewsFilter_Enabled = true`.
+
+2. **Direction Filter agrees** with the signal-candle direction (§3.5 composite rule returned non-`neutral` matching the trade direction).
+
+3. **Entry Trigger fired** with valid signal candle AND EMA-side AND confluence (§4.3 `entry_triggered = true`).
+
+4. **Target Engine produced a usable target** price within reasonable distance:
+   - At least one §5.1 measured-move D target OR §5.2 cluster price OR §5.3 extended target is active.
+   - The chosen target is in the trade direction from current price.
+
+5. **SL price computable** via §7.1 from the signal-candle wick + spread + buffer.
+
+6. **(Optional) Setup recognition** from §6.1–§6.3 logged for journaling — NOT a hard gate. The trade is allowed even when no §6 setup matches (the §3–§5 chain is sufficient on its own). Setup matches affect SL placement nuance and conviction logging only.
+
+**Order of evaluation:** Steps 1–5 must short-circuit on first failure — do not compute downstream conditions if an upstream condition fails. This is a performance optimization since §4–§5 are the heavier compute. Step 6 evaluates only if steps 1–5 all pass.
+
+**Rejection logging:** Each failed gate emits a structured log entry: `{ts, symbol, direction, failed_gate: enum, gate_detail: str}` with severity `info` (not warning), since rejection is the EA's normal disciplined behavior, not an error.
