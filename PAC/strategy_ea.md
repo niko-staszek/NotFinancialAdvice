@@ -529,3 +529,151 @@ The Target Engine is the sub-system responsible for producing the take-profit (T
 **Automation feasibility:** Trivial — single subtraction (long) or addition (short) on the target price. Apply at `OrderSend` time (§7.2 order placement).
 
 **Drop trigger:** Tune `settle_buffer_atr_multiple` in Phase 4 backtest. Should not drop the rule — settling early is universal practice — but the buffer size should be tuned per instrument class if backtest reveals clear differences (e.g., gold may need a wider buffer than EURUSD).
+
+---
+
+## §6 Setup Recognition
+
+The Setup Recognition layer pattern-matches price action against three named PAC patterns — Trap Setup, Fail Setup, and Spike & Channel — before any trade decision is made. A setup match is NOT sufficient to enter a trade: the Direction Filter (§3), Entry Trigger (§4), and Target Engine (§5) must all agree, per the Trade Execution Checklist in §7.5. Setup recognition primarily affects SL placement strategy (each pattern has a characteristic "failed attempt" level that anchors the stop) and the conviction logging written to the trade journal on entry.
+
+---
+
+### §6.1 Trap Setup
+
+**Rule:** During a correction within an established trend (Direction Filter §3.5 = bull or bear, and a measured move from §5.1 is active), counter-trend traders attempt to extend the correction past the 38.2% Fibonacci level of the active impulse. The first attempt fails — price approaches 38.2% but reverses with only a weak trend-continuation reaction that covers less than 50% of the impulse range. Counter-trend traders try a second time; the second attempt also fails at or near the same 38.2% level. After the second failure a strong trend-continuation move begins, and the EA enters in the trend direction.
+
+**Setup signature:**
+```
+bullish trap:
+  impulse A→B  (price moves sharply up; EMA21 close at B is above EMA21)
+  correction B→C  (retraces toward 38.2% Fib of A→B)
+  1st try:  price touches ~38.2%, reverses upward  ← WEAK (reaction < 50% of impulse range)
+  2nd try:  price returns to ~38.2%, fails again   ← CANNOT BREAK THROUGH
+  entry:    signal candle at or near 38.2% on the second failure (§4.1 candle pattern)
+
+  A ─────────────────────────────── B  (impulse high)
+                                    │
+                          ──── 38.2% level ────────
+                         /         │\
+                   (1st try)   (2nd try)  ← both bounce from 38.2%
+                         \         /
+                          └───────┘  ← entry signal candle
+
+bearish trap: mirror (impulse down; 38.2% from above; two bounces down rejected upward)
+```
+
+**Inputs:** Active measured move from §5.1 (provides the 38.2% level via §5.2), `bars[]`, EMA21 from §3.1, signal candle from §4.1.
+
+**Output:** `trap_setup: {detected: bool, entry_bar: int, sl_price: float, tp_price: float, conviction: high|standard}`. `conviction = high` when both attempts touch within `failure_threshold_pips` of each other (tight double-try); `standard` otherwise.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| first_try_level | 0.382 | strategy.md "Trap Setup" |
+| failure_threshold_pips | 0.2 × ATR(20) | review.md "Battle Zones" (analogous "didn't reach the level" tolerance, reused) |
+| max_bars_between_tries | 20 | v1 default — tune in Phase 4 backtest |
+| max_first_try_penetration_fib | 0.20 | v1 default — defines "failed": price moved < 20% beyond 38.2% before reversing |
+
+**Mentor data anchor:** 24 mentor / 115 student (17.3% share — highest mentor share among the top 5 components). `component_frequency.md` row 11.
+
+**Automation feasibility:** Requires a state-machine tracker per active measured move: states `idle → first_try_active → first_try_failed → second_try_active → second_try_failed → triggered`. State struct: `{mm_id: int, state: enum, first_try_extreme: float, first_try_bar: int, second_try_extreme: float, second_try_bar: int}`. Phase 2 implementation: one tracker per active MM in §5.1, polled each new-bar event.
+
+**Drop trigger:** Drop the trap setup if Phase 4 backtest shows < 30% win rate OR < 1.0 average R across XAUUSD + USOIL combined. Given trap is the highest-mentor-share component, this drop should be a last resort — escalate to threshold tuning (raise `max_first_try_penetration_fib`, tighten `failure_threshold_pips`) before removing the rule.
+
+---
+
+### §6.2 Fail Setup
+
+**Rule:** Distinct from the trap setup, the correction in a fail setup must pass the 38.2% Fibonacci level (if it stays above 38.2% it is a trap candidate, not a fail). The correction can go as deep as 61.8% or even near the impulse origin (100%). Counter-trend traders make a deep first attempt that pierces 38.2%. Trend traders respond with a brief counter-move. Counter-trend traders try a second time but fail to reach the same depth as the first attempt — they run out of momentum before getting back to the prior extreme. Trend traders react to that failure and the EA enters in the trend direction.
+
+**Setup signature:**
+```
+bullish fail:
+  impulse A→B  (price moves sharply up; correction follows)
+  1st deep attempt:  correction pierces 38.2% (reaches e.g. 50%–61.8% or deeper)
+  brief upward response  (trend traders react — price bounces partway back up)
+  2nd deep attempt:  tries to match or exceed the 1st attempt depth — FALLS SHORT
+
+  A ─────────────────────────────── B  (impulse high)
+                                    │
+                          ──── 38.2% ────────  (1st attempt pierces this)
+                          │
+                        50% or deeper  ← 1st attempt extreme
+                          │
+                    ─ upward bounce ─
+                          │
+                        shallower low  ← 2nd attempt extreme  (FAILS to reach 1st)
+                          │
+                     entry signal candle (§4.1) on the upward turn after 2nd attempt
+
+bearish fail: mirror
+```
+
+**Inputs:** Active measured move from §5.1 and Fibonacci levels from §5.2, `bars[]`, signal candle from §4.1.
+
+**Output:** `fail_setup: {detected: bool, entry_bar: int, sl_price: float, tp_price: float, depth_pct: float}`. `depth_pct` = the first attempt's depth expressed as a percentage of the impulse range (38–100%).
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| min_first_attempt_depth_fib | 0.382 | strategy.md "Fail Setup" — must pierce 38.2% |
+| max_first_attempt_depth_fib | 1.0 | strategy.md — correction can reach the impulse origin |
+| second_attempt_shortfall_min_pips | 0.3 × ATR(20) | v1 default — defines "failed to reach the same depth" |
+| max_bars_between_attempts | 30 | v1 default — wider window than trap because corrections are deeper and slower |
+
+**Mentor data anchor:** 18 mentor / 113 student (13.7% share). `component_frequency.md` row 12.
+
+**Automation feasibility:** Same state-machine pattern as §6.1 but with different depth criteria. State struct is identical: `{mm_id, state, first_try_extreme, first_try_bar, second_try_extreme, second_try_bar}`. The key difference from trap: `first_try_extreme` must exceed `min_first_attempt_depth_fib` (not stay shallow); and the trigger condition is `second_try_extreme` failing to reach `first_try_extreme` by at least `second_attempt_shortfall_min_pips`. Phase 2 can share the trap state machine with a config flag distinguishing trap vs fail mode.
+
+**Drop trigger:** Drop if Phase 4 backtest shows < 30% win rate OR < 1.0 average R across XAUUSD + USOIL combined. Same threshold-tuning escalation as §6.1 before removing the rule.
+
+---
+
+### §6.3 Spike & Channel
+
+**Rule:** A sharp directional spike followed by a rotational channel that continues in the same direction as the spike. The pattern has four reference points: A = spike base (origin); A' = spike peak (the extreme reached at the end of the spike); B = highest or lowest point within the rotational channel that follows A'; C = the 50% Fibonacci retracement of the A→B range. The EA waits for price to pull back to C. If even a wick pierces past 50% and closes beyond C in the counter direction, the setup is invalidated. Target D is the 100% expansion of A→B projected from C (AB = CD measured move). If price inside the channel reaches 138.2% Fibonacci of the A→A' spike impulse, expect exhaustion — the EA exits before that level rather than holding for D.
+
+**Setup signature:**
+```
+bullish spike & channel:
+
+  spike phase:  A ──sharp up──► A'   (N bars, cumulative move ≥ spike_min_magnitude_atr)
+                                 │
+  channel phase:                A'──► B  (price oscillates upward; B = channel high)
+                               /         \
+                          (rotations)    B
+                                          │
+  pullback phase:                         B──► C  (retraces to 50% of A→B)
+                                               │
+                                             ← entry signal candle at C (§4.1)
+                                               │   (wick past 50% = INVALIDATED)
+                                               │
+  target:                                      C──► D  (D = 100% expansion of A→B)
+
+  exhaustion guard: if price reaches 138.2% of A→A' inside the channel → exit early
+
+bearish spike & channel: mirror
+```
+
+**Inputs:** Spike detector (state machine tracking velocity and magnitude over a rolling window), Fibonacci levels from §5.2, `bars[]`, signal candle from §4.1.
+
+**Output:** `spike_channel: {detected: bool, entry_bar: int, sl_price: float, tp_price: float, exhaustion_target: float}`. `exhaustion_target` is the 138.2% A→A' level used as a forced exit if reached before `tp_price`.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| spike_min_bars | 3 | strategy.md "Spike & Channel" — "3, 4, 5, 8, 10, 12+ bars — what matters is speed and magnitude" |
+| spike_min_magnitude_atr | 3.0 × ATR(20) | v1 default — derived from "sharp directional move" qualifier; tune in Phase 4 backtest |
+| spike_max_counter_bars | 1 | v1 default — no more than 1 counter-direction bar during the spike phase |
+| pullback_invalidation_fib | 0.5 | strategy.md "Spike & Channel" — wick past 50% kills setup |
+| exhaustion_fib | 1.382 | strategy.md "Spike & Channel" |
+| channel_min_bars | 5 | v1 default — minimum bars in the rotation channel before pullback to C is valid |
+
+**Mentor data anchor:** 16 mentor / 138 student (10.4% share). `component_frequency.md` row 13. Tied with `fibonacci` in §5.2.
+
+**Automation feasibility:** Spike detection: rolling-window check that for the last `spike_min_bars` bars, all but `spike_max_counter_bars` are in the trend direction AND cumulative magnitude exceeds `spike_min_magnitude_atr`. After spike detection, track channel boundaries using a high/low envelope (max and min over channel bars). Pullback detection: monitor for price returning to 50% Fib of A→B; trigger evaluation when price comes within `0.1 × ATR(20)` of the 50% level. State struct: `{phase: idle|spike_detected|channel_active|pullback_active|triggered|invalidated, a_bar, a_price, a_prime_bar, a_prime_price, b_bar, b_price, c_price}`. Phase 2 implementation: shared spike-detection logic with §5.1 swing detection but a separate state machine for the spike-and-channel sequence.
+
+**Drop trigger:** Drop spike & channel if Phase 4 backtest shows the pattern is too rare on the v1 symbol set to generate at least 50 backtest samples per year. Spike & channel is the least frequent setup pattern in the chatdump (16 mentor refs vs 24 for trap), so low sample size is a real risk; rarity alone justifies removal even if the win rate and R figures are acceptable.
