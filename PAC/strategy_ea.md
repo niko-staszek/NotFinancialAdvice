@@ -356,3 +356,74 @@ direction = "neutral"   otherwise
 **Note on `weakened` in strict mode:** When `mmd_alignment = weakened` and the direction signal passes all other gates, the EA logs the resulting trade entry as a "reduced-conviction" event via the standard Logger module. Phase 4 backtest reports should surface these entries distinctly so the operator can evaluate whether the `weakened` cohort is contributing positive expectancy.
 
 **Note on `neutral` D1 zone:** The D1 "maybe" zone (price inside the previous day's body) is not a directional veto. Trades can fire in either direction when `d1_zone = neutral`, subject to all other gates passing. This is intentional: the D1 body represents an area where neither buyers nor sellers achieved a promotional push — it is structurally agnostic, not structurally opposed. The composite rule reflects this by including `neutral` in both the bull and bear filter lists. When `d1_zone = neutral`, the §3.4 session-box position carries proportionally more weight in the overall conviction assessment, because the D1 layer is providing no bias signal of its own.
+
+---
+
+## 4. Entry Trigger
+
+The entry trigger is the second gate in the PAC entry pipeline, evaluated only after §3 issues a non-neutral `direction` signal. An entry trigger requires all three sub-components to pass simultaneously: a signal candle (§4.1) conforming to the geometric rejection pattern, the candle positioned on the correct side of EMA21 (§4.2), and the candle's rejection wick falling within proximity of an active Target Engine level (§4.3). All three conditions are conjunctive — passing two of three is not an entry. Each sub-component is evaluated at new-bar events only (not on every tick) to avoid triggering on a partially formed bar.
+
+---
+
+### 4.1 Signal candle definition
+
+**Rule:** A signal candle carries a prominent wick on the side OPPOSITE its body direction, indicating that price tested a level in one direction and was sharply rejected back. A bullish signal candle has a prominent lower wick — price pushed down, found sellers absent or buyers defending, and closed back up in the upper portion of the bar's range, leaving a long lower shadow as the rejection footprint. A bearish signal candle has a prominent upper wick — price was driven up, met selling pressure, and closed back down in the lower portion of the bar's range. The wick must be visually dominant per the quantitative thresholds below: it must be at least 2× the body length, the candle's total range must be at least 0.5 × ATR(20) to exclude micro-candle noise, and the close must sit within the third of the range opposite the rejection wick. The signal candle is the entry trigger geometry but is meaningless in isolation — it requires §4.2 (EMA-side) and §4.3 (confluence) gates to also pass before any order fires.
+
+**Inputs:** Current closing bar OHLC — bar 1, the most recently closed bar. The EA evaluates signal-candle status at each new-bar event, NOT on every tick. This prevents premature triggering during bar formation: a candle that temporarily looks like a valid rejection wick during an intrabar spike may resolve into a different shape by close. ATR(20) value at bar 1 from the shared `iATR` handle (§3.4 same handle).
+
+**Output:** `signal_candle: bullish|bearish|none`.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| wick_to_body_ratio_min | 2.0 | review.md "Signal Candle" — "wick must be at least 2× the body length" |
+| candle_range_atr_multiple_min | 0.5 | review.md "Signal Candle" — "candle range ≥ 0.5 × ATR(20)" prevents micro-candle noise |
+| close_position_within_wick_pct | 33 | review.md "Signal Candle" — bullish must close in upper third (close ≥ low + 0.67 × range); bearish close in lower third |
+
+**Mentor data anchor:** 2 mentor / 6 student (25.0% share). `component_frequency.md` row 17. **CRITICAL CAVEAT:** Suspiciously low absolute mentor count. The Phase 0 keyword classifier appears to under-detect signal-candle references — the term "signal candle" / "signalka" / "sygnałówka" appears rarely as standalone vocabulary in trade-call messages because mentors typically reference the GEOMETRY rather than the NAME ("ładna świeca z dolnym knotem na EMA"). The EA does NOT rely on chat references — it computes signal-candle status directly from bar OHLC via the geometric thresholds above, which is robust regardless of how mentors talked about them. Inclusion of signal_candle is per the curriculum-essential override in the design spec.
+
+**Automation feasibility:** Trivial — bar OHLC arithmetic. The wick-to-body ratio = `max(top_wick, bottom_wick) / body_size` where `body_size = abs(close - open)`. Top wick = `high - max(open, close)`; bottom wick = `min(open, close) - low`. ATR-relative range check = `(high - low) >= candle_range_atr_multiple_min * iATR(20)`. The close-position-within-wick check enforces that the candle closed near the body extreme opposite the rejection wick: for bullish, `close >= low + 0.67 * (high - low)`; for bearish, `close <= low + 0.33 * (high - low)`. New-bar event triggers via `OnTick()` + bar-change detection (compare `iTime(0)` to cached previous bar time). Note: when `body_size = 0` (a doji), the wick-to-body ratio is undefined — classify doji bars as `signal_candle = none` unconditionally.
+
+**Drop trigger:** Drop the wick-based trigger if Phase 4 backtest shows it underperforms a simpler "close beyond EMA21 + ATR" trigger in both win rate and expectancy. Replace with a tighter geometric set if the false-positive rate (signal fires but no follow-through within 3 bars) exceeds 60% across XAUUSD + USOIL combined.
+
+---
+
+### 4.2 EMA-side hard rule
+
+**Rule:** A bullish signal candle is only valid when the candle's close is strictly ABOVE EMA21. A bearish signal candle is only valid when the close is strictly BELOW EMA21. No exceptions and no override is available. A signal candle whose close sits on the wrong side of EMA21 for its declared direction is rejected outright — this is a binary check, not a configurable threshold. The logic behind this hard rule is directional coherence: a bearish rejection wick that forms above EMA21 is still structurally above the medium-term trend; the market is rejecting a local high but may not have crossed the critical trend line. Conversely, a bullish rejection wick forming below EMA21 has not yet reclaimed trend territory. Allowing entry before the close crosses EMA21 introduces setups that are geometrically correct but structurally premature. The curriculum treats EMA21 as the primary trend separator, so crossing it is the minimum threshold for a directional commitment. Note that the EMA21 handle used here is the same `iMA` handle initialised in §3.1 — no new indicator handle is required.
+
+**Inputs:** Signal candle from §4.1 (`signal_candle: bullish|bearish`). EMA21 value at bar 1 from the §3.1 `iMA(symbol, PERIOD_M5, 21, 0, MODE_EMA, PRICE_CLOSE)` handle. The check uses bar 1 close versus bar 1 EMA21 value — both evaluated at the same closed bar to avoid look-ahead.
+
+**Output:** `signal_valid: bool`. True only when the §4.1 signal candle direction matches its EMA21-side position: bullish signal with close above EMA21, or bearish signal with close below EMA21.
+
+**Quantitative thresholds:** None — binary check. There is no pip buffer, no ATR tolerance, and no softened version of this rule. Close strictly above EMA21 = valid for bullish; close strictly below EMA21 = valid for bearish; close exactly at EMA21 = invalid (probability of exact equality is negligible with floating-point prices, but if it occurs, the signal is rejected).
+
+**Mentor data anchor:** Curriculum rule from `strategy.md "Signal Candle"` section's "EMA 21 directional filter" subsection. Also documented in `literature_comparison.md §1` as a "PAC addition" — this is not classical candlestick analysis but a non-classical PAC-specific filter that reduces signal-candle noise materially. No standalone frequency row in `component_frequency.md` because the EMA-side check is part of the signal-candle definition in the curriculum, not a separately named component.
+
+**Automation feasibility:** Trivial — single floating-point comparison per new-bar event. `signal_valid = (signal_candle == bullish && close[1] > ema21[1]) || (signal_candle == bearish && close[1] < ema21[1])`. The EMA21 buffer value at bar 1 is already being read by §3.1 and is available with no additional indicator call.
+
+**Drop trigger:** This rule should never be dropped — it is curriculum-mandatory. If Phase 4 backtest shows the EMA-side rule degrades edge (extremely unlikely, as structurally premature entries are categorically lower-quality), revisit the EMA21 period parameter in §3.1 first. A poorly calibrated EMA period would manifest as the EMA lagging price and blocking valid retrace entries; the fix is period adjustment, not rule removal.
+
+---
+
+### 4.3 Confluence requirement
+
+**Rule:** A signal candle that passes both §4.1 and §4.2 only becomes an entry trigger when its rejection wick — the wick in the direction of the trade (lower wick for a bullish signal, upper wick for a bearish signal) — falls within `confluence_pips_threshold` of an active Target Engine level. The active level set comprises all levels currently maintained by the §5 Target Engine: any §5.1 measured-move A, B, C, or D point; any §5.2 Fibonacci retracement or extension level; and any §5.2 detected cluster price. A cluster is an area where two or more Fibonacci or measured-move levels converge within the cluster-tolerance band, and it counts as a single confluence level (albeit a high-conviction one). Standalone signal candles that pass §4.1 and §4.2 but whose wicks are not in proximity to any active level do NOT trigger entries under any configuration — the proximity check is not configurable to `off` in v1. The rationale is PAC's core principle: entries are only taken where the rejection candle forms at a structurally significant price level, not in open space. Without the confluence requirement the EA degenerates into a pure momentum-reversal system with no structural anchor.
+
+**Inputs:** Signal candle from §4.1 (specifically, `candle.low` for a bullish signal, `candle.high` for a bearish signal — the wick extreme that represents the rejection point). EMA-side validity from §4.2 (`signal_valid = true`). Active level set from the §5 Target Engine: all currently live measured-move points (§5.1), all currently live Fibonacci levels and cluster prices (§5.2). `iATR(20)` value at bar 1 for the ATR-scaled threshold.
+
+**Output:** `entry_triggered: bool`. When `true`, also emits `confluence_level: float` (the matched level's price) and `confluence_type: mm_a|mm_b|mm_c|mm_d|fib_retracement|fib_extension|cluster` identifying which level class produced the match.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| confluence_pips_threshold | 0.3 × ATR(20) | review.md "Fibonacci" — cluster tolerance, reused as the signal-candle-to-level proximity threshold |
+| confluence_required_levels | 1 | strategy.md "Signal Candle" + curriculum — single confluence sufficient; a cluster counts as 1 confluence, just a high-conviction instance |
+
+**Mentor data anchor:** No standalone keyword for the confluence requirement in `component_frequency.md` — confluence is the implicit requirement in every PAC entry, captured indirectly by the high mentor frequency of measured_move + signal_candle + fibonacci appearing in combination. The explicit quantitative `confluence_pips_threshold` is a `review.md`-derived rule that makes the implicit requirement algorithmically testable. The 0.3 × ATR(20) proximity threshold is taken directly from the review.md Fibonacci cluster-tolerance recommendation and applied here by analogy — a signal candle wick that reaches within one cluster-width of a level is treated as "touching" it for confluence purposes.
+
+**Automation feasibility:** One helper function `FindNearestLevel(candle_wick_extreme, active_levels[], threshold)` iterates the active level set, computes `abs(candle_wick_extreme - level.price)` for each entry, and returns the closest level within `threshold`. The active level set is a flat array of `{price, type}` structs maintained by the §5 Target Engine — the §4.3 check is a read-only query against that array with no mutation. Time complexity is O(n) where n = number of active levels; expected n < 30 on any single instrument during a session, so performance is not a concern. Phase 2 implementation note: `FindNearestLevel` is a shared utility used by both §4.3 and §5's internal cluster-detection logic — implement once in a shared utility module rather than duplicating.
+
+**Drop trigger:** Drop or relax the confluence requirement if Phase 4 backtest shows it is producing more false negatives than false positives — specifically, if the win rate of logged `entry_triggered=false, signal_valid=true` setups (setups that passed §4.1 and §4.2 but failed §4.3 and were therefore not traded) exceeds the win rate of actually triggered setups. This would indicate the threshold is too tight and is rejecting better-quality trades than it is admitting. First response is to widen `confluence_pips_threshold` from 0.3 × ATR(20) toward 0.5 × ATR(20) before considering removing the level-proximity requirement entirely.
