@@ -15,6 +15,7 @@ Components are ranked by mentor reference count (descending).
 | `elliott` | 13 | 125 | 9.4% |
 | `session_box` | 7 | 68 | 9.3% |
 | `signal_candle` | 2 | 6 | 25.0% |
+| `range_trap` | 2 | 8 | 20.0% |
 | `battle_zone` | 2 | 33 | 5.7% |
 | `double_top_bottom` | 2 | 39 | 4.9% |
 | `spike_flag` | 1 | 20 | 4.8% |
@@ -23,6 +24,5 @@ Components are ranked by mentor reference count (descending).
 | `hidden_channel` | 1 | 4 | 20.0% |
 | `reversal_line` | 1 | 27 | 3.6% |
 | `gap_candle` | 0 | 3 | 0.0% |
-| `range_trap` | 0 | 0 | — |
-| `range_fail` | 0 | 0 | — |
+| `range_fail` | 0 | 5 | 0.0% |
 | `mmd_clouds` | 0 | 16 | 0.0% |

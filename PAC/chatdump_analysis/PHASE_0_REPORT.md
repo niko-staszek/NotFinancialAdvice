@@ -97,3 +97,25 @@ Files were moved (not deleted). `_junk/` holds 623 files (emoji + avatars); `sou
 3. Translation pass was not run (--offline). Should the online pass be run before Phase 1 to populate `content_en` for English-language analysis?
 4. All 8 mentor trades are missing SL/TP. Were these always absent in Discord or is a different extraction strategy (e.g., scanning the reply thread) needed?
 5. Mentor catalog rows = 8 out of 167 (4.8%). This is lower than expected if mentors were actively trading in the chat. Verify the mentor identification list covers all known mentor Discord handles.
+
+---
+
+## Phase 1a refresh (2026-05-26)
+
+Two data-quality patches landed:
+
+1. **`range_trap` / `range_fail` keyword patterns widened** to match "Range 2 try trap", "Range-2 Try Trap", and "range 2 try fail" — the actual vocabulary in the Polish chat. Previously these components had zero matches.
+
+2. **Symbol aliasing** added: `GOLD` is now canonicalized to `XAUUSD` and `CL` to `USOIL` at detection time. The trades catalog, component frequency, setup distribution, and mentor audit reports now use one canonical symbol per instrument.
+
+### Refreshed numbers
+
+- Catalog rows: 167
+- Unparsed rows: 275
+- Mentor catalog rows: 8
+- Student catalog rows: 159
+- `range_trap` references: mentor=2, student=8 (previously 0/0)
+- `range_fail` references: mentor=0, student=5 (previously 0/0)
+- Top symbols (canonicalized): XAUUSD=60, USOIL=39, US500=20, NAS100=13, EURUSD=8, GC=6, GBPUSD=4, USDCAD=4
+
+The original-run numbers in the sections above remain as-is for historical reference; the refreshed pipeline output files in this directory are the authoritative current state.
