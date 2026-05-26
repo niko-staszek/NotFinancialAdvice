@@ -74,3 +74,29 @@ def test_no_match() -> None:
 def test_no_match_without_attachment_or_price() -> None:
     """Symbol alone with no number and no attachment doesn't qualify."""
     assert detect_trade_mention(_msg("co myślicie o EURUSD")) is None
+
+
+def test_gold_canonicalized_to_xauusd() -> None:
+    m = detect_trade_mention(_msg("BUY GOLD @ 2350.5 SL 2347"))
+    assert m is not None
+    assert m.symbol == "XAUUSD"
+    assert m.confidence is Confidence.HIGH
+
+
+def test_cl_canonicalized_to_usoil() -> None:
+    m = detect_trade_mention(_msg("SELL CL 78.40, stop 78.90"))
+    assert m is not None
+    assert m.symbol == "USOIL"
+
+
+def test_xauusd_unchanged_by_aliasing() -> None:
+    m = detect_trade_mention(_msg("BUY XAUUSD @ 2350"))
+    assert m is not None
+    assert m.symbol == "XAUUSD"
+
+
+def test_hashtag_gold_canonicalized() -> None:
+    m = detect_trade_mention(_msg("#PAC #GOLD 2360.5 analiza"))
+    assert m is not None
+    assert m.symbol == "XAUUSD"
+    assert m.confidence is Confidence.MEDIUM
