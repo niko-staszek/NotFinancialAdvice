@@ -61,8 +61,12 @@ _KEYWORDS: dict[Component, list[str]] = {
     Component.FAIL_SETUP: [
         r"\bfail\b", r"\bfailówk[ai]\b", r"\bgłębok(?:ej?|a)\s+korekt[aiey]\b",
     ],
-    Component.RANGE_TRAP: [r"\brange\s*trap\b"],
-    Component.RANGE_FAIL: [r"\brange\s*fail\b"],
+    Component.RANGE_TRAP: [
+        r"\brange[\s-]+(?:\d[\s-]*)?(?:try\s+)?trap\b",
+    ],
+    Component.RANGE_FAIL: [
+        r"\brange[\s-]+(?:\d[\s-]*)?(?:try\s+)?fail\b",
+    ],
     Component.SESSION_BOX: [
         r"\bsession\s+box\b", r"\basia\s+box\b", r"\blondon\s+box\b",
         r"\bsesj[aą]\b", r"\basia\b", r"\blondyn\b", r"\bNY\b",

@@ -1,6 +1,8 @@
 """Tests for PAC component keyword classification."""
 from __future__ import annotations
 
+import pytest
+
 from hedgehog.proposer.pac.components import Component, classify_components
 
 
@@ -42,3 +44,19 @@ def test_no_components() -> None:
 def test_mmd_clouds_polish() -> None:
     out = classify_components("MMD chmury wskazują trend bullish")
     assert Component.MMD_CLOUDS in out
+
+
+@pytest.mark.parametrize("text,expected_component", [
+    # Existing canonical variant — must still match.
+    ("range trap zaraz po wybiciu", Component.RANGE_TRAP),
+    ("range fail przy expansion", Component.RANGE_FAIL),
+
+    # New variants the real chatdump actually uses.
+    ("Range 2-Trap na EURUSD", Component.RANGE_TRAP),
+    ("Range 2 try trap formuje się", Component.RANGE_TRAP),
+    ("Range-2 Try Trap", Component.RANGE_TRAP),
+    ("range 2 try fail po expansion", Component.RANGE_FAIL),
+])
+def test_range_trap_fail_widened_patterns(text: str, expected_component: Component) -> None:
+    out = classify_components(text)
+    assert expected_component in out

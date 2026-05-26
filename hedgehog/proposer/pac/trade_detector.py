@@ -25,6 +25,20 @@ SYMBOLS = [
     "ES", "NQ", "YM", "GC", "CL",
 ]
 
+# Canonicalize alias symbols to their CFD-style counterparts so that downstream
+# catalog rows reference one symbol per instrument. Verified against the chatdump:
+# 'GOLD' and 'XAUUSD' refer to the same gold market; 'CL' and 'USOIL' to crude.
+_SYMBOL_ALIASES = {
+    "GOLD": "XAUUSD",
+    "CL":   "USOIL",
+}
+
+
+def _canonicalize(symbol: str) -> str:
+    """Return the canonical form of a recognised symbol (alias-mapped)."""
+    return _SYMBOL_ALIASES.get(symbol.upper(), symbol.upper())
+
+
 # Build a regex that matches any symbol as a whole word
 _SYMBOL_RE = re.compile(
     r"\b(" + "|".join(re.escape(s) for s in SYMBOLS) + r")\b",
@@ -92,12 +106,12 @@ def _parse_price(s: str) -> float:
 
 def _first_symbol(text: str) -> Optional[str]:
     m = _SYMBOL_RE.search(text)
-    return m.group(1).upper() if m else None
+    return _canonicalize(m.group(1)) if m else None
 
 
 def _hashtag_symbol(text: str) -> Optional[str]:
     m = _SYMBOL_HASHTAG.search(text)
-    return m.group(1).upper() if m else None
+    return _canonicalize(m.group(1)) if m else None
 
 
 def _direction(text: str) -> Optional[str]:
@@ -113,14 +127,18 @@ def _entry_price(text: str, symbol: str) -> Optional[float]:
     m = _AT_PRICE_RE.search(text)
     if m:
         return _parse_price(m.group(1))
-    # Otherwise, take the first price-like number AFTER the symbol token.
-    sym_match = re.search(re.escape(symbol), text, re.IGNORECASE)
-    if not sym_match:
-        return None
-    tail = text[sym_match.end():]
-    m = _PRICE_RE.search(tail)
-    if m:
-        return _parse_price(m.group(1))
+    # Otherwise, take the first price-like number AFTER the symbol token in the text.
+    # The `symbol` argument is the canonical form (after _canonicalize); the source
+    # text may contain an alias (GOLD, CL). Try the canonical form first, then any
+    # alias that maps to it.
+    candidates = [symbol] + [alias for alias, canon in _SYMBOL_ALIASES.items() if canon == symbol]
+    for candidate in candidates:
+        sym_match = re.search(r"\b" + re.escape(candidate) + r"\b", text, re.IGNORECASE)
+        if sym_match:
+            tail = text[sym_match.end():]
+            m = _PRICE_RE.search(tail)
+            if m:
+                return _parse_price(m.group(1))
     return None
 
 

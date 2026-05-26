@@ -1,16 +1,16 @@
 message_id,timestamp,author_name,author_nickname,is_mentor,symbol,content_pl,attachment_count
-970781934743601232,2022-05-02T22:20:49.499+02:00,kiewra82,Karol Kiewra,false,CL,CL,1
+970781934743601232,2022-05-02T22:20:49.499+02:00,kiewra82,Karol Kiewra,false,USOIL,CL,1
 970947330163503104,2022-05-03T09:18:02.84+02:00,damianwieczorek,Damian Wieczorek,false,NQ,NQ,1
 971416363761553528,2022-05-04T16:21:49.164+02:00,damianwieczorek,Damian Wieczorek,false,ES,ES powrót do RANGE,1
 975973431130607636,2022-05-17T06:09:58.691+02:00,damianwieczorek,Damian Wieczorek,false,ES,ES 06-22,1
 976372203656445962,2022-05-18T08:34:33.47+02:00,kiewra82,Karol Kiewra,false,ES,ES,1
 976522444137431050,2022-05-18T18:31:33.592+02:00,damianwieczorek,Damian Wieczorek,false,GC,GC powrót do RANGE ?,1
 978925531837915147,2022-05-25T09:40:34.347+02:00,kiewra82,Karol Kiewra,false,ES,zmiana planu dla ES,1
-978929969218617364,2022-05-25T09:58:12.301+02:00,kiewra82,Karol Kiewra,false,CL,"CL pierwsze zagranie było w złej rotacji, teraz opcja na longa wg setup#3  lub #4",1
+978929969218617364,2022-05-25T09:58:12.301+02:00,kiewra82,Karol Kiewra,false,USOIL,"CL pierwsze zagranie było w złej rotacji, teraz opcja na longa wg setup#3  lub #4",1
 978933677109178378,2022-05-25T10:12:56.331+02:00,kiewra82,Karol Kiewra,false,ES,ES taki przypadek,1
-978952702954450944,2022-05-25T11:28:32.446+02:00,kiewra82,Karol Kiewra,false,CL,CL a już miałem wyjść z tego zagrania - a tu taka niespodzianka🤪,1
+978952702954450944,2022-05-25T11:28:32.446+02:00,kiewra82,Karol Kiewra,false,USOIL,CL a już miałem wyjść z tego zagrania - a tu taka niespodzianka🤪,1
 978957462977798225,2022-05-25T11:47:27.324+02:00,kiewra82,Karol Kiewra,false,ES,ES,1
-978968859186982922,2022-05-25T12:32:44.392+02:00,kiewra82,Karol Kiewra,false,GOLD,Gold mi uciekł 😝,1
+978968859186982922,2022-05-25T12:32:44.392+02:00,kiewra82,Karol Kiewra,false,XAUUSD,Gold mi uciekł 😝,1
 979285173302595625,2022-05-26T09:29:39.554+02:00,kiewra82,Karol Kiewra,false,NQ,NQ (sorry że się wepchłem 😜 ) aktualnie Range,1
 979301189034344468,2022-05-26T10:33:18.002+02:00,kiewra82,Karol Kiewra,false,NQ,NQ może coś takiego 🤔,1
 979620211022004224,2022-05-27T07:40:58.771+02:00,kiewra82,Karol Kiewra,false,GC,GC,1
@@ -20,27 +20,27 @@ GC 08-22",1
 986277840771223582,2022-06-14T16:36:01.396+02:00,damianwieczorek,Damian Wieczorek,false,ES,ES  próba zagrania na powrót do RANGE,1
 988848351007088690,2022-06-21T18:50:18.794+02:00,michajus,Michajus,false,EURUSD,i jak tak fajnie nam idzie zmóżdżanie to pomóżcie rozkminić mi EURUSD bo ja tam nie wiem jak to określić tam chyba i trend i chwilowy range xD,1
 991220753078964265,2022-06-28T07:57:23.525+02:00,kiewra82,Karol Kiewra,false,ES,ES,1
-991226248208588903,2022-06-28T08:19:13.666+02:00,kiewra82,Karol Kiewra,false,CL,CL po sygnałowej  zagranie long,1
+991226248208588903,2022-06-28T08:19:13.666+02:00,kiewra82,Karol Kiewra,false,USOIL,CL po sygnałowej  zagranie long,1
 991232507188097024,2022-06-28T08:44:05.923+02:00,kiewra82,Karol Kiewra,false,NQ,NQ,1
-991232613073289237,2022-06-28T08:44:31.168+02:00,kiewra82,Karol Kiewra,false,CL,CL,1
+991232613073289237,2022-06-28T08:44:31.168+02:00,kiewra82,Karol Kiewra,false,USOIL,CL,1
 991244910848114699,2022-06-28T09:33:23.186+02:00,kiewra82,Karol Kiewra,false,ES,ES,1
 991253983433859162,2022-06-28T10:09:26.259+02:00,kiewra82,Karol Kiewra,false,NQ,NQ plan może ok tylko ten spike miesza,1
-991258766999826462,2022-06-28T10:28:26.75+02:00,kiewra82,Karol Kiewra,false,CL,CL,1
+991258766999826462,2022-06-28T10:28:26.75+02:00,kiewra82,Karol Kiewra,false,USOIL,CL,1
 991258923942281226,2022-06-28T10:29:04.168+02:00,kiewra82,Karol Kiewra,false,NQ,NQ,1
-991261475899461703,2022-06-28T10:39:12.602+02:00,kiewra82,Karol Kiewra,false,CL,CL tp1 zrealizowane,1
-991303847303725058,2022-06-28T13:27:34.732+02:00,kiewra82,Karol Kiewra,false,CL,CL,1
+991261475899461703,2022-06-28T10:39:12.602+02:00,kiewra82,Karol Kiewra,false,USOIL,CL tp1 zrealizowane,1
+991303847303725058,2022-06-28T13:27:34.732+02:00,kiewra82,Karol Kiewra,false,USOIL,CL,1
 991607064570888222,2022-06-29T09:32:27.362+02:00,kiewra82,Karol Kiewra,false,GC,GC,1
 991608361919451156,2022-06-29T09:37:36.674+02:00,kiewra82,Karol Kiewra,false,NQ,NQ,1
 991611406002683955,2022-06-29T09:49:42.44+02:00,kiewra82,Karol Kiewra,false,NQ,"NQ było miejsce na 1:1, tp1 zrealizowane reszta wybita",1
 991646900925243393,2022-06-29T12:10:45.089+02:00,kiewra82,Karol Kiewra,false,GC,GC,1
-991656036723327047,2022-06-29T12:47:03.233+02:00,kiewra82,Karol Kiewra,false,CL,CL nie grałem ale podobny plan jak gold,1
+991656036723327047,2022-06-29T12:47:03.233+02:00,kiewra82,Karol Kiewra,false,USOIL,CL nie grałem ale podobny plan jak gold,1
 991657131717697567,2022-06-29T12:51:24.3+02:00,kiewra82,Karol Kiewra,false,NQ,NQ dla mnie short ale w tych okolicach,1
 991679026567577620,2022-06-29T14:18:24.439+02:00,kiewra82,Karol Kiewra,false,GC,GC,1
 991679296064192614,2022-06-29T14:19:28.692+02:00,kiewra82,Karol Kiewra,false,NQ,NQ,1
 991682010730991696,2022-06-29T14:30:15.919+02:00,kiewra82,Karol Kiewra,false,NQ,NQ,1
 991953048081530880,2022-06-30T08:27:16.259+02:00,kiewra82,Karol Kiewra,false,GC,GC,1
-991953186912997456,2022-06-30T08:27:49.359+02:00,kiewra82,Karol Kiewra,false,CL,CL,1
-992067613804990564,2022-06-30T16:02:30.856+02:00,kiewra82,Karol Kiewra,false,CL,"CL pod koniec sesji ropa uciekła , piękna sygnałowa ale bez pozycji, plan na ruch typu spike",1
+991953186912997456,2022-06-30T08:27:49.359+02:00,kiewra82,Karol Kiewra,false,USOIL,CL,1
+992067613804990564,2022-06-30T16:02:30.856+02:00,kiewra82,Karol Kiewra,false,USOIL,"CL pod koniec sesji ropa uciekła , piękna sygnałowa ale bez pozycji, plan na ruch typu spike",1
 992068027698921482,2022-06-30T16:04:09.536+02:00,kiewra82,Karol Kiewra,false,NQ,"NQ zagranie na sesji, sell cena wybiła mi BE i jazda w dół",1
 992082972381560923,2022-06-30T17:03:32.626+02:00,damianwieczorek,Damian Wieczorek,false,NQ,NQ 09 -22 moze 3 noga ?,1
 992111523075997747,2022-06-30T18:56:59.642+02:00,damianwieczorek,Damian Wieczorek,false,NQ,powrót do RANGE  NQ,1
@@ -48,61 +48,61 @@ GC 08-22",1
 992382121089970237,2022-07-01T12:52:15.236+02:00,damianwieczorek,Damian Wieczorek,false,NQ,NQ  . Panowie co mysłicie bedzie powrót ?,1
 993859136410370160,2022-07-05T14:41:23.13+02:00,damianwieczorek,Damian Wieczorek,false,GC,GC  08 - 22,1
 993928969931989022,2022-07-05T19:18:52.739+02:00,damianwieczorek,Damian Wieczorek,false,ES,ES,1
-994240781927858258,2022-07-06T15:57:54.512+02:00,silny9867,Silny,false,CL,#CL 1000 tic Dobrze to widze? 3rd leg,1
+994240781927858258,2022-07-06T15:57:54.512+02:00,silny9867,Silny,false,USOIL,#CL 1000 tic Dobrze to widze? 3rd leg,1
 994599005533245460,2022-07-07T15:41:21.675+02:00,kiewra82,Karol Kiewra,false,GC,GC zagranie na sesji ( w strefie ale świadomie) net dzisiaj wywalał,1
 994601742698295347,2022-07-07T15:52:14.266+02:00,kiewra82,Karol Kiewra,false,NQ,NQ podczas sesji zaliczony sl a po sesji dzik poszedł tam gdzie jego miejsce😎,1
-996019741661597756,2022-07-11T13:46:51.564+02:00,kiewra82,Karol Kiewra,false,CL,"CL zagranie pod Spike, tp1 zrealizowane",1
-996374649682280549,2022-07-12T13:17:08.23+02:00,silny9867,Silny,false,GOLD,Gold 😄,1
+996019741661597756,2022-07-11T13:46:51.564+02:00,kiewra82,Karol Kiewra,false,USOIL,"CL zagranie pod Spike, tp1 zrealizowane",1
+996374649682280549,2022-07-12T13:17:08.23+02:00,silny9867,Silny,false,XAUUSD,Gold 😄,1
 996377526005936148,2022-07-12T13:28:33.999+02:00,silny9867,Silny,false,ES,ES,1
 998867340257132616,2022-07-19T10:22:11.975+02:00,silny9867,Silny,false,ES,ES .,1
 998867897529143317,2022-07-19T10:24:24.839+02:00,silny9867,Silny,false,ES,I to moze byc ten setup na ES.,1
 999005891598766250,2022-07-19T19:32:45.189+02:00,silny9867,Silny,false,ES,"ES Takie cos myslalem, ale wyjechali do gory.",1
 999272239432220742,2022-07-20T13:11:07.461+02:00,silny9867,Silny,false,NQ,"Mam taki plan na NQ, teraz czekam na 2 troszke glebsza korekte, najlepiej trap i jedziemy w dol 😄",1
-999277620451627038,2022-07-20T13:32:30.396+02:00,silny9867,Silny,false,CL,Na CL bedzie mozna ponowic wejscie?,1
+999277620451627038,2022-07-20T13:32:30.396+02:00,silny9867,Silny,false,USOIL,Na CL bedzie mozna ponowic wejscie?,1
 999367549277966346,2022-07-20T19:29:51.099+02:00,silny9867,Silny,false,NQ,3rd leg Measured move na NQ,1
 1001182087224766634,2022-07-25T19:40:10.658+02:00,silny9867,Silny,false,ES,ES TP1 🤑,1
 1001182217126547466,2022-07-25T19:40:41.629+02:00,silny9867,Silny,false,NQ,NQ TP 1 🤑,1
-1001484094661738566,2022-07-26T15:40:14.842+02:00,silny9867,Silny,false,CL,CL,1
+1001484094661738566,2022-07-26T15:40:14.842+02:00,silny9867,Silny,false,USOIL,CL,1
 1001541665225457735,2022-07-26T19:29:00.734+02:00,silny9867,Silny,false,NQ,"Jeszcze mam takie cos na NQ 😄 Podsumownie: Gdzies to ostatnio slyszalem, to ze sa nisko, nie oznacza, ze nie moga byc nizej @Karol Kiewra",1
 1002476580863488022,2022-07-29T09:24:01.992+02:00,kiewra82,Karol Kiewra,false,US500,:US500: ponowne wejście,1
 1002478826489655346,2022-07-29T09:32:57.391+02:00,kiewra82,Karol Kiewra,false,USOIL,:USOIL: zabezpieczona,1
 1004000371179532369,2022-08-02T14:19:01.914+02:00,silny9867,Silny,false,NQ,NQ TP1 🤑 BE+,1
-1004003597496889395,2022-08-02T14:31:51.128+02:00,silny9867,Silny,false,CL,CL SPIKE 🤑 BE+,1
+1004003597496889395,2022-08-02T14:31:51.128+02:00,silny9867,Silny,false,USOIL,CL SPIKE 🤑 BE+,1
 1004004960029126816,2022-08-02T14:37:15.981+02:00,silny9867,Silny,false,NQ,NQ X2  TP1 🤑,1
 1004005301663567922,2022-08-02T14:38:37.433+02:00,silny9867,Silny,false,ES,ES🤑  TP1,1
-1007292500697952377,2022-08-11T16:20:46.756+02:00,damianwieczorek,Damian Wieczorek,false,CL,CL 09-22 plan na zagranie  powrot do range co mysłicie Panowie?,1
+1007292500697952377,2022-08-11T16:20:46.756+02:00,damianwieczorek,Damian Wieczorek,false,USOIL,CL 09-22 plan na zagranie  powrot do range co mysłicie Panowie?,1
 1007309124175941763,2022-08-11T17:26:50.102+02:00,silny9867,Silny,false,USOIL,:USOIL: :BUY:,1
 1007317995628007505,2022-08-11T18:02:05.221+02:00,silny9867,Silny,false,XAUUSD,:XAUUSD: :sell: :pac:,1
 1007644421971525734,2022-08-12T15:39:11.326+02:00,silny9867,Silny,false,USOIL,:USOIL: :sell: :pac:  Troche spoznione wejscie 🤣 Podsumowanie: TP1 i BE+ 🤑,1
-1009075339550527570,2022-08-16T14:25:08.662+02:00,silny9867,Silny,false,GOLD,:gold: :sell: :pac:,1
+1009075339550527570,2022-08-16T14:25:08.662+02:00,silny9867,Silny,false,XAUUSD,:gold: :sell: :pac:,1
 1009084385183678606,2022-08-16T15:01:05.309+02:00,kiewra82,Karol Kiewra,false,USOIL,:USOIL: :BUY:,1
-1009414698434834512,2022-08-17T12:53:38.125+02:00,silny9867,Silny,false,GOLD,Spoznione :(:gold: :sell: :pac: Podsumowanie: Full TP :zysk:🤑,1
-1009435751794094133,2022-08-17T14:17:17.637+02:00,silny9867,Silny,false,GOLD,:gold: :sell: :pac: Podsumowanie: TP1 i BE+:zysk:  🤑,1
-1009439950565032057,2022-08-17T14:33:58.702+02:00,silny9867,Silny,false,GOLD,:gold: :sell: :pac: Podsumowanie: TP1 i BE+ :zysk: 🤑,1
-1009447124037013504,2022-08-17T15:02:28.991+02:00,silny9867,Silny,false,GOLD,:gold: :sell: :pac: Podusmowanie: BE+:zysk:,1
-1009732252860678195,2022-08-18T09:55:29+02:00,silny9867,Silny,false,GOLD,:gold: :sell: :pac:Podsumowanie: StopLoss:strata:,1
+1009414698434834512,2022-08-17T12:53:38.125+02:00,silny9867,Silny,false,XAUUSD,Spoznione :(:gold: :sell: :pac: Podsumowanie: Full TP :zysk:🤑,1
+1009435751794094133,2022-08-17T14:17:17.637+02:00,silny9867,Silny,false,XAUUSD,:gold: :sell: :pac: Podsumowanie: TP1 i BE+:zysk:  🤑,1
+1009439950565032057,2022-08-17T14:33:58.702+02:00,silny9867,Silny,false,XAUUSD,:gold: :sell: :pac: Podsumowanie: TP1 i BE+ :zysk: 🤑,1
+1009447124037013504,2022-08-17T15:02:28.991+02:00,silny9867,Silny,false,XAUUSD,:gold: :sell: :pac: Podusmowanie: BE+:zysk:,1
+1009732252860678195,2022-08-18T09:55:29+02:00,silny9867,Silny,false,XAUUSD,:gold: :sell: :pac:Podsumowanie: StopLoss:strata:,1
 1010101122280738817,2022-08-19T10:21:14.323+02:00,kiewra82,Karol Kiewra,false,USOIL,:USOIL: :sell:,1
 1010119331243376730,2022-08-19T11:33:35.678+02:00,kiewra82,Karol Kiewra,false,USOIL,:USOIL: :sell:,1
-1010160512031531029,2022-08-19T14:17:13.943+02:00,kiewra82,Karol Kiewra,false,GOLD,:gold: :BUY:,1
-1011281851417108650,2022-08-22T16:33:02.086+02:00,silny9867,Silny,false,GOLD,:gold: :BUY: Podsumowanie: TP1 + BE+ :zysk: 🤑,1
-1012704848162082876,2022-08-26T14:47:30.948+02:00,silny9867,Silny,false,GOLD,:gold: :sell:Podsumowanie: TP1 + BE+:zysk:,1
+1010160512031531029,2022-08-19T14:17:13.943+02:00,kiewra82,Karol Kiewra,false,XAUUSD,:gold: :BUY:,1
+1011281851417108650,2022-08-22T16:33:02.086+02:00,silny9867,Silny,false,XAUUSD,:gold: :BUY: Podsumowanie: TP1 + BE+ :zysk: 🤑,1
+1012704848162082876,2022-08-26T14:47:30.948+02:00,silny9867,Silny,false,XAUUSD,:gold: :sell:Podsumowanie: TP1 + BE+:zysk:,1
 1012733318392991864,2022-08-26T16:40:38.78+02:00,silny9867,Silny,false,USOIL,:USOIL: :sell:Podsumowanie: TP1 + BE++:zysk: 🤑,1
 1013093034310762496,2022-08-27T16:30:01.738+02:00,jacek_jacek,Jacek,false,EURUSD,:EURUSD:  Scenariusz na przyszły tydzień. Korekta pod IMB i potem dalej dół. Moja prognoza 0.95.  A wy jak obstawiacie ???,1
 1013093459688697949,2022-08-27T16:31:43.156+02:00,jacek_jacek,Jacek,false,XAUUSD,":XAUUSD:  Jak dla mnie, po korekcie leci 1700.",2
 1013093816124850287,2022-08-27T16:33:08.137+02:00,jacek_jacek,Jacek,false,GBPUSD,:GBPUSD:  A tutaj korekta. Pytanie jak głęboka.,1
 1020006619658080277,2022-09-15T18:22:08.933+02:00,mariuszt_,MariuszT,false,XAUUSD,":XAUUSD:  H1 ładnie pokazuje przebicie poziomu, kilkukrotny retest i odbicie od średniej",1
-1024321160424464517,2022-09-27T16:06:35.612+02:00,damianwieczorek,Damian Wieczorek,false,CL,CL powrót do RANGE,1
+1024321160424464517,2022-09-27T16:06:35.612+02:00,damianwieczorek,Damian Wieczorek,false,USOIL,CL powrót do RANGE,1
 1027924790348099666,2022-10-07T14:46:07.938+02:00,silny9867,Silny,false,GBPUSD,GBPUSD na 3 noge dobrze wyglada 🤑,1
 1029759467274899527,2022-10-12T16:16:29.004+02:00,silny9867,Silny,false,USDCHF,"USDCHF Para zebrala plynnosc z dolu sesji Azja, wspiera mnie NLO. Swieca sygnalowa zamknela sie powyzej NLO ktora przeszkadzala, wiec teraz juz droga wolna 😄 UP!",1
 1040616380623499316,2022-11-11T14:17:58.858+01:00,gc777713,P7777,false,XAUUSD,:XAUUSD:,1
 1040664454582521937,2022-11-11T17:29:00.583+01:00,gc777713,P7777,false,XAUUSD,MOŻE TARAZ WEJDZIE :sell: :XAUUSD:,1
 1042486403101118575,2022-11-16T18:08:46.96+01:00,silny9867,Silny,false,GBPUSD,GBPUSD:BUY:  Zajarany nowym mentoringiem z PAC postanowilem rozgrywac PAC. Bede wrzucal tutaj co niektore setupy. Zobaczymy co z tego wyjdzie. Wykres M5. Tylko :pac:.,1
-1044199415918903296,2022-11-21T11:35:41.042+01:00,silny9867,Silny,false,GOLD,:sell: :gold:,1
+1044199415918903296,2022-11-21T11:35:41.042+01:00,silny9867,Silny,false,XAUUSD,:sell: :gold:,1
 1044887677956272149,2022-11-23T09:10:35.499+01:00,gc777713,P7777,false,XAGUSD,:XAGUSD:,1
 1047206910002200678,2022-11-29T18:46:23.508+01:00,silny9867,Silny,false,ES,ES 3rd leg mesured move.,1
-1049721848532828320,2022-12-06T17:19:51.579+01:00,silny9867,Silny,false,GOLD,:gold: :BUY:  Szukam takiego zagrania 😄,1
+1049721848532828320,2022-12-06T17:19:51.579+01:00,silny9867,Silny,false,XAUUSD,:gold: :BUY:  Szukam takiego zagrania 😄,1
 1050063574388715581,2022-12-07T15:57:45.372+01:00,damianwieczorek,Damian Wieczorek,false,ES,ES 12-22,1
-1052302003415552130,2022-12-13T20:12:28.44+01:00,silny9867,Silny,false,GOLD,Gold BUY,1
+1052302003415552130,2022-12-13T20:12:28.44+01:00,silny9867,Silny,false,XAUUSD,Gold BUY,1
 1052303794823770252,2022-12-13T20:19:35.545+01:00,silny9867,Silny,false,ES,ES BUY Edit: StopLoss.,1
 1052310263552036934,2022-12-13T20:45:17.81+01:00,silny9867,Silny,false,ES,ES BUY Wejscie nr2.,1
 1052640113475211366,2022-12-14T18:36:00.16+01:00,silny9867,Silny,false,ES,"Plan na ES, ciezko zeby sie do 20 wyrobili ale moze kawaleczek 😄",1
@@ -110,64 +110,64 @@ GC 08-22",1
 1054698043833851904,2022-12-20T10:53:28.992+01:00,damianwieczorek,Damian Wieczorek,false,USOIL,:pac: :BUY: :USOIL:,1
 1054723468429627464,2022-12-20T12:34:30.688+01:00,damianwieczorek,Damian Wieczorek,false,USOIL,:USOIL:,1
 1054838785893998732,2022-12-20T20:12:44.514+01:00,silny9867,Silny,false,ES,ES BUY TP1,1
-1054848002797355009,2022-12-20T20:49:21.995+01:00,silny9867,Silny,false,GOLD,Gold Buy TP1,1
+1054848002797355009,2022-12-20T20:49:21.995+01:00,silny9867,Silny,false,XAUUSD,Gold Buy TP1,1
 1057326368918085733,2022-12-27T16:57:30.524+01:00,silny9867,Silny,false,ES,ES SELL TP1,1
 1057370023833903164,2022-12-27T19:50:58.667+01:00,silny9867,Silny,false,ES,ES SELL TP1,1
 1057716097345916998,2022-12-28T18:46:09.022+01:00,silny9867,Silny,false,ES,"ES BUY, pod prad :pac:",1
-1058101507821686984,2022-12-29T20:17:38.04+01:00,silny9867,Silny,false,GOLD,GOLD BUY 😄,1
+1058101507821686984,2022-12-29T20:17:38.04+01:00,silny9867,Silny,false,XAUUSD,GOLD BUY 😄,1
 1058388906900467824,2022-12-30T15:19:39.32+01:00,damianwieczorek,Damian Wieczorek,false,GC,GC 02- 23 377 Tick powrót do RANGE jeśli zrobią korekte,1
 1058394500923408414,2022-12-30T15:41:53.039+01:00,silny9867,Silny,false,ES,"ES 3 noga, nie zabrali mnie 😦",1
-1059835622778470490,2023-01-03T15:08:23.264+01:00,damianwieczorek,Damian Wieczorek,false,CL,"troche inaczej ale podobnie 🙂 
+1059835622778470490,2023-01-03T15:08:23.264+01:00,damianwieczorek,Damian Wieczorek,false,USOIL,"troche inaczej ale podobnie 🙂 
 CL 02 -23 618 Tick",1
 1059889972645199903,2023-01-03T18:44:21.282+01:00,silny9867,Silny,false,ES,ES Sell TP1,1
 1063017644233601094,2023-01-12T09:52:36.298+01:00,silny9867,Silny,false,GC,Measured move GC Edit: Full TP,1
-1063029125234839612,2023-01-12T10:38:13.582+01:00,silny9867,Silny,false,CL,Measured move CL,1
-1063374947348652042,2023-01-13T09:32:23.999+01:00,silny9867,Silny,false,CL,BUY CL ',1
+1063029125234839612,2023-01-12T10:38:13.582+01:00,silny9867,Silny,false,USOIL,Measured move CL,1
+1063374947348652042,2023-01-13T09:32:23.999+01:00,silny9867,Silny,false,USOIL,BUY CL ',1
 1063426578404610158,2023-01-13T12:57:33.802+01:00,silny9867,Silny,false,ES,ES SELL,1
 1063456584711282738,2023-01-13T14:56:47.863+01:00,silny9867,Silny,false,GC,GC SELL Edit: StopLoss,1
 1064514537165967380,2023-01-16T13:00:43.384+01:00,silny9867,Silny,false,GC,GC SELL,1
 1064527008513675276,2023-01-16T13:50:16.785+01:00,silny9867,Silny,false,GC,GC SELL,1
 1064846959103451176,2023-01-17T11:01:38.95+01:00,silny9867,Silny,false,ES,ES SELL,1
-1064847050946121758,2023-01-17T11:02:00.847+01:00,silny9867,Silny,false,CL,CL BUY,1
+1064847050946121758,2023-01-17T11:02:00.847+01:00,silny9867,Silny,false,USOIL,CL BUY,1
 1065182195217616896,2023-01-18T09:13:45.468+01:00,silny9867,Silny,false,ES,ES BUY Edit: StopLoss,1
 1065252491056390246,2023-01-18T13:53:05.302+01:00,silny9867,Silny,false,ES,ES BUY,1
 1067039287293513748,2023-01-23T12:13:10.722+01:00,gc777713,P7777,false,XAUUSD,:XAUUSD: :sell:,1
 1067110977872592938,2023-01-23T16:58:03.088+01:00,damianwieczorek,Damian Wieczorek,false,GC,"Cześć 
 plan zagrania na GC 🤔",1
 1067137664446374001,2023-01-23T18:44:05.663+01:00,damianwieczorek,Damian Wieczorek,false,XAUUSD,:XAUUSD: :BUY:,1
-1067819786370813982,2023-01-25T15:54:36.203+01:00,gc777713,P7777,false,GOLD,GOLD powrot do order block i pullback zone i up  odbicie od strefy battle,1
+1067819786370813982,2023-01-25T15:54:36.203+01:00,gc777713,P7777,false,XAUUSD,GOLD powrot do order block i pullback zone i up  odbicie od strefy battle,1
 1068191294305861792,2023-01-26T16:30:50.597+01:00,marekkk3700,Marekkk,false,ES,"https://prnt.sc/xgiRQWEjuz_P Hej, ES z dzisiaj. Short na wypełnienie Gap na SPY. Weszło idealnie. Gdyby wyczekać korektę weszło by jeszcze lepiej.",1
 1068212298306551880,2023-01-26T17:54:18.341+01:00,damianwieczorek,Damian Wieczorek,false,XAUUSD,:XAUUSD: :BUY:  proba zagrania na powrót do RANGE,1
 1069655224211484702,2023-01-30T17:27:58.685+01:00,silny9867,Silny,false,ES,ES SELL,1
 1070407533916848139,2023-02-01T19:17:23.296+01:00,damianwieczorek,Damian Wieczorek,false,XAUUSD,:XAUUSD: :sell:  plan na zagranie pozycji short potrzebna ładna świeca:Red:,1
 1070739717110366300,2023-02-02T17:17:21.941+01:00,_jakubbak,ALLin Jakub Bąk,true,EURUSD,:EURUSD:,1
 1074459344705433680,2023-02-12T23:37:50.267+01:00,tomaszkaczmarski,T.K.,false,XAUUSD,:XAUUSD:  perspektywa H4,1
-1077940753478733984,2023-02-22T14:11:42.8+01:00,tomaszkaczmarski,T.K.,false,GOLD,:gold:  Range day plan,1
-1077958036699758612,2023-02-22T15:20:23.441+01:00,tomaszkaczmarski,T.K.,false,GOLD,:gold:  zmiana planu - 2 leg pullback,1
+1077940753478733984,2023-02-22T14:11:42.8+01:00,tomaszkaczmarski,T.K.,false,XAUUSD,:gold:  Range day plan,1
+1077958036699758612,2023-02-22T15:20:23.441+01:00,tomaszkaczmarski,T.K.,false,XAUUSD,:gold:  zmiana planu - 2 leg pullback,1
 1078738909653114940,2023-02-24T19:03:18.061+01:00,damianwieczorek,Damian Wieczorek,false,USOIL,":USOIL: :BUY:  pierwsze wejscie na CL zakończone SL 
 Ponowiłem zagranie",1
-1078760189752250480,2023-02-24T20:27:51.632+01:00,damianwieczorek,Damian Wieczorek,false,CL,CL 1 TP 2 przestawiony na be,1
+1078760189752250480,2023-02-24T20:27:51.632+01:00,damianwieczorek,Damian Wieczorek,false,USOIL,CL 1 TP 2 przestawiony na be,1
 1089835902848745565,2023-03-27T10:58:47.411+02:00,silny9867,Silny,false,GC,GC 3rd leg measured move.,1
-1090629517858578502,2023-03-29T15:32:19.974+02:00,silny9867,Silny,false,CL,CL BUY,1
+1090629517858578502,2023-03-29T15:32:19.974+02:00,silny9867,Silny,false,USOIL,CL BUY,1
 1090901114771222569,2023-03-30T09:31:33.724+02:00,silny9867,Silny,false,ES,ES BUY,1
 1090949613483196417,2023-03-30T12:44:16.718+02:00,silny9867,Silny,false,GC,GC BUY,1
-1091030040071913572,2023-03-30T18:03:51.911+02:00,silny9867,Silny,false,CL,CL BUY GO GO GO!!! Edit: BE,1
+1091030040071913572,2023-03-30T18:03:51.911+02:00,silny9867,Silny,false,USOIL,CL BUY GO GO GO!!! Edit: BE,1
 1091046047247237243,2023-03-30T19:07:28.319+02:00,silny9867,Silny,false,ES,ES BUY Edit: SL,1
 1091276379640832080,2023-03-31T10:22:43.841+02:00,silny9867,Silny,false,GC,GC SELL,1
-1092373424967528580,2023-04-03T11:01:59.829+02:00,silny9867,Silny,false,CL,CL SELL Edit: BE,1
-1092400791333126195,2023-04-03T12:50:44.479+02:00,silny9867,Silny,false,CL,CL SELL Edit: StopLoss,1
-1092795509124640830,2023-04-04T14:59:12.534+02:00,silny9867,Silny,false,CL,Buy CL Edit: Full TP,1
-1093151754905985024,2023-04-05T14:34:48.147+02:00,silny9867,Silny,false,CL,CL SELL,1
+1092373424967528580,2023-04-03T11:01:59.829+02:00,silny9867,Silny,false,USOIL,CL SELL Edit: BE,1
+1092400791333126195,2023-04-03T12:50:44.479+02:00,silny9867,Silny,false,USOIL,CL SELL Edit: StopLoss,1
+1092795509124640830,2023-04-04T14:59:12.534+02:00,silny9867,Silny,false,USOIL,Buy CL Edit: Full TP,1
+1093151754905985024,2023-04-05T14:34:48.147+02:00,silny9867,Silny,false,USOIL,CL SELL,1
 1095285402664964106,2023-04-11T11:53:09.414+02:00,agnieszkachomiak,Agnieszka Chomiak,false,XAUUSD,Czy na XAUUSD występuje powoli scenariusz Spike 2 try fail?,1
 1101171187100434553,2023-04-27T17:41:09.776+02:00,_jakubbak,ALLin Jakub Bąk,true,EURUSD,:EURUSD:,1
 1102902541961940992,2023-05-02T12:20:56.942+02:00,micobar,Micobar,false,XAUUSD,:XAUUSD:  weszlo pieknie 1.5%,2
-1107987642487947264,2023-05-16T13:07:19.384+02:00,silny9867,Silny,false,CL,CL SELL Edit: StopLoss,1
+1107987642487947264,2023-05-16T13:07:19.384+02:00,silny9867,Silny,false,USOIL,CL SELL Edit: StopLoss,1
 1110879285432029246,2023-05-24T12:37:40.786+02:00,silny9867,Silny,false,GBPUSD,GBPUSD Measured move SELL,1
 1116059123260338216,2023-06-07T19:40:30.361+02:00,_jakubbak,ALLin Jakub Bąk,true,XAUUSD,:XAUUSD: :pac:,1
-1119240934513709107,2023-06-16T14:23:53.279+02:00,silny9867,Silny,false,GOLD,Gold,1
+1119240934513709107,2023-06-16T14:23:53.279+02:00,silny9867,Silny,false,XAUUSD,Gold,1
 1119241026125705256,2023-06-16T14:24:15.121+02:00,silny9867,Silny,false,ES,ES,1
 1121002115737858168,2023-06-21T11:02:11.604+02:00,silny9867,Silny,false,USDCHF,USDCHF SELL,1
-1125394467160064051,2023-07-03T13:55:49.789+02:00,silny9867,Silny,false,CL,CL BUY Edit: TP1,1
+1125394467160064051,2023-07-03T13:55:49.789+02:00,silny9867,Silny,false,USOIL,CL BUY Edit: TP1,1
 1125397454934773813,2023-07-03T14:07:42.13+02:00,silny9867,Silny,false,GC,GC Sell Edit: StopLoss,1
 1144693360733470722,2023-08-25T20:02:44.573+02:00,adijos77,Kobi,false,XAUUSD,XAUUSD zostawiam to tu do sprawdzenia przez bardziej doświadczonych kolegów 💪,1
 1153227859129802792,2023-09-18T09:15:47.554+02:00,_jakubbak,ALLin Jakub Bąk,true,XAUUSD,xauusd,1
@@ -196,7 +196,7 @@ USDJPY",3
 1347659135377997876,2025-03-07T20:56:16.17+01:00,przemek0678,PAKA,false,USDCHF,"Dzisiaj mniej szczęścia choć dzień na plusie licząc poranne zagranie. Piątek i dwa wydarzenia chyba trochę uśpiły rynek i nie chodził jak powinien. USDCHF zebrał płynność z dołka który miał początek  w 2024.11  i zawrócił. Udało się zgarnąć połowę i przesunąć SL na BE. Natomiast GBPUSD po utworzeniu pierwszej nogi , korekcie ( już po tej korekcie było widać że coś nie halo ) i wydarzeniu liczyłem na wybicie na drugą nogę jednak rynek chciał inaczej. Ogólnie cały ruch ceny dzisiaj określiłbym jako Range.",2
 1347849496490545152,2025-03-08T09:32:41.796+01:00,przemek0678,PAKA,false,BTCUSD,Sobota na krypto w mojej ocenie RANGE.  Na tapecie BTCUSD i zagranie 2-TRY TRAP.  Mam problem z brokerem PEEPERSTONE nie odpalają się zlecenia a instrumenty są od nich. jakaś porada? Przełączyłem TV na ich konto demo i puściłem zlecenie BAY STOP  z tym że nie wiedziałem jak zamknąć połowę ( zmniejszyłem zysk o połowę w % ale zamknęło mi całość ) . Zobaczymy co się dalej wydarzy według mnie powinni dojść do miejsca które zaznaczyłem.,2
 1348591057662775337,2025-03-10T10:39:23.757+01:00,przemek0678,PAKA,false,BTCUSD,"Wejście na 2 nogę BTCUSD, dojcie do 38.2 fibo, mikrotacja spadkowa, czy świeca sygnałowa była, według mnie taka sobie. Mierzenie MM, 1 % ryzyka,dzwignia 1:500, konto 100tyś. Pozycja zamknięta na proficie 5000$. Moje pytanie czy wejście było zasadne? W tym momencie cena odklepała pozimo fibo 61.8, przebijając go knotem świecy, czy w zwiazku z tym setup jest spalony, czy dalej jesteśmy w grze na 2 nogę?",1
-1348615969597030471,2025-03-10T12:18:23.225+01:00,allintraders,ALLin Pablo Gradziuk,true,CL,#CL,1
+1348615969597030471,2025-03-10T12:18:23.225+01:00,allintraders,ALLin Pablo Gradziuk,true,USOIL,#CL,1
 1348661515779047454,2025-03-10T15:19:22.281+01:00,przemek0678,PAKA,false,USDCHF,"US 500  druga noga, pozycja zabezpieczona i zgarnięta połowa złapana na SL
 USDCHF druga noga, pozycja nie zabezpieczona ( błąd) i full SL🙂",2
 1349070673301209139,2025-03-11T18:25:13.036+01:00,przemek0678,PAKA,false,USDCAD,"Tak były na plus dla USDCAD, złapany epicki SL w świadomym oczekieaniu na wydarzenie🙂 Drugi setup na powrót ale zrezygnowałem na lekkim plusie jak zaczęli znowu iść w górę",1
@@ -214,11 +214,11 @@ Gdzie jest Target ?",1
 1356571684492017724,2025-04-01T12:11:33.466+02:00,przemek0678,PAKA,false,USDJPY,"USDJPY, druga noga w toku",1
 1359145974039056394,2025-04-08T14:40:51.922+02:00,andrzej_94378,Andrzej,false,EURUSD,"proszę o pomoc, ten sam czas EURUSD po zainstalowaniu Range Bars i Tick Chart do tego wykresu mam bardzo mało danych ze świec - w czym tkwi problem?",3
 1365599040867401768,2025-04-26T10:03:02.946+02:00,szumada,AS,false,BTCUSD,HEj wiecie może z czego wynika że jak wziąłem 2 razy ten sam wykres BTCUSD z M5  i uyworzyłem z niego tickowy  z tymi samymi parametrami to otrzymałem różne wykresy tickowe?,2
-1371494730411671703,2025-05-12T16:30:24.87+02:00,allintraders,ALLin Pablo Gradziuk,true,GOLD,"#GOLD #LTS 
+1371494730411671703,2025-05-12T16:30:24.87+02:00,allintraders,ALLin Pablo Gradziuk,true,XAUUSD,"#GOLD #LTS 
 
 Ready ?",1
-1371901488699281418,2025-05-13T19:26:43.603+02:00,laskuspiotr_93896,laskus piotr,false,GOLD,Wedłóg mnie dziś  Gold ma Range Day.Czy mylę się?,1
-1374026872089739314,2025-05-19T16:12:14.491+02:00,allintraders,ALLin Pablo Gradziuk,true,GOLD,"Rozegranie z dzisiejszej sesji Live na GOLD, dolecieliśmy do Open dnia i wystarczy.
+1371901488699281418,2025-05-13T19:26:43.603+02:00,laskuspiotr_93896,laskus piotr,false,XAUUSD,Wedłóg mnie dziś  Gold ma Range Day.Czy mylę się?,1
+1374026872089739314,2025-05-19T16:12:14.491+02:00,allintraders,ALLin Pablo Gradziuk,true,XAUUSD,"Rozegranie z dzisiejszej sesji Live na GOLD, dolecieliśmy do Open dnia i wystarczy.
 
 Sama pozycja na #💻・day-trading",1
 1381984618885939291,2025-06-10T15:13:29.175+02:00,irenikus.,Irek,false,EURUSD,EURUSD - Setup siły z opisem,1
@@ -233,12 +233,12 @@ Sama pozycja na #💻・day-trading",1
 1395422480369319946,2025-07-17T17:10:45.016+02:00,przeman76_17783,Przeman76,false,XAUUSD,jakoś ładniej mi do analizy na dziś wyglądało niż XAUUSD,1
 1421422317858193469,2025-09-27T11:04:49.327+02:00,maciejkluczyk,Maciej Kluczyk,false,USDJPY,"Witam. Często stosujecie PAC w dłuższym terminie (kilka dni bądź tygodni) ? Jeśli tak to  czy 
 Wam sie w ogóle sprawdza ? Wykminiłem coś takiego na USDJPY na H4 powrót do non trade zone zaznaczonej na jasny kolor po reakcji na strefę resistance, dodając do tego dane z barchart.",2
-1424495410394824746,2025-10-05T22:36:11.683+02:00,allintraders,ALLin Pablo Gradziuk,true,GOLD,"@everyone **[Before the Market]**
+1424495410394824746,2025-10-05T22:36:11.683+02:00,allintraders,ALLin Pablo Gradziuk,true,XAUUSD,"@everyone **[Before the Market]**
 
 > **GOLD**
 
 Spojrzenie z dużej perspektywy na Price Action i realizacje 3rd leg measured-move. Wejście w Trading Range nie jest przypadkiem, nowy tydzień daje szanse na rozwinięcie kolejnego Price Action, ktróry może pomóc w realizacji celu 4,000$. Osobiście mam oczekiwania, że przed jazdą, pojawi się wycięcie kupujących i zebranie płynności (ich stop lossów).",1
-1426239080269611018,2025-10-10T18:04:54.977+02:00,maciejsapierzynski,ALLin Maciej Sapierzyński,true,GOLD,"**PAC Sesja Live. ** Podsumowująco to co zrobiliśmy na sesji - 6E ( Euro ) wywaliło nam SL - 6A ( Australijczyk ) wymiotł jak ""dziki w żołędzie""  zaliczył full setup, zgarnął poziom PSND i poszedł jeszcze dalej ( mnie wywalił na BE )  🙂 no i na końcu mówiliśmy o Gold - sorry ale nie mogłem się powstrzymać od zagrania setup Trap po pullback 🙂",4
+1426239080269611018,2025-10-10T18:04:54.977+02:00,maciejsapierzynski,ALLin Maciej Sapierzyński,true,XAUUSD,"**PAC Sesja Live. ** Podsumowująco to co zrobiliśmy na sesji - 6E ( Euro ) wywaliło nam SL - 6A ( Australijczyk ) wymiotł jak ""dziki w żołędzie""  zaliczył full setup, zgarnął poziom PSND i poszedł jeszcze dalej ( mnie wywalił na BE )  🙂 no i na końcu mówiliśmy o Gold - sorry ale nie mogłem się powstrzymać od zagrania setup Trap po pullback 🙂",4
 1428071683322806343,2025-10-15T19:27:01.593+02:00,fenelon00,Karol,false,US500,":US500:  **US500**, fajny ruch spike, celowałem w setup pullback, średnia dotknięta + zaliczony PB między 38.2 a 50%. Troche nie jestem zadowolony z momentu otwarcia pozycji (mogłem wcześniej szukać sygnałowej zaraz po reteście EMA), ale nie jest tragicznie (ale do poprawy). RR 2:1 i cel w Measured Move (TP chwilę przed), chociaż wiem że kontynuacje Spike'a warto celować w 50-60% pierwszej długości, także po zrobieniu 1:1 wskoczyłem na BE i przy 60% przesuwałem SL z nadzieją, że polecą dalej do MM i się udało 🙂  P.S. Teraz wracają, wiec zobaczymy czy będzie przestrzeń na 3rd leg.",1
 1428477192509325402,2025-10-16T22:18:22.517+02:00,maciejsapierzynski,ALLin Maciej Sapierzyński,true,NQ,Mój Mistrzu Karolu od PAC😀 Nie patrz na strzałki to są moje „mikro cykle” i takie tam rozkminy 😂  z drugiej strony mam lekko zmodyfikowaną wersje pod swój styl handlu i nie zawsze to wygląda książkowo.  🫣🙈 Tutaj masz dzisiejszego NQ którego rozgrywam dopiero po 17:30 😋 w ogóle tego nie pokazuje bo nie nadaje się żeby znalazł swoje miejsce na kanale PAC 😂🙈 Ale co z tego jak ja wiem co i jak chce rozegrać 🫶🤟👋  W kontaktach Bracie 🤝😎,1
 1428749058301886506,2025-10-17T16:18:40.373+02:00,przeman76_17783,Przeman76,false,XAUUSD,XAUUSD i XAGUSD FullTP,2
@@ -250,16 +250,16 @@ Spojrzenie z dużej perspektywy na Price Action i realizacje 3rd leg measured-mo
 1440113320777486438,2025-11-17T23:56:11.685+01:00,krzysztof_73290,Krzysztof,false,DAX,"Zapomniałem wcześniej wkleić ale dziś DAX też dał ładnie się rozliczyć tyko trzeba było poczekać.
 Dziś dla odmiany nie PAC ale prosty setup pod sam AI. Dodatkowo struktura rynku spadkowa, 
 Break, odbicie i doszli a nawet przebili strefę BZ oraz volumen korporacyjny.",1
-1441454013957537943,2025-11-21T16:43:37.848+01:00,maciejsapierzynski,ALLin Maciej Sapierzyński,true,GOLD,**GOLD - juz nic nie mówię** 🙂 Idą jak po sznurku ✅,1
+1441454013957537943,2025-11-21T16:43:37.848+01:00,maciejsapierzynski,ALLin Maciej Sapierzyński,true,XAUUSD,**GOLD - juz nic nie mówię** 🙂 Idą jak po sznurku ✅,1
 1441461033041657929,2025-11-21T17:11:31.328+01:00,maciejsapierzynski,ALLin Maciej Sapierzyński,true,EURUSD,**EURUSD - to samo plan i realizacja **🎯,2
-1441471135928549579,2025-11-21T17:51:40.044+01:00,maciejsapierzynski,ALLin Maciej Sapierzyński,true,GOLD,**GOLD - FULL TP **,1
-1441547556118204447,2025-11-21T22:55:20.037+01:00,fenelon00,Karol,false,GOLD,"#GOLD 
+1441471135928549579,2025-11-21T17:51:40.044+01:00,maciejsapierzynski,ALLin Maciej Sapierzyński,true,XAUUSD,**GOLD - FULL TP **,1
+1441547556118204447,2025-11-21T22:55:20.037+01:00,fenelon00,Karol,false,XAUUSD,"#GOLD 
 Setup na 3rd leg na który się czaiłem, rozpatrywany podobnie na sesji u Maćka,  2 try zaliczone w Pullbacku, przebicie NLO oraz EMA + jej retest i szukanie dobrej świeczki. RR 1.7:1, chociaż początkowo chciałem grać na full 3rd leg, to wypadała ona w przedziale 138.2 a 161.8 z 2nd leg i mógł się pojawić tam opór, więc wolałem zamykać szybciej, mimo wszystko 192 pipsy złapane 🙂",1
 1442868158204608634,2025-11-25T14:22:56.11+01:00,fenelon00,Karol,false,USDJPY,"**USDJPY **- zagranie na 3rd leg, przebicie strefy S/R, która widziałem, że wcześniej pracowała, niezadowolony jestem z wejścia, bo wchodziłem nie czekając na korekte (człowiek się boi, że rynek ucieknie... tutaj muszę nad tym pracować), zrobili powrót setup fail, ale też mocno poszedł strzał do góry (knot został) i był blisko najwyższego punktu korekty. Finalnie sukces 🙂",1
 1445544041130229980,2025-12-02T23:35:56.315+01:00,marcin85z_74822,Marcin85z,false,XAUUSD,"XAUUSD. Zagranie na powrót do NTZ. Wyznaczenie Range i Mikrorotacji, 2TRY Fail, wejście w pozycje po Reakcji Kupujących nad  EMA. RR1.5/1. Plan zrealizowany na +",1
 1447673733627117699,2025-12-08T20:38:34.574+01:00,pawel.skorzybot,Paweł Skorzybót,false,EURUSD,"Dobry wieczór, dzisiaj złoto nie chciało wrócić do mojej strefy NTZ, coś tam wziąłem, ale nie taki był plan. Drugim okiem rozpatrywałem EURUSD też na powrót do NTZ, tutaj znacznie lepiej całość zagrała. Jednak na tym koniec 🙂",2
 1449078599931003102,2025-12-12T17:41:00.802+01:00,puncher84,Lukasz P,false,XAUUSD,XAUUSD - po 2 nodze był ruch jak w spike i cena znowu zaczęła iść na 3 nogę i full TP zebrane po 5 korektach (700 dolców na koncie demo wpadło) 🙂,1
-1449086061136318666,2025-12-12T18:10:39.692+01:00,fenelon00,Karol,false,GOLD,"**GOLD **- zagranie na __powrót do range__, przebicie S/R trendline, mikrorotacja spadkowa, powstał spike, który przebił wolumen na AI (zielony), zretestował go, był znaczek sygnału wejścia mocnych zleceń na kontynuacje (na MT4 patrze), poleciała świeca sygnałowa i wejście. Idealnie do dolnego zakresu range, RR 2:1, 360 pips 🙂",1
+1449086061136318666,2025-12-12T18:10:39.692+01:00,fenelon00,Karol,false,XAUUSD,"**GOLD **- zagranie na __powrót do range__, przebicie S/R trendline, mikrorotacja spadkowa, powstał spike, który przebił wolumen na AI (zielony), zretestował go, był znaczek sygnału wejścia mocnych zleceń na kontynuacje (na MT4 patrze), poleciała świeca sygnałowa i wejście. Idealnie do dolnego zakresu range, RR 2:1, 360 pips 🙂",1
 1458489694055694500,2026-01-07T16:57:20.491+01:00,puncher84,Lukasz P,false,EURUSD,metoda 2 prób i TP na EURUSD,1
 1458819612341960764,2026-01-08T14:48:19.14+01:00,krzysztof_73290,Krzysztof,false,GBPUSD,GBPUSD no i poszli na drugą nogę,1
 1458820547722088551,2026-01-08T14:52:02.152+01:00,krzysztof_73290,Krzysztof,false,GBPUSD,GBPUSD jeśli idą w dół to byćmożę w stronę najbliższego GAP z H1,1
@@ -293,7 +293,7 @@ Wyznaczony range, wyrysowana trendline, poczekałem na przebicie i retest, wejś
 1472527182105673779,2026-02-15T10:37:18.446+01:00,siemo._17543,Przemek S.,false,EURUSD,zadanie z wyznaczania trend lines - wykres tikowy EURUSD dzień 6 luty do godziny 13:30 ilość tików 130. Pionową linią czerwoną zaznaczyłem godzinę 13:30.,1
 1472545963599069234,2026-02-15T11:51:56.303+01:00,siemo._17543,Przemek S.,false,EURUSD,"i kolejne zadanie z PAC - ty, razem wyznaczyłem strefy wsparcia i oporu, proszę o sprawdzenie czy dobrze, wykres ten sam co poprzednio EURUSD rozpatrywany od początku dnia do 13:30",1
 1473003083012247678,2026-02-16T18:08:22.064+01:00,siemo._17543,Przemek S.,false,EURUSD,"zadanie z PAC Double Top&Bottom, dzień dzisiejszy EURUSD wykres tikowy. Czy dobrze to oznaczam?",1
-1473316941413220526,2026-02-17T14:55:31.738+01:00,krystian_2703,Krystian,false,GOLD,gold,1
+1473316941413220526,2026-02-17T14:55:31.738+01:00,krystian_2703,Krystian,false,XAUUSD,gold,1
 1475091913391603772,2026-02-22T12:28:38.035+01:00,siemo._17543,Przemek S.,false,XAUUSD,"czy dobrze wyznaczyłem strefę Battle Zone, wykres XAUUSD tikowy 18 luty 2026, trend wzrostowy",1
 1475951759934357767,2026-02-24T21:25:21.426+01:00,hirousek1645,Alan.B,false,EURUSD,"EURUSD, 150 Ticków. Udało się znaleźć pierwszy impuls (1 LEG), wyznaczony z niego MM (zielony) w miarę cena na niego reaguję. 2 LEG wyznaczony MM (fioletowy) jest prawie w punkt jeśli chodzi o reakcję widać to z żółtego mierzenia fibo i że się clustrują. 
 
@@ -319,7 +319,7 @@ EDIT: u mnie BE",1
 PLAND EURUSD - realizacja zakresu MM 3 Leg
 Nie udało się zgarnąć 1:2 ale 1:1,5",2
 1500812254709289081,2026-05-04T12:52:05.266+02:00,fenelon00,Karol,false,EURUSD,"**EURUSD **- zagranie na 3rd leg, kilka knotów odpijających się od strefy Pullback, zamknięcie się body i natychmiastowa reakcja + przebicie NLO i całkiem mocna reakcja sprzedających pod EMA spowodowała, że odpaliłem pozycje i nie czekałem na jeszcze wyższą korektę. Zagranie 0.5% konta i RR 2.5:1 ✅",1
-1505942922418454534,2026-05-18T16:39:31.771+02:00,allintraders,ALLin Pablo Gradziuk,true,GOLD,"#GOLD 
+1505942922418454534,2026-05-18T16:39:31.771+02:00,allintraders,ALLin Pablo Gradziuk,true,XAUUSD,"#GOLD 
 
 RR 2:1 done, powrót do Range jest co prawda górna krawędź ale praca zrobiona, teraz lekka chciwosc i walka o 3:1 ❤️",1
 1507083172431532062,2026-05-21T20:10:28.559+02:00,fenelon00,Karol,false,EURUSD,EURUSD - zagranie na powrót do Range (szczególnie obserowanie na wykresie tickowym na MT4). RR 4:1 ✅,1
