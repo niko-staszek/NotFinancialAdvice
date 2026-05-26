@@ -17,19 +17,7 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-from .components import Component, classify_components
-
-
-_SETUP_PRIORITY: list[Component] = [
-    Component.TRAP_SETUP,
-    Component.FAIL_SETUP,
-    Component.RANGE_TRAP,
-    Component.RANGE_FAIL,
-    Component.SPIKE_FLAG,
-    Component.SPIKE_CHANNEL,
-    Component.DOUBLE_TOP_BOTTOM,
-    Component.MEASURED_MOVE,
-]
+from .components import setup_for
 
 _SESSION_BOUNDS_LOCAL = [
     # (name, start_hour_inclusive, end_hour_exclusive) in Polish local time.
@@ -45,14 +33,6 @@ def _session_for(hour: int) -> str:
         if start <= hour < end:
             return name
     return "dead"
-
-
-def _setup_type(text: str) -> str:
-    comps = classify_components(text or "")
-    for c in _SETUP_PRIORITY:
-        if c in comps:
-            return c.value
-    return "unclassified"
 
 
 def analyze_setup_distribution(
@@ -75,7 +55,7 @@ def analyze_setup_distribution(
                 continue
             session = _session_for(dt.hour)
             dow = dt.strftime("%a")  # Mon, Tue, ...
-            setup = _setup_type(content)
+            setup = setup_for(content)
             pivot[(symbol, session, dow, setup)] += 1
             rows_analyzed += 1
 

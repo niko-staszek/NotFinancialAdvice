@@ -10,26 +10,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from .components import Component, classify_components
-
-_SETUP_PRIORITY: list[Component] = [
-    Component.TRAP_SETUP,
-    Component.FAIL_SETUP,
-    Component.RANGE_TRAP,
-    Component.RANGE_FAIL,
-    Component.SPIKE_FLAG,
-    Component.SPIKE_CHANNEL,
-    Component.DOUBLE_TOP_BOTTOM,
-    Component.MEASURED_MOVE,
-]
-
-
-def _setup_for(text: str) -> str:
-    comps = classify_components(text or "")
-    for c in _SETUP_PRIORITY:
-        if c in comps:
-            return c.value
-    return "unclassified"
+from .components import setup_for
 
 
 def _flags(row: dict, setup: str) -> list[str]:
@@ -54,7 +35,7 @@ def audit_mentor_trades(catalog_csv: Path, report_path: Path) -> dict:
             if row.get("is_mentor") != "true":
                 continue
             content = row.get("content_pl") or ""
-            setup = _setup_for(content)
+            setup = setup_for(content)
             rows_out.append({**row, "setup": setup, "flags": "|".join(_flags(row, setup))})
 
     report_path = Path(report_path)

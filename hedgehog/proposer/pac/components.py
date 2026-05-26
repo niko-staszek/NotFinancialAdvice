@@ -125,3 +125,24 @@ def classify_components(text: str) -> Set[Component]:
                 hit.add(comp)
                 break
     return hit
+
+
+SETUP_PRIORITY: list[Component] = [
+    Component.TRAP_SETUP,
+    Component.FAIL_SETUP,
+    Component.RANGE_TRAP,
+    Component.RANGE_FAIL,
+    Component.SPIKE_FLAG,
+    Component.SPIKE_CHANNEL,
+    Component.DOUBLE_TOP_BOTTOM,
+    Component.MEASURED_MOVE,
+]
+
+
+def setup_for(text: str) -> str:
+    """Classify `text` into a setup name by SETUP_PRIORITY, else 'unclassified'."""
+    comps = classify_components(text or "")
+    for c in SETUP_PRIORITY:
+        if c in comps:
+            return c.value
+    return "unclassified"

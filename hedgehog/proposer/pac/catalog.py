@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import csv
 from pathlib import Path
-from typing import Iterable
 
 from .authors import is_mentor
 from .reader import iter_messages
