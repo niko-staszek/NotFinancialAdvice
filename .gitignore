@@ -1,3 +1,12 @@
-.claude
+.claude/
 .github
 .copilot
+
+# Phase 0 chatdump analysis transient artifacts
+PAC/chatdump_analysis/_raw/
+PAC/chatdump_analysis/translation_cache.json
+
+# Python caches
+__pycache__/
+*.pyc
+.pytest_cache/

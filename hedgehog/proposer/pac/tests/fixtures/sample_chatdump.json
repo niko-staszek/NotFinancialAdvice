@@ -1,0 +1,58 @@
+{
+  "guild": {"id": "967368898200608868", "name": "Test Guild", "iconUrl": null},
+  "channel": {"id": "967400239566819389", "type": "GuildTextChat", "categoryId": null, "category": null, "name": "pac", "topic": null},
+  "dateRange": {"after": null, "before": null},
+  "exportedAt": "2026-05-23T16:00:00.000+02:00",
+  "messages": [
+    {
+      "id": "100",
+      "type": "Default",
+      "timestamp": "2024-03-04T10:15:00.000+01:00",
+      "isPinned": false,
+      "content": "**BUY EURUSD** @ 1.0850 SL 1.0820 TP 1.0920 — measured move setup, signal candle at session box low",
+      "author": {"id": "1", "name": "pawelkrynicki", "nickname": "ALLin Paweł Krynicki", "isBot": false},
+      "attachments": [{"id": "a1", "url": "x.png", "fileName": "chart.png", "fileSizeBytes": 200000}],
+      "reactions": [], "mentions": [], "embeds": [], "stickers": [], "inlineEmojis": []
+    },
+    {
+      "id": "101",
+      "type": "Default",
+      "timestamp": "2024-03-04T10:30:00.000+01:00",
+      "isPinned": false,
+      "content": "fajna analiza, ja patrzę na XAUUSD #PAC trap setup po dwóch próbach",
+      "author": {"id": "2", "name": "kiewra82", "nickname": "Karol Kiewra", "isBot": false},
+      "attachments": [],
+      "reactions": [], "mentions": [], "embeds": [], "stickers": [], "inlineEmojis": []
+    },
+    {
+      "id": "102",
+      "type": "Default",
+      "timestamp": "2024-03-04T14:05:00.000+01:00",
+      "isPinned": false,
+      "content": "SELL GBPUSD 1.2680, stop 1.2710, target 1.2620, fail setup w korekcie po 61.8",
+      "author": {"id": "3", "name": "michalciechan", "nickname": "ALLin Michał Ciechan", "isBot": false},
+      "attachments": [{"id": "a2", "url": "x.png", "fileName": "img.png", "fileSizeBytes": 180000}],
+      "reactions": [], "mentions": [], "embeds": [], "stickers": [], "inlineEmojis": []
+    },
+    {
+      "id": "103",
+      "type": "Default",
+      "timestamp": "2024-03-05T09:00:00.000+01:00",
+      "isPinned": false,
+      "content": "Dzień dobry wszystkim, jaki plan na dziś?",
+      "author": {"id": "4", "name": "szymonzxy", "nickname": "SimonxyZ", "isBot": false},
+      "attachments": [],
+      "reactions": [], "mentions": [], "embeds": [], "stickers": [], "inlineEmojis": []
+    },
+    {
+      "id": "104",
+      "type": "Default",
+      "timestamp": "2024-03-05T11:20:00.000+01:00",
+      "isPinned": false,
+      "content": "spike & flag na US500, wejście limitka na zamknięcie świecy po wybiciu kanału",
+      "author": {"id": "1", "name": "pawelkrynicki", "nickname": "ALLin Paweł Krynicki", "isBot": false},
+      "attachments": [],
+      "reactions": [], "mentions": [], "embeds": [], "stickers": [], "inlineEmojis": []
+    }
+  ]
+}
