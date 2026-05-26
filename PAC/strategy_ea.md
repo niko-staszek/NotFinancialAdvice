@@ -993,7 +993,7 @@ The three cases cover one potential TRADE approval (Row A), one mentor-sourced R
 
 ---
 
-### C.3 Example — Student US500 SELL rejected by author-type filter
+### C.3 Example — Student US500 SELL evaluated by deterministic gates at the bar moment
 
 **Source row:** `message_id=1003726868660371456`, `timestamp=2022-08-01T20:12:13+02:00`, `author=Silny` (mentor=no).
 
@@ -1010,31 +1010,46 @@ The three cases cover one potential TRADE approval (Row A), one mentor-sourced R
 - `sl`: not extracted
 - `tps`: not extracted
 
+**Important framing:** The EA does NOT read Discord messages and has no concept of author identity — the `is_mentor` flag exists only in the analysis catalog (`trades_catalog.csv`) and is used by the Phase 0/1a mining pipeline, not by the runtime EA. The EA processes M5 bars on the configured symbol whitelist. This walkthrough therefore treats the chat post as a *timestamp + symbol + direction anchor* and asks: had the EA been running on US500 at 2022-08-01 20:12 Polish local time, what would the §7.5 gates have decided?
+
 **EA processing (step-by-step against §7.5 gates):**
 
 1. **Risk Rules pre-check** (§1):
-   - Position size computable: no — no entry, SL, or TP. However, this gate is never reached; see below.
-   - Min R:R achievable (1:1.5): unknown
-   - Per-session cap: pass — assume first trade of session
-   - Daily/weekly DD: pass — assume EA at start of trading week
-   - Correlated lock: pass — assume no other position
-   - News blackout: pass — disabled by default
+   - Position size computable: depends on §7.1 SL price. Without bar data we cannot construct a signal-candle SL, so this is `unknown`. If the §4 gates produce a valid signal candle, position sizing is mechanical.
+   - Min R:R achievable (1:1.5): unknown without bar data — depends on §5 target and §7.1 SL.
+   - Per-session cap: pass — assume first trade of America session at 20:12 PLT.
+   - Daily/weekly DD: pass — assume EA at flat-equity baseline.
+   - Correlated lock: pass — US500 has no overlapping correlated position assumed.
+   - News blackout: pass — disabled by default.
 
 2. **Direction Filter** (§3.5 composite):
-   - This gate is never reached for non-mentor messages; see below.
+   - EMA21/SMA61 sentiment at 20:12 on US500 M5: `unknown` — requires loading the historical bar to evaluate. US500 was mid-recovery in early August 2022; sentiment could plausibly be `bull` (against the SELL signal), `bear`, or `transitional`.
+   - MMD cloud alignment: `unknown` — requires MMD indicator state at that bar.
+   - D1 OHLC promo zone: `unknown`.
+   - Session box position: `unknown` — but 20:12 PLT is within the America session (14:00-21:59), so the box check is at least within scope.
+   - **Composite direction:** `unknown`. The honest answer is that without the bars, we cannot know — but the EA evaluates this deterministically; it would resolve to exactly one of `bull`, `bear`, or `neutral` given the same data.
 
 3. **Entry Trigger** (§4):
-   - This gate is never reached for non-mentor messages; see below.
+   - Signal candle: `unknown` — requires M5 OHLC at the bar.
+   - EMA-side rule: depends on signal candle result.
+   - Confluence: depends on §5 active levels.
 
 4. **Target Engine** (§5):
-   - Not evaluated; see below.
+   - Active measured move: `unknown` — requires bar history to detect.
+   - Active Fibonacci cluster: `unknown`.
+   - Chosen target: not determinable from text alone.
 
 5. **SL Placement** (§7.1):
-   - Not evaluated; see below.
+   - Computed SL: `not computable` — no signal candle visible from data alone.
 
 6. **Setup Recognition** (§6, optional log):
-   - Not evaluated; see below.
+   - Setup match: `unknown`.
 
-**Decision:** REJECT — reason: `AUTHOR_FILTER` (§2.2 implicit gate, enforced before §7.5 checklist entry). The `is_mentor` flag for this message is `false`. The EA only processes messages authored by confirmed mentors; student posts are unconditionally excluded from the trade-execution pipeline regardless of symbol, direction, or content quality.
+**Decision:** REJECT (most likely) — reason space narrows to two candidates without bar data:
 
-**Annotation:** This example makes explicit the EA's most fundamental rule: it copies the *methodology*, not the *crowd*. The student's post — even if it happened to be correct in direction and backed by a screenshot showing a valid signal candle — is structurally invisible to the EA's execution path. The author-type filter is the first logical gate in the system, applied before any technical analysis. This prevents the EA from being influenced by the natural enthusiasm or FOMO that drives community members to post directional signals, and it keeps the decision chain rooted in the mentor's structured framework rather than in social proof.
+- **(a)** If a §4.1 signal candle did form at that bar on the correct EMA21 side for a SELL, then `entry_triggered` would depend on §4.3 confluence against an active §5 target. With no concurrent Pawel-derived measured move visible in the catalog, the confluence requirement is the most likely vetoer.
+- **(b)** If no signal candle formed (the more probable scenario for an emoji-only impulsive post), §4.1 returns `none` and §4.3 short-circuits to `entry_triggered = false`. The trade is rejected at the Entry Trigger gate.
+
+The key point is that the decision is anchored in deterministic M5 geometry at the bar — not in the social signal of the chat post.
+
+**Annotation:** This example demonstrates that the EA is rule-driven, not signal-following. A student post — even one that happens to be directionally correct — has no privileged status, but neither is it disqualified by authorship. The EA evaluates the same gates it would for any other bar moment. If the student's chart timing coincided with a valid PAC setup the EA would have *independently* identified, it would have traded; if not (the more common case for emoji-only impulsive posts), the EA rejects via the deterministic technical gates. The student/mentor distinction lives in the chatdump *analysis* pipeline (driving inclusion decisions for the spec), not in the EA's execution path.
