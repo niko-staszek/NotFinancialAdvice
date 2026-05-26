@@ -116,6 +116,6 @@ Two data-quality patches landed:
 - Student catalog rows: 159
 - `range_trap` references: mentor=2, student=8 (previously 0/0)
 - `range_fail` references: mentor=0, student=5 (previously 0/0)
-- Top symbols (canonicalized): XAUUSD=60, USOIL=39, US500=20, NAS100=13, EURUSD=8, GC=6, GBPUSD=4, USDCAD=4
+- Top symbols (canonicalized): XAUUSD=60, USOIL=39, US500=20, NAS100=13, EURUSD=8, GC=6 (gold futures contract, CME — distinct from XAUUSD spot; intentionally not aliased), GBPUSD=4, USDCAD=4
 
 The original-run numbers in the sections above remain as-is for historical reference; the refreshed pipeline output files in this directory are the authoritative current state.
