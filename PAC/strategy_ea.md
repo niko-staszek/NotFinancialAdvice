@@ -427,3 +427,105 @@ The entry trigger is the second gate in the PAC entry pipeline, evaluated only a
 **Automation feasibility:** One helper function `FindNearestLevel(candle_wick_extreme, active_levels[], threshold)` iterates the active level set, computes `abs(candle_wick_extreme - level.price)` for each entry, and returns the closest level within `threshold`. The active level set is a flat array of `{price, type}` structs maintained by the §5 Target Engine — the §4.3 check is a read-only query against that array with no mutation. Time complexity is O(n) where n = number of active levels; expected n < 30 on any single instrument during a session, so performance is not a concern. Phase 2 implementation note: `FindNearestLevel` is a shared utility used by both §4.3 and §5's internal cluster-detection logic — implement once in a shared utility module rather than duplicating.
 
 **Drop trigger:** Drop or relax the confluence requirement if Phase 4 backtest shows it is producing more false negatives than false positives — specifically, if the win rate of logged `entry_triggered=false, signal_valid=true` setups (setups that passed §4.1 and §4.2 but failed §4.3 and were therefore not traded) exceeds the win rate of actually triggered setups. This would indicate the threshold is too tight and is rejecting better-quality trades than it is admitting. First response is to widen `confluence_pips_threshold` from 0.3 × ATR(20) toward 0.5 × ATR(20) before considering removing the level-proximity requirement entirely.
+
+---
+
+## §5 Target Engine
+
+The Target Engine is the sub-system responsible for producing the take-profit (TP) price used when an entry fires. It runs continuously in the background — not only at entry time — maintaining a live map of structurally significant price levels derived from price structure and Fibonacci geometry. Four sub-modules contribute to that map: §5.1 projects the standard 100% measured-move target; §5.2 overlays Fibonacci retracement and extension levels on each active impulse and detects clusters where multiple levels converge; §5.3 extends the projection when price overshoots the §5.1 target; and §5.4 applies a settle buffer to the selected candidate level to produce the actual TP field submitted to `OrderSend`. The §6 Setup Recognition module selects which candidate level becomes the active TP for any given entry; the Target Engine's job is to ensure all well-formed candidate levels are available and current at the moment §6 needs them.
+
+---
+
+### §5.1 Measured Move (AB=CD with EMA-Cross Anchor)
+
+**Rule:** Identify an impulse leg A→B where price begins on one side of EMA21 and ends with a CLOSE on the opposite side. Wicks that merely touch the EMA do not count — the bar at point B must close on the opposite side from where the impulse started at point A. The subsequent pullback B→C must return clearly back to the same side of EMA21 as point A. Project target D such that the price distance C→D equals the price distance A→B (100% expansion). The measured move is INVALID if price retraces beyond C before reaching D — at that point a new impulse must be identified. Multiple measured moves can be active simultaneously; the EA tracks all and the latest valid one provides the primary target.
+
+**Inputs:** Closed bars (bar 1+), `iMA(symbol, PERIOD_M5, 21, 0, MODE_EMA, PRICE_CLOSE)` handle (the same EMA21 from §3.1), a swing-detection helper (see Automation feasibility).
+
+**Output:** `measured_move: {a_bar: int, a_price: float, b_bar: int, b_price: float, c_bar: int, c_price: float, d_target: float, validity: valid|invalid}`. Multiple measured moves can be active simultaneously; the EA tracks all and the latest valid one provides the primary target.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| impulse_atr_multiple_min | 1.5 × ATR(20) | review.md "Measured Move + Double Up/Down" — minimum impulse size relative to recent volatility |
+| ema_cross_close_required | true | strategy.md "Measured Move" — must close on opposite EMA side, wick touch insufficient |
+| invalidation_on_c_breach | true | strategy.md "Measured Move" — price breach beyond C voids the MM |
+| max_active_measured_moves | 5 | v1 default — prevents unbounded growth of tracked patterns; revisable after Phase 4 |
+
+**Mentor data anchor:** 50 mentor / 310 student (13.9% share). `component_frequency.md` row 9. **Top-1 mentor reference frequency** — measured move is the highest-value PAC concept by mentor mention count.
+
+**Automation feasibility:** Requires a swing-detection helper to identify candidate A and B points. v1 approach: ATR-filtered ZigZag — track recent swing highs and lows where price moved ≥ `impulse_atr_multiple_min × ATR(20)` from the prior pivot. The EMA-cross anchoring is mechanical: for each candidate A→B segment, verify A's bar closed on one side of EMA21 and B's bar closed on the other. Shared helper module in Phase 2 `SignalEngine.mqh` named `DetectImpulses(bars[], ema_handle, atr_min) → list<MeasuredMove>`. C-detection: scan bars after B for the first close back on A's side; the lowest (for bullish MM) or highest (for bearish) close in that scan window becomes C.
+
+**Drop trigger:** Should NOT drop — this is the highest-value PAC concept. If Phase 4 backtest shows poor performance, refine thresholds (raise `impulse_atr_multiple_min`, tighten EMA-cross close requirement) before dropping the whole component. Specifically, target a win rate of ≥40% with average R ≥1.0 across XAUUSD + USOIL combined; below that, escalate to threshold tuning rather than removal.
+
+---
+
+### §5.2 Fibonacci Levels & Clusters
+
+**Rule:** Apply Fibonacci retracement and extension to each active measured-move impulse leg A→B from §5.1. Retracement levels (`fib_levels_retracement`) provide pullback zones used by §6 setup recognition. Extension levels (`fib_levels_extension`) provide additional candidate target levels beyond the §5.1 D target. A CLUSTER forms when ≥`cluster_member_min` levels from DIFFERENT impulses converge within `cluster_pips_threshold` of the same price. Clusters are higher-conviction S/R zones than single levels and §4.3 confluence treats them as a single level (just a high-conviction one).
+
+**Inputs:** All active measured moves from §5.1 (provides the impulse legs), `iATR(20)` (for the cluster threshold scaling), current bar price.
+
+**Output:** `fibonacci_levels: [{price: float, level_ratio: float, source_impulse_id: int, kind: retracement|extension}]` (the full set of active Fibonacci levels) and `clusters: [{price: float, member_count: int, member_levels: list}]` (the detected clusters).
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| fib_levels_retracement | [0.382, 0.5, 0.618] | strategy.md "Fibonacci Levels" |
+| fib_levels_extension | [1.382, 1.618, 2.618] | strategy.md "Fibonacci Levels" |
+| cluster_pips_threshold | 0.3 × ATR(20) | review.md "Fibonacci" — tightened from strategy.md's "~5 pips" to ATR-relative |
+| cluster_member_min | 2 | review.md "Fibonacci" — at least 2 levels must converge |
+
+**Mentor data anchor:** 16 mentor / 190 student (7.8% share). `component_frequency.md` row 14. Tied with `spike_channel` at 16 mentor refs.
+
+**Automation feasibility:** Trivial level computation once §5.1's swing detection is in place. Cluster detection = pairwise distance check among current level set: for each pair of levels, if `abs(price_1 - price_2) ≤ cluster_pips_threshold`, group them into a cluster. Phase 2 implementation note: use a sweep-line algorithm on sorted levels for O(n log n) cluster detection if the level set grows large; for v1 the level count is bounded by `max_active_measured_moves × 6 levels = 30`, so O(n²) is fine.
+
+**Drop trigger:** Drop standalone Fibonacci levels (keep only clusters) if Phase 4 backtest shows non-cluster levels add noise — specifically, if setups triggered on a single non-cluster Fibonacci level have win rate < 30%. The cluster mechanism itself should not drop — it is the only filter preventing the "blanket the chart with levels" curve-fit concern flagged in `review.md "Fibonacci"`.
+
+---
+
+### §5.3 Extended Measured Move (138.2% / 161.8%)
+
+**Rule:** When price overshoots the standard 100% measured-move target D from §5.1 by `overshoot_bars_min` consecutive bars without retracing back to D, the EA computes an EXTENDED target using external Fibonacci at 138.2% or 161.8% of the original A→B range. The extended target is the next candidate TP. Price should stop within the 138.2%–161.8% range; beyond 161.8% is exhaustion territory. After the extended move completes (price reaches and reacts at 138.2% or 161.8%), any correction is measured from the ENTIRE move (A→extended_target), not just the original A→B→C→D.
+
+**Inputs:** Active measured moves from §5.1 (must have reached 100% target D), bars[], `iATR(20)`.
+
+**Output:** `extended_target: float | None`. None when no active MM has overshot yet.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| overshoot_bars_min | 3 | v1 default — needs Phase 4 backtest tuning; "several candles past D" is the strategy.md qualifier, 3 is a starting interpretation |
+| extended_target_levels | [1.382, 1.618] | strategy.md "Extended Measured Move" |
+| extended_target_priority | 1.382 first, then 1.618 | strategy.md "Extended Measured Move" — conservative first |
+
+**Mentor data anchor:** Subsumed under the §5.1 measured_move count (50 mentor refs total). Extended MM is a sub-pattern of measured move and not separately classified in `component_frequency.md`.
+
+**Automation feasibility:** Requires a small state machine on top of §5.1: track whether each active MM has reached its D target, and if so, count consecutive bars beyond D. When that counter exceeds `overshoot_bars_min`, emit the extended target. State struct: `{mm_id: int, reached_d: bool, bars_past_d: int}` per active MM.
+
+**Drop trigger:** Drop extended-target projection if Phase 4 backtest shows price rarely reaches 138.2% reliably from the overshoot trigger point. Specifically, if fewer than 50% of overshot MMs reach 138.2% within 50 bars of the overshoot trigger, the projection is not predictive.
+
+---
+
+### §5.4 Settle Buffer
+
+**Rule:** When placing the take-profit order, the EA settles a few pips/ticks before the projected target to account for spread, slippage, and other market participants who will exit at or near the same level. The actual TP price is `target_price - settle_buffer` for long positions and `target_price + settle_buffer` for short positions.
+
+**Inputs:** Target price from §5.1 D target, §5.2 cluster price, or §5.3 extended target (whichever §6 setup recognition selects as the active TP).
+
+**Output:** `actual_tp_price: float` — the price the `OrderSend` TP field is set to.
+
+**Quantitative thresholds:**
+
+| Threshold | Default | Source |
+|---|---|---|
+| settle_buffer_atr_multiple | 0.5 × ATR(20) | review.md / strategy.md "Settle the trade a few pips before target" |
+
+**Mentor data anchor:** Universal practice per strategy.md — every PAC trade execution exits before the target. Not separately classified in `component_frequency.md`.
+
+**Automation feasibility:** Trivial — single subtraction (long) or addition (short) on the target price. Apply at `OrderSend` time (§7.2 order placement).
+
+**Drop trigger:** Tune `settle_buffer_atr_multiple` in Phase 4 backtest. Should not drop the rule — settling early is universal practice — but the buffer size should be tuned per instrument class if backtest reveals clear differences (e.g., gold may need a wider buffer than EURUSD).
