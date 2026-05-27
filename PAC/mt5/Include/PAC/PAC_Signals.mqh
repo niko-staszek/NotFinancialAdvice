@@ -177,3 +177,133 @@ DirectionKind Signals_CompositeDirection(
 //| in PAC_EA.mq5 where iMA handles and session-box state are wired.  |
 //+------------------------------------------------------------------+
 DirectionKind Signals_ComputeDirection(string symbol);
+
+// ==================================================================
+// §4 Entry Trigger (Signal Candle + EMA-Side Rule + Confluence)
+// ==================================================================
+
+//+------------------------------------------------------------------+
+//| §4.1 Signal-candle classifier                                     |
+//|                                                                   |
+//| Mirrors signals.py detect_signal_candle:                          |
+//|   body == 0 (doji)                                  → "none"      |
+//|   range < range_atr_mult_min * atr_value (too small) → "none"     |
+//|   bullish iff lower_wick >= wick_body_ratio_min * body AND        |
+//|              close >= low + (1 - close_pct/100) * range           |
+//|   bearish iff upper_wick >= wick_body_ratio_min * body AND        |
+//|              close <= low + (close_pct/100) * range               |
+//|   bullish wins deterministically if both match (Python priority). |
+//|                                                                   |
+//| Parameters:                                                       |
+//|   op, hi, lo, cl       — bar OHLC                                 |
+//|   atr_value            — current ATR(20) value                    |
+//|   wick_body_ratio_min  — cfg.wick_to_body_ratio_min (e.g. 2.0)    |
+//|   range_atr_mult_min   — cfg.candle_range_atr_multiple_min (0.5)  |
+//|   close_position_pct   — cfg.close_position_within_wick_pct (33)  |
+//|                          (close must be within top|bottom 33%)    |
+//+------------------------------------------------------------------+
+string Signals_DetectSignalCandle(double op, double hi, double lo, double cl,
+                                  double atr_value,
+                                  double wick_body_ratio_min,
+                                  double range_atr_mult_min,
+                                  double close_position_pct) {
+    double body = MathAbs(cl - op);
+    if (body == 0.0) return "none";   // doji
+
+    double candle_range = hi - lo;
+    if (candle_range < range_atr_mult_min * atr_value) return "none";
+
+    double lower_wick = MathMin(op, cl) - lo;
+    double upper_wick = hi - MathMax(op, cl);
+    double close_position_threshold = close_position_pct / 100.0;
+
+    // Bullish: dominant lower wick + close in upper (1 - threshold) fraction
+    bool bullish = (lower_wick >= wick_body_ratio_min * body)
+                && (cl >= lo + (1.0 - close_position_threshold) * candle_range);
+
+    // Bearish: dominant upper wick + close in lower threshold fraction
+    bool bearish = (upper_wick >= wick_body_ratio_min * body)
+                && (cl <= lo + close_position_threshold * candle_range);
+
+    if (bullish) return "bullish";   // deterministic priority — matches Python
+    if (bearish) return "bearish";
+    return "none";
+}
+
+//+------------------------------------------------------------------+
+//| §4.2 EMA-side hard rule                                           |
+//|                                                                   |
+//| Mirrors signals.py passes_ema_side_rule:                          |
+//|   signal_kind == "none"  → false                                  |
+//|   ema21 == EMPTY_VALUE   → false (warmup, mirrors Python NaN)     |
+//|   "bullish"              → close > ema21                          |
+//|   "bearish"              → close < ema21                          |
+//+------------------------------------------------------------------+
+bool Signals_PassesEMASide(string candle_kind, double close, double ema21) {
+    if (candle_kind == "none") return false;
+    if (ema21 == EMPTY_VALUE)  return false;
+    if (candle_kind == "bullish") return close > ema21;
+    if (candle_kind == "bearish") return close < ema21;
+    return false;
+}
+
+//+------------------------------------------------------------------+
+//| §4.3 Confluence — wick-extreme vs active-level list               |
+//|                                                                   |
+//| STRUCTURAL DEVIATION from signals.py has_confluence: Python takes |
+//| a full bar (Series) and computes distance = min(|high-level|,     |
+//| |low-level|) — i.e. closest wick automatically. The MQL5 EA       |
+//| already knows the candle kind at the call site and can pass the   |
+//| appropriate wick extreme (signal-candle bullish → low; bearish    |
+//| → high), so this function takes the scalar directly. Selection of |
+//| best level mirrors Python: smallest absolute distance under       |
+//| threshold wins. Returns matched price + type via out-params.      |
+//|                                                                   |
+//| level_prices / level_types are parallel arrays (same length).     |
+//| threshold should be precomputed by caller as                      |
+//|   cfg.confluence_pips_threshold_atr_multiple * atr_value          |
+//+------------------------------------------------------------------+
+bool Signals_HasConfluence(
+    double wick_extreme,
+    const double &level_prices[],
+    const string &level_types[],
+    double threshold,
+    double &matched_level_out,
+    string &matched_type_out
+) {
+    int n = ArraySize(level_prices);
+    if (n == 0) {
+        matched_level_out = 0.0;
+        matched_type_out  = "";
+        return false;
+    }
+
+    // Mirror Python: find strictly-smallest distance (ties → first wins),
+    // then check that best distance qualifies vs threshold.
+    double best_dist = DBL_MAX;
+    int    best_idx  = -1;
+    for (int i = 0; i < n; i++) {
+        double d = MathAbs(wick_extreme - level_prices[i]);
+        if (d < best_dist) {
+            best_dist = d;
+            best_idx  = i;
+        }
+    }
+
+    if (best_idx >= 0 && best_dist <= threshold) {
+        matched_level_out = level_prices[best_idx];
+        matched_type_out  = level_types[best_idx];
+        return true;
+    }
+    matched_level_out = 0.0;
+    matched_type_out  = "";
+    return false;
+}
+
+//+------------------------------------------------------------------+
+//| DetectEntryTrigger — production end-to-end entry trigger. Body    |
+//| lives in PAC_EA.mq5 where iMA handles + active-level state are   |
+//| wired. Combines DetectSignalCandle + PassesEMASide + HasConfluence|
+//| into a single boolean gate consumed by the order layer.           |
+//+------------------------------------------------------------------+
+bool Signals_DetectEntryTrigger(string symbol, DirectionKind dir);
