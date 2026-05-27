@@ -54,6 +54,7 @@ from .targets import (
     fibonacci_levels,
     find_clusters,
 )
+from .universe import lookup_pip_factor, normalize_symbol
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -319,10 +320,18 @@ def run_backtest(
         # ------------------------------------------------------------------
         # Step 9 — open position
         # ------------------------------------------------------------------
-        sl_distance = abs(entry_price - sl_price)
+        # Convert raw price-unit SL distance to pip count via
+        # universe.lookup_pip_factor — fixes the v1 bug where engine.py
+        # passed raw price units (e.g. 0.00065 for EURUSD) to
+        # compute_position_size, yielding ~15,384 lots instead of ~1.5.
+        # normalize_symbol() guards against lowercase/alias inputs reaching
+        # the pip-factor table (which is intentionally not auto-canonicalizing
+        # per the precondition documented in universe.lookup_pip_factor).
+        sl_distance_price = abs(entry_price - sl_price)
+        sl_distance_pips = sl_distance_price * lookup_pip_factor(normalize_symbol(symbol))
         lot_size = compute_position_size(
             account=account,
-            sl_distance_pips=sl_distance,
+            sl_distance_pips=sl_distance_pips,
             symbol=symbol,
             cfg=cfg,
         )

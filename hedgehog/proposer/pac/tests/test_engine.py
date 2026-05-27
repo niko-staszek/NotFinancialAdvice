@@ -90,3 +90,173 @@ def test_engine_empty_bars(tmp_path: Path) -> None:
         summary = run_backtest(bars, symbol="EURUSD", cfg=cfg, ledger=ledger)
     assert summary["bars_processed"] == 0
     assert summary["trades_opened"] == 0
+
+
+def test_position_size_uses_pip_count_not_price_units() -> None:
+    """Regression: EURUSD 6.5-pip SL must produce ~1.5 lots, not ~15,384.
+
+    Pre-fix bug: engine.py passed sl_distance_price_units (0.00065) to
+    compute_position_size, which divided by it directly, yielding
+    1% * 10000 / (0.00065 * 10) = 15,384 lots.
+
+    Post-fix: engine.py multiplies by PIP_FACTOR_BY_SYMBOL[EURUSD] (10000)
+    before passing, so compute_position_size sees 6.5 pips and returns ~1.5.
+    """
+    from hedgehog.proposer.pac.risk import AccountState, compute_position_size
+    from hedgehog.proposer.pac.universe import lookup_pip_factor
+
+    cfg = Config()  # default risk_percent = 1.0
+    account = AccountState(
+        equity=10000.0,
+        starting_equity_daily=10000.0,
+        starting_equity_weekly=10000.0,
+    )
+    sl_distance_price = 0.00065   # 6.5 pips for EURUSD in raw price units
+    sl_distance_pips = sl_distance_price * lookup_pip_factor("EURUSD")
+    assert sl_distance_pips == pytest.approx(6.5, abs=1e-9)
+
+    lots = compute_position_size(account, sl_distance_pips, "EURUSD", cfg)
+
+    # 1% of $10k = $100 risk; $10/pip/lot × 6.5 pips = $65/lot;
+    # 100 / 65 = ~1.538 → rounded to 1.54
+    assert lots == pytest.approx(1.54, abs=0.01)
+
+
+def test_position_size_xauusd_pip_conversion() -> None:
+    """XAUUSD: SL of $5 (50 pips at factor 10) → ~0.2 lots @ 1% risk on $10k."""
+    from hedgehog.proposer.pac.risk import AccountState, compute_position_size
+    from hedgehog.proposer.pac.universe import lookup_pip_factor
+
+    cfg = Config()
+    account = AccountState(
+        equity=10000.0,
+        starting_equity_daily=10000.0,
+        starting_equity_weekly=10000.0,
+    )
+    sl_distance_price = 5.0       # XAUUSD: $5 = 50 pips
+    sl_distance_pips = sl_distance_price * lookup_pip_factor("XAUUSD")
+    assert sl_distance_pips == pytest.approx(50.0, abs=1e-9)
+
+    lots = compute_position_size(account, sl_distance_pips, "XAUUSD", cfg)
+
+    # 1% of $10k = $100 risk; $10/pip/lot × 50 pips = $500/lot;
+    # 100 / 500 = 0.2 lots
+    assert lots == pytest.approx(0.2, abs=0.01)
+
+
+def test_engine_passes_pip_count_to_compute_position_size(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Engine must convert raw price-unit SL distance to pip count before
+    handing off to risk.compute_position_size.
+
+    Spies on compute_position_size to record sl_distance_pips received from
+    engine.py. For EURUSD, any SL distance reaching the risk layer should be
+    in pip-magnitude (typically 1-200), not raw price units (0.0001-0.02).
+    Pre-fix: engine passed 0.00065-range values; post-fix: 6.5-range values.
+    """
+    from hedgehog.proposer.pac import engine as engine_module
+
+    captured: list[dict] = []
+    real_fn = engine_module.compute_position_size
+
+    def spy(account, sl_distance_pips, symbol, cfg):  # type: ignore[no-untyped-def]
+        captured.append({
+            "sl_distance_pips": sl_distance_pips,
+            "symbol": symbol,
+        })
+        return real_fn(account, sl_distance_pips, symbol, cfg)
+
+    monkeypatch.setattr(engine_module, "compute_position_size", spy)
+
+    # Build EURUSD-scale bars (~1.10 base with pip-scale fluctuations) to give
+    # the loop a chance to fire a trade. If none fires the test is vacuous —
+    # the unit tests above still cover the math.
+    n = 300
+    start_utc = datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc)
+    times = [start_utc + timedelta(minutes=5 * i) for i in range(n)]
+    closes: list[float] = []
+    for i in range(n):
+        if i < 50:
+            closes.append(1.1000)
+        elif i < 90:
+            closes.append(1.1000 + (i - 50) * 0.000625)
+        elif i < 110:
+            closes.append(1.1250 - (i - 90) * 0.00075)
+        elif i < 130:
+            closes.append(1.1100 + (i - 110) * 0.0020)
+        else:
+            closes.append(1.1250)
+    bars = pd.DataFrame({
+        "time_utc": pd.to_datetime(times, utc=True),
+        "open": closes,
+        "high": [c + 0.00125 for c in closes],
+        "low":  [c - 0.00125 for c in closes],
+        "close": closes,
+        "tick_volume": [100] * n,
+        "real_volume": [0] * n,
+        "spread": [1] * n,
+    })
+
+    cfg = Config().replace(direction_strict=False)
+    with TradeLedger(tmp_path / "ledger.csv") as ledger:
+        run_backtest(bars, symbol="EURUSD", cfg=cfg, ledger=ledger)
+
+    # If engine fired any position-size computation, verify the sl_distance_pips
+    # argument is pip-magnitude, not raw price-unit. For EURUSD a sane SL is
+    # typically 1-500 pips; raw price units would be 0.0001-0.05.
+    for call in captured:
+        sd = call["sl_distance_pips"]
+        assert sd >= 1.0, (
+            f"sl_distance_pips={sd} for {call['symbol']} — looks like raw "
+            f"price units, not pip count (pre-fix bug regressed)"
+        )
+
+
+def test_run_backtest_produces_sane_lot_size_on_eurusd(tmp_path: Path) -> None:
+    """End-to-end: a backtest on synthetic EURUSD-scale bars should produce
+    lot_size in [0.01, 50.0] when any trade fires.
+
+    If the synthetic data doesn't trigger a trade (no rows in ledger), this
+    test is a no-op safety net — the direct-math unit tests above still cover
+    the pip-conversion fix.
+    """
+    n = 300
+    start_utc = datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc)
+    times = [start_utc + timedelta(minutes=5 * i) for i in range(n)]
+    closes: list[float] = []
+    for i in range(n):
+        if i < 50:
+            closes.append(1.1000)
+        elif i < 90:
+            closes.append(1.1000 + (i - 50) * 0.000625)
+        elif i < 110:
+            closes.append(1.1250 - (i - 90) * 0.00075)
+        elif i < 130:
+            closes.append(1.1100 + (i - 110) * 0.0020)
+        else:
+            closes.append(1.1250)
+    bars = pd.DataFrame({
+        "time_utc": pd.to_datetime(times, utc=True),
+        "open": closes,
+        "high": [c + 0.00125 for c in closes],
+        "low":  [c - 0.00125 for c in closes],
+        "close": closes,
+        "tick_volume": [100] * n,
+        "real_volume": [0] * n,
+        "spread": [1] * n,
+    })
+
+    cfg = Config().replace(direction_strict=False)
+    ledger_path = tmp_path / "ledger.csv"
+    with TradeLedger(ledger_path) as ledger:
+        summary = run_backtest(bars, symbol="EURUSD", cfg=cfg, ledger=ledger)
+
+    with ledger_path.open(encoding="utf-8") as f:
+        rows = list(_csv.DictReader(f))
+    if summary["trades_opened"] > 0 and rows:
+        for row in rows:
+            lot_size = float(row["lot_size"])
+            assert 0.01 <= lot_size <= 50.0, (
+                f"Insane lot size {lot_size} for EURUSD — pip-unit bug regressed"
+            )
