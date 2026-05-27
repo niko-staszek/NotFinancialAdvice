@@ -10,8 +10,10 @@ v1 simplifications (each marked TODO for the phase they will be resolved):
       bar (Task 4). When omitted, the zone defaults to 'neutral' for
       backward compatibility.
     - Asia / dead sessions produce no entries (deferred per spec). TODO Phase 5.
-    - Setup state machines (§6) are not updated inside the loop; setup_type is
-      logged as 'none'. TODO Phase 3 journaling.
+    - Setup state machines (§6) ARE stepped inside the loop (Task 5). Each
+      active MM owns one (TrapState, FailState, SpikeChannelState) triplet;
+      on simultaneous fires the priority order trap > fail > spike_channel
+      decides the ledger.setup_type written for opened trades.
     - pip_value = $10 per pip per lot (broker-independent approximation). TODO real data.
     - SL/TP hit resolution uses bar high/low (no intrabar modelling). Acceptable for M5.
 """
@@ -66,6 +68,14 @@ from .universe import lookup_pip_factor, normalize_symbol
 
 _PIP_VALUE_PER_LOT = 10.0   # v1: $10 per pip per lot, all instruments
 _WARMUP_EXTRA = 50          # bars beyond sma_period before we start evaluating
+
+# §6 setup priority — higher index = lower priority. When multiple §6
+# state machines reach 'triggered' on the same bar, the leftmost-listed
+# setup wins and is written to ledger.setup_type. Matches the conviction
+# hierarchy in strategy_ea.md §6: a trap (two-failed-attempts reversal)
+# carries more conviction than a fail (one deep failed correction), which
+# in turn carries more than a spike-and-channel pullback.
+_SETUP_PRIORITY: tuple[str, ...] = ("trap", "fail", "spike_channel")
 
 
 # ---------------------------------------------------------------------------
@@ -166,6 +176,10 @@ def run_backtest(
 
     trades_opened = 0
     trades_closed = 0
+
+    # §6 setup state-machine registry, keyed by mm.id. Carried across bars
+    # so progress (e.g. trap first_try_failed → second_try_failed) survives.
+    setup_machines: dict[int, dict[str, object]] = {}
 
     # ------------------------------------------------------------------
     # Step 1 — precompute full-series indicators ONCE
@@ -282,6 +296,32 @@ def run_backtest(
         mms        = detect_measured_moves(bars_slice, swings, ema_slice, cfg)
         fib_levels = fibonacci_levels(bars_slice, mms, cfg)
         clusters   = find_clusters(fib_levels, atr_value=atr_value, cfg=cfg)
+
+        # ------------------------------------------------------------------
+        # §6 setup state-machine lifecycle (Task 5)
+        # ------------------------------------------------------------------
+        # 1) Rebuild registry: add fresh idle machines for new MMs, carry
+        #    forward existing machines for known MMs, drop machines for any
+        #    MM that vanished or flipped to validity='invalid'.
+        # 2) Step every live machine by one bar — trap/fail are MM-anchored;
+        #    spike_channel reads the recent bars window for impulse detection.
+        # 3) Collect (mm_id, setup_name) for any machine that just transitioned
+        #    to 'triggered'; pick the winner by _SETUP_PRIORITY for ledger.
+        setup_machines = _setup_machines_for_mms(mms, existing=setup_machines)
+        mms_by_id = {mm.id: mm for mm in mms if mm.validity == "valid"}
+        spike_window_size = max(cfg.spike_min_bars, 1)
+        sc_window = bars_slice.iloc[-spike_window_size:] if len(bars_slice) >= spike_window_size else bars_slice
+        setup_machines = _step_all_setups(
+            machines=setup_machines,
+            mms_by_id=mms_by_id,
+            bar=current_bar,
+            bar_idx=bar_idx,
+            bars_window=sc_window,
+            atr=atr_value,
+            cfg=cfg,
+        )
+        fires = _collect_triggered_fires(setup_machines)
+        winning_setup = _pick_winning_setup(fires)
 
         # Build active_levels: D-targets + raw Fib prices + cluster prices
         active_levels: list[float] = []
@@ -416,7 +456,11 @@ def run_backtest(
             tp_price=tp_price,
             lot_size=lot_size,
             ts_open=current_bar_time,
-            setup_type="none",        # TODO Phase 3: integrate §6 state machines
+            # §6 winning setup (Task 5): trap > fail > spike_channel by
+            # _SETUP_PRIORITY; falls back to 'none' when no machine fired
+            # this bar. Used for journaling/conviction only — §3-§5-§7
+            # agreement still gates the trade.
+            setup_type=winning_setup or "none",
             confluence_type=confluence_type or "",
             mmd_alignment=mmd_align,
             d1_zone=d1_zone_val,
@@ -467,6 +511,111 @@ def run_backtest(
         "final_equity":   account.equity,
         "final_pnl":      account.equity - initial_equity,
     }
+
+
+# ---------------------------------------------------------------------------
+# §6 setup state-machine lifecycle helpers (Task 5)
+# ---------------------------------------------------------------------------
+
+def _setup_machines_for_mms(
+    mms: list[MeasuredMove],
+    existing: dict[int, dict[str, object]],
+) -> dict[int, dict[str, object]]:
+    """Build the per-MM §6 state-machine registry for the current bar.
+
+    For each MM with ``validity == 'valid'``:
+      - Carry forward the existing TrapState / FailState / SpikeChannelState
+        objects if this MM was tracked on the previous bar (so progress like
+        ``first_try_failed`` is preserved).
+      - Otherwise instantiate fresh ``idle`` states (new MM detected).
+
+    MMs with ``validity == 'invalid'`` — or MMs that vanish from the active
+    list because ``detect_measured_moves`` capped to the most-recent N — are
+    dropped from the registry.
+
+    Returns a new dict; ``existing`` is not mutated.
+    """
+    next_registry: dict[int, dict[str, object]] = {}
+    for mm in mms:
+        if mm.validity != "valid":
+            continue
+        if mm.id in existing:
+            # Carry forward the live state objects unchanged.
+            next_registry[mm.id] = existing[mm.id]
+        else:
+            next_registry[mm.id] = {
+                "trap": TrapState(mm_id=mm.id, state="idle"),
+                "fail": FailState(mm_id=mm.id, state="idle"),
+                "spike_channel": SpikeChannelState(state="idle"),
+            }
+    return next_registry
+
+
+def _step_all_setups(
+    machines: dict[int, dict[str, object]],
+    mms_by_id: dict[int, MeasuredMove],
+    bar: pd.Series,
+    bar_idx: int,
+    bars_window: pd.DataFrame,
+    atr: float,
+    cfg: Config,
+) -> dict[int, dict[str, object]]:
+    """Step every live state machine by one bar; return a new registry with
+    each ``State`` dataclass replaced by its post-step (immutable) value.
+
+    The trap and fail machines are MM-anchored so they receive the matching
+    ``MeasuredMove``. The spike-and-channel detector is MM-agnostic in the
+    spec (it discovers its own A/B pivots from the bar window) — we still
+    key it per-MM so each MM gets its own independent S&C tracker.
+    """
+    next_registry: dict[int, dict[str, object]] = {}
+    for mm_id, by_name in machines.items():
+        mm = mms_by_id.get(mm_id)
+        if mm is None:
+            # Defensive: shouldn't happen if machines was just rebuilt by
+            # _setup_machines_for_mms with the same mms list.
+            next_registry[mm_id] = by_name
+            continue
+        next_registry[mm_id] = {
+            "trap": step_trap(by_name["trap"], bar, bar_idx, mm, atr, cfg),
+            "fail": step_fail(by_name["fail"], bar, bar_idx, mm, atr, cfg),
+            "spike_channel": step_spike_channel(
+                by_name["spike_channel"], bar, bar_idx, bars_window, atr, cfg,
+            ),
+        }
+    return next_registry
+
+
+def _collect_triggered_fires(
+    machines: dict[int, dict[str, object]],
+) -> list[tuple[int, str]]:
+    """Scan every state object; return ``(mm_id, setup_name)`` for any
+    machine whose ``.state == 'triggered'`` on this bar.
+
+    The state-machine dataclasses all expose a ``state`` field; we read it
+    directly rather than re-importing each ``*_triggered`` predicate.
+    """
+    fires: list[tuple[int, str]] = []
+    for mm_id, by_name in machines.items():
+        for name in _SETUP_PRIORITY:
+            machine = by_name.get(name)
+            if machine is not None and getattr(machine, "state", None) == "triggered":
+                fires.append((mm_id, name))
+    return fires
+
+
+def _pick_winning_setup(fires: list[tuple[int, str]]) -> str | None:
+    """Apply ``_SETUP_PRIORITY`` to pick the winning setup name.
+
+    Returns ``None`` when no setup fired (caller writes 'none' to ledger).
+    """
+    if not fires:
+        return None
+    fire_names = {name for _mm_id, name in fires}
+    for name in _SETUP_PRIORITY:
+        if name in fire_names:
+            return name
+    return None
 
 
 # ---------------------------------------------------------------------------
