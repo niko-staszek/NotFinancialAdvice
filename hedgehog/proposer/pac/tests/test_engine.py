@@ -691,3 +691,25 @@ def test_setup_state_machines_step_on_neutral_direction_bars():
     assert target_idx < session_idx, (
         f"targets_update at {target_idx} must come before session_cap at {session_idx}"
     )
+
+
+def test_symbol_iteration_order_is_deterministic():
+    """Iteration order over symbols must be: declaration order in input
+    list, alphabetical tie-break. Required for cross-engine correlation-
+    lockout first-triggered parity with Plan 5."""
+    from hedgehog.proposer.pac.engine import _order_symbols_for_iteration
+
+    # Plain declaration order
+    result = _order_symbols_for_iteration(["XAUUSD", "EURUSD", "USOIL"])
+    assert result == ["XAUUSD", "EURUSD", "USOIL"]
+
+    # Stability: same input → same output
+    result2 = _order_symbols_for_iteration(["B", "A", "C"])
+    assert result2 == ["B", "A", "C"]
+
+
+def test_symbol_iteration_with_explicit_alpha_sort_kwarg():
+    """When alphabetize=True the function returns sorted output."""
+    from hedgehog.proposer.pac.engine import _order_symbols_for_iteration
+    result = _order_symbols_for_iteration(["B", "A", "C"], alphabetize=True)
+    assert result == ["A", "B", "C"]

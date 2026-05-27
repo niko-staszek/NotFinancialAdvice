@@ -130,6 +130,27 @@ def _price_distance_to_pips(symbol: str, distance_price: float) -> float:
 
 
 # ---------------------------------------------------------------------------
+# Multi-symbol iteration order — deterministic, matches Plan 5 EA
+# ---------------------------------------------------------------------------
+
+def _order_symbols_for_iteration(
+    symbols: list[str],
+    alphabetize: bool = False,
+) -> list[str]:
+    """Return symbol iteration order.
+
+    Default: declaration order (stable). Sets ordering for correlation-
+    lockout first-triggered semantics — matches Plan 5's InpTradableSymbols
+    declaration order.
+
+    alphabetize=True: sort alphabetically (testing/diagnostic flag).
+    """
+    if alphabetize:
+        return sorted(symbols)
+    return list(symbols)
+
+
+# ---------------------------------------------------------------------------
 # D1 promo-zone helpers (Task 4)
 # ---------------------------------------------------------------------------
 
