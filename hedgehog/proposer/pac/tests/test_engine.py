@@ -666,3 +666,28 @@ def test_engine_run_backtest_writes_setup_type_other_than_none(tmp_path: Path) -
         assert row["setup_type"] in allowed, (
             f"unexpected setup_type {row['setup_type']!r} — not one of {allowed}"
         )
+
+
+def test_setup_state_machines_step_on_neutral_direction_bars():
+    """Regression: on bars where Signals_ComputeDirection returns NEUTRAL,
+    Targets_Update and setup state machines must STILL step. Pre-fix bug:
+    engine exited early on neutral direction, leaving state machines
+    frozen until a non-neutral bar arrived → stale state."""
+    from hedgehog.proposer.pac.engine import _bar_evaluation_order
+
+    order = _bar_evaluation_order()
+    # _bar_evaluation_order returns a list of stage names in execution order
+    target_idx = order.index("targets_update")
+    setup_idx = order.index("setup_step")
+    direction_idx = order.index("direction_filter")
+    session_idx = order.index("session_cap")
+
+    assert target_idx < direction_idx, (
+        f"targets_update at {target_idx} must come before direction_filter at {direction_idx}"
+    )
+    assert setup_idx < direction_idx, (
+        f"setup_step at {setup_idx} must come before direction_filter at {direction_idx}"
+    )
+    assert target_idx < session_idx, (
+        f"targets_update at {target_idx} must come before session_cap at {session_idx}"
+    )

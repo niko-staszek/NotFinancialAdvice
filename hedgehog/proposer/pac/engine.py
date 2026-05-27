@@ -80,6 +80,40 @@ _SETUP_PRIORITY: tuple[str, ...] = ("trap", "fail", "spike_channel")
 
 
 # ---------------------------------------------------------------------------
+# Bar-evaluation order — canonical sequence locked across Python + MQL5 engines
+# ---------------------------------------------------------------------------
+
+def _bar_evaluation_order() -> list[str]:
+    """Returns the canonical bar-evaluation order. Used by tests and docs.
+
+    Production code must implement the loop in this exact order — see
+    Plan 5 design spec § 'Bar-evaluation order — locked'. The crucial
+    invariant: targets_update and setup_step are ALWAYS-RUN modules that
+    must execute BEFORE any entry-path gate (session_cap, direction_filter,
+    etc.) may short-circuit the bar via `continue`. Otherwise the §5 target
+    engine and §6 setup state machines miss bars where direction is neutral
+    or the session cap is hit, leaving them frozen with stale state.
+
+    Pre-fix bug: targets_update + setup_step were downstream of the direction
+    filter, so neutral-direction bars left them un-stepped → on the next
+    non-neutral bar, the state machines fired against stale MMs or missed
+    in-progress trap/fail/spike patterns entirely.
+    """
+    return [
+        "drawdown_gate",      # cheap; halts entry path on circuit-breaker trip
+        "targets_update",     # ALWAYS — maintains MM/Fib/cluster state
+        "setup_step",         # ALWAYS — accumulates per-MM trap/fail/spike state
+        "session_cap",        # entry gate
+        "direction_filter",   # entry gate (may short-circuit)
+        "entry_trigger",      # only if direction non-neutral
+        "correlation_news",   # entry gate
+        "should_open",        # checklist §7.5
+        "rr_size",            # min R:R + position size
+        "submit_log",         # OrderSend + ledger row
+    ]
+
+
+# ---------------------------------------------------------------------------
 # Pip conversion helper — single source of truth for price→pips
 # ---------------------------------------------------------------------------
 
