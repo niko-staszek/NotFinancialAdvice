@@ -51,3 +51,11 @@ def test_atr_uses_true_range_with_gap() -> None:
     # TR bar 0 = 110-100 = 10 (no prev_close); TR bar 1 = max(3, |115-105|, |112-105|) = 10
     # ATR(2) at index 1 = avg(10, 10) = 10
     assert atr.iloc[1] == pytest.approx(10.0)
+
+
+def test_atr_returns_empty_series_for_empty_input() -> None:
+    """Empty DataFrame must not crash — return empty Series, not raise IndexError."""
+    bars = _bars(highs=[], lows=[], closes=[])
+    atr = compute_atr(bars, period=20)
+    assert len(atr) == 0
+    assert atr.dtype == "float64"

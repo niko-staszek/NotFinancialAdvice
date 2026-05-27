@@ -22,6 +22,10 @@ import pandas as pd
 
 def compute_atr(bars: pd.DataFrame, period: int = 20) -> pd.Series:
     """Return a Series of ATR values aligned with `bars` (NaN before period fills)."""
+    # Empty input: return empty Series — avoids IndexError on tr.iloc[0] below.
+    if len(bars) == 0:
+        return pd.Series(dtype="float64")
+
     high = bars["high"]
     low = bars["low"]
     close = bars["close"]
