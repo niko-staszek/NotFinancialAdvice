@@ -10,3 +10,6 @@ PAC/chatdump_analysis/translation_cache.json
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Plan 4 backtest local data (raw MT5 history dumps)
+data/

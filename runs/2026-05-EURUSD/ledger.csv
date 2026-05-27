@@ -1,0 +1,2 @@
+trade_id,ts_signal,ts_open,ts_close,symbol,direction,entry_price,sl_price,tp_price,exit_price,exit_reason,pnl_pips,pnl_money,r_multiple,setup_type,direction_strict,mmd_alignment,d1_zone,confluence_type,lot_size,risk_pct
+fc0a2948,2026-05-01T17:05:00+00:00,2026-05-01T17:05:00+00:00,2026-05-01T17:40:00+00:00,EURUSD,BUY,1.177420,1.176770,1.180039,1.176770,sl_hit,-0.0,-100.00,-1.00,none,True,weakened,neutral,mm_or_fib_or_cluster,15384.62,1.00
