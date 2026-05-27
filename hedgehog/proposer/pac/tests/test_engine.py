@@ -369,13 +369,23 @@ def test_run_backtest_returns_neutral_when_no_d1_bars_supplied() -> None:
     assert zone == "neutral"
 
 
-def test_d1_zone_uses_previous_utc_calendar_day() -> None:
-    """Bar at 2024-05-15 23:55 UTC must look up 2024-05-14's D1 bar
-    (NOT 2024-05-15's -- we look at PREVIOUS day's OHLC)."""
-    from hedgehog.proposer.pac.engine import _previous_d1_bar
+def test_d1_zone_returns_neutral_when_previous_day_missing() -> None:
+    """If d1_bars is provided but no D1 bar exists strictly before the signal
+    bar's calendar day, return 'neutral' rather than raising. Locks in the
+    silent-fallback contract that downstream signals.d1_promo_zone provides
+    (see signals.py:134-136 -- prior.empty -> 'neutral').
+
+    Note on semantics: signals.d1_promo_zone does NOT require a D1 bar for
+    the *exact* previous calendar day. It selects the most recent D1 bar
+    whose date is < signal_bar_time.date() (via idxmax on the prior subset),
+    so a Monday signal with a missing Sunday D1 bar will still resolve
+    against Friday's D1 bar. The 'neutral' fallback only triggers when NO
+    prior D1 bar exists at all (e.g., signal bar predates the fixture)."""
+    from hedgehog.proposer.pac.engine import _resolve_d1_zone_for_bar
 
     d1_bars = pd.read_csv(_D1_FIXTURE, parse_dates=["time_utc"])
-    d1_row = _previous_d1_bar(pd.Timestamp("2024-05-15 23:55:00"), d1_bars)
-    assert d1_row["time_utc"] == pd.Timestamp("2024-05-14")
-    assert d1_row["open"] == 1.0770
-    assert d1_row["close"] == 1.0805
+    # Signal bar on 2024-05-12 (before the fixture's earliest D1 at 2024-05-13)
+    # -> prior subset is empty -> d1_promo_zone returns 'neutral'.
+    signal_bar_time = pd.Timestamp("2024-05-12 09:00:00")
+    zone = _resolve_d1_zone_for_bar(signal_bar_time, current_price=1.0800, d1_bars=d1_bars)
+    assert zone == "neutral"

@@ -88,43 +88,6 @@ def _price_distance_to_pips(symbol: str, distance_price: float) -> float:
 # D1 promo-zone helpers (Task 4)
 # ---------------------------------------------------------------------------
 
-def _previous_d1_bar(
-    signal_bar_time: pd.Timestamp,
-    d1_bars: pd.DataFrame,
-) -> pd.Series:
-    """Return the D1 row whose date is the previous UTC calendar day of
-    ``signal_bar_time``.
-
-    Comparison is performed on the *date* component (UTC) of the D1 bar's
-    ``time_utc`` column, so timezone-aware and tz-naive D1 frames both work
-    as long as the timestamps represent UTC midnight (the canonical D1 bar
-    convention used throughout PAC).
-
-    Raises ``ValueError`` if no D1 bar exists for the previous calendar day
-    (e.g. the signal bar's previous day was a weekend / holiday with no D1
-    print). Callers should treat this as a 'no signal' / neutral condition.
-    """
-    target_date = (signal_bar_time.normalize() - pd.Timedelta(days=1)).normalize()
-    # Support both tz-aware and tz-naive d1 time columns by comparing dates.
-    time_col = d1_bars["time_utc"]
-    bar_dates = time_col.dt.normalize()
-    # If target_date and bar_dates differ in tz-awareness, normalize both to naive.
-    if hasattr(bar_dates.iloc[0], "tzinfo") and bar_dates.iloc[0].tzinfo is not None:
-        if target_date.tzinfo is None:
-            target_date = target_date.tz_localize("UTC")
-    else:
-        if target_date.tzinfo is not None:
-            target_date = target_date.tz_convert("UTC").tz_localize(None)
-    mask = bar_dates == target_date
-    matches = d1_bars[mask]
-    if matches.empty:
-        raise ValueError(
-            f"No D1 bar found for previous day {target_date.date()} "
-            f"(signal bar {signal_bar_time})"
-        )
-    return matches.iloc[0]
-
-
 def _resolve_d1_zone_for_bar(
     signal_bar_time: pd.Timestamp,
     current_price: float,
@@ -137,7 +100,7 @@ def _resolve_d1_zone_for_bar(
     ``current_price`` against its body/wicks.
 
     Returns ``'neutral'`` if ``d1_bars`` is None (v1-pre-fix backward-compat
-    behavior), or if no previous-day D1 bar is found.
+    behavior).
     """
     if d1_bars is None:
         return "neutral"
