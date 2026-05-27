@@ -65,6 +65,22 @@ _WARMUP_EXTRA = 50          # bars beyond sma_period before we start evaluating
 
 
 # ---------------------------------------------------------------------------
+# Pip conversion helper — single source of truth for price→pips
+# ---------------------------------------------------------------------------
+
+def _price_distance_to_pips(symbol: str, distance_price: float) -> float:
+    """Convert a raw price-unit distance to pip count via the symbol's pip factor.
+
+    The symbol is canonicalized via ``normalize_symbol`` before lookup, so
+    callers don't need to pre-canonicalize. Centralises the
+    ``lookup_pip_factor(normalize_symbol(symbol)) * distance`` pattern used at
+    the position-sizing boundary (Task 3) and inside ``_compute_trade_pnl``
+    (Task 3b).
+    """
+    return distance_price * lookup_pip_factor(normalize_symbol(symbol))
+
+
+# ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 
@@ -320,15 +336,15 @@ def run_backtest(
         # ------------------------------------------------------------------
         # Step 9 — open position
         # ------------------------------------------------------------------
-        # Convert raw price-unit SL distance to pip count via
-        # universe.lookup_pip_factor — fixes the v1 bug where engine.py
+        # Convert raw price-unit SL distance to pip count via the shared
+        # _price_distance_to_pips helper — fixes the v1 bug where engine.py
         # passed raw price units (e.g. 0.00065 for EURUSD) to
         # compute_position_size, yielding ~15,384 lots instead of ~1.5.
-        # normalize_symbol() guards against lowercase/alias inputs reaching
-        # the pip-factor table (which is intentionally not auto-canonicalizing
+        # The helper canonicalizes the symbol via normalize_symbol() before
+        # the pip-factor lookup (which is intentionally not auto-canonicalizing
         # per the precondition documented in universe.lookup_pip_factor).
         sl_distance_price = abs(entry_price - sl_price)
-        sl_distance_pips = sl_distance_price * lookup_pip_factor(normalize_symbol(symbol))
+        sl_distance_pips = _price_distance_to_pips(symbol, sl_distance_price)
         lot_size = compute_position_size(
             account=account,
             sl_distance_pips=sl_distance_pips,
@@ -411,17 +427,27 @@ def _compute_trade_pnl(
 
     pnl_pips encodes direction: positive = profitable, negative = loss.
     v1 pip_value = $10 per pip per lot.
+
+    Both pnl_pips and sl_distance_pips are converted from raw price-unit
+    deltas to real pip counts via _price_distance_to_pips so that:
+      - pnl_money math is real pips × $/pip × lots (was undersized by
+        the pip factor pre-fix — Task 3b).
+      - r_multiple is unit-consistent (was correct by accident pre-fix
+        when both numerator and denominator were in price units).
     """
     if pos.direction == "BUY":
-        pnl_pips = exit_price - pos.entry_price
+        pnl_price = exit_price - pos.entry_price
     else:
-        pnl_pips = pos.entry_price - exit_price
+        pnl_price = pos.entry_price - exit_price
+
+    pnl_pips = _price_distance_to_pips(pos.symbol, pnl_price)
 
     pnl_money = pnl_pips * pos.lot_size * _PIP_VALUE_PER_LOT
 
-    sl_distance = abs(pos.entry_price - pos.sl_price)
-    if sl_distance > 0:
-        r_multiple = pnl_pips / sl_distance
+    sl_distance_price = abs(pos.entry_price - pos.sl_price)
+    sl_distance_pips = _price_distance_to_pips(pos.symbol, sl_distance_price)
+    if sl_distance_pips > 0:
+        r_multiple = pnl_pips / sl_distance_pips
     else:
         r_multiple = 0.0
 

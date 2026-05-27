@@ -40,6 +40,39 @@ def _build_synthetic_bars(start_utc: datetime, n: int = 200) -> pd.DataFrame:
     })
 
 
+def _build_eurusd_bars(rows: int = 300) -> pd.DataFrame:
+    """Synthesize EURUSD M5 bars for engine integration tests.
+
+    Builds a ~1.10-base series with pip-scale fluctuations: rise from 1.10 to
+    1.125, pullback to 1.1150, surge to 1.125, then sideways. Designed to
+    trigger the §3-§7 entry chain at least once.
+    """
+    start_utc = datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc)
+    times = [start_utc + timedelta(minutes=5 * i) for i in range(rows)]
+    closes: list[float] = []
+    for i in range(rows):
+        if i < 50:
+            closes.append(1.1000)
+        elif i < 90:
+            closes.append(1.1000 + (i - 50) * 0.000625)
+        elif i < 110:
+            closes.append(1.1250 - (i - 90) * 0.00075)
+        elif i < 130:
+            closes.append(1.1100 + (i - 110) * 0.0020)
+        else:
+            closes.append(1.1250)
+    return pd.DataFrame({
+        "time_utc": pd.to_datetime(times, utc=True),
+        "open": closes,
+        "high": [c + 0.00125 for c in closes],
+        "low":  [c - 0.00125 for c in closes],
+        "close": closes,
+        "tick_volume": [100] * rows,
+        "real_volume": [0] * rows,
+        "spread": [1] * rows,
+    })
+
+
 def test_engine_runs_to_completion(tmp_path: Path) -> None:
     """Engine should process all bars without crashing."""
     bars = _build_synthetic_bars(datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc), n=200)
@@ -172,31 +205,7 @@ def test_engine_passes_pip_count_to_compute_position_size(
     # Build EURUSD-scale bars (~1.10 base with pip-scale fluctuations) to give
     # the loop a chance to fire a trade. If none fires the test is vacuous —
     # the unit tests above still cover the math.
-    n = 300
-    start_utc = datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc)
-    times = [start_utc + timedelta(minutes=5 * i) for i in range(n)]
-    closes: list[float] = []
-    for i in range(n):
-        if i < 50:
-            closes.append(1.1000)
-        elif i < 90:
-            closes.append(1.1000 + (i - 50) * 0.000625)
-        elif i < 110:
-            closes.append(1.1250 - (i - 90) * 0.00075)
-        elif i < 130:
-            closes.append(1.1100 + (i - 110) * 0.0020)
-        else:
-            closes.append(1.1250)
-    bars = pd.DataFrame({
-        "time_utc": pd.to_datetime(times, utc=True),
-        "open": closes,
-        "high": [c + 0.00125 for c in closes],
-        "low":  [c - 0.00125 for c in closes],
-        "close": closes,
-        "tick_volume": [100] * n,
-        "real_volume": [0] * n,
-        "spread": [1] * n,
-    })
+    bars = _build_eurusd_bars()
 
     cfg = Config().replace(direction_strict=False)
     with TradeLedger(tmp_path / "ledger.csv") as ledger:
@@ -221,31 +230,7 @@ def test_run_backtest_produces_sane_lot_size_on_eurusd(tmp_path: Path) -> None:
     test is a no-op safety net — the direct-math unit tests above still cover
     the pip-conversion fix.
     """
-    n = 300
-    start_utc = datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc)
-    times = [start_utc + timedelta(minutes=5 * i) for i in range(n)]
-    closes: list[float] = []
-    for i in range(n):
-        if i < 50:
-            closes.append(1.1000)
-        elif i < 90:
-            closes.append(1.1000 + (i - 50) * 0.000625)
-        elif i < 110:
-            closes.append(1.1250 - (i - 90) * 0.00075)
-        elif i < 130:
-            closes.append(1.1100 + (i - 110) * 0.0020)
-        else:
-            closes.append(1.1250)
-    bars = pd.DataFrame({
-        "time_utc": pd.to_datetime(times, utc=True),
-        "open": closes,
-        "high": [c + 0.00125 for c in closes],
-        "low":  [c - 0.00125 for c in closes],
-        "close": closes,
-        "tick_volume": [100] * n,
-        "real_volume": [0] * n,
-        "spread": [1] * n,
-    })
+    bars = _build_eurusd_bars()
 
     cfg = Config().replace(direction_strict=False)
     ledger_path = tmp_path / "ledger.csv"
@@ -260,3 +245,83 @@ def test_run_backtest_produces_sane_lot_size_on_eurusd(tmp_path: Path) -> None:
             assert 0.01 <= lot_size <= 50.0, (
                 f"Insane lot size {lot_size} for EURUSD — pip-unit bug regressed"
             )
+
+
+def test_compute_trade_pnl_returns_real_pip_count_for_eurusd() -> None:
+    """Regression: pnl_pips field must be in real pips, not raw price units.
+
+    Pre-fix: a 0.0010 price-unit move (10 EURUSD pips) was reported as
+    pnl_pips=0.0010 instead of pnl_pips=10.0.
+    """
+    from hedgehog.proposer.pac.engine import _compute_trade_pnl
+    from hedgehog.proposer.pac.orders import Position
+
+    pos = Position(
+        symbol="EURUSD",
+        direction="BUY",
+        entry_price=1.0820,
+        sl_price=1.0810,
+        tp_price=1.0850,
+        lot_size=1.0,
+        ts_open=datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc),
+    )
+    exit_price = 1.0830   # 10-pip win
+
+    pnl_pips, _pnl_money, _r_mult = _compute_trade_pnl(pos, exit_price)
+
+    # pnl_pips should be ~10 pips (NOT 0.0010 price units)
+    assert pnl_pips == pytest.approx(10.0, abs=0.5)
+
+
+def test_compute_trade_pnl_returns_sane_money_for_eurusd() -> None:
+    """1.0 lot × 10 pips × $10/pip = $100 PnL — not $0.01 (the pre-fix
+    undersizing by 10,000×).
+    """
+    from hedgehog.proposer.pac.engine import _compute_trade_pnl
+    from hedgehog.proposer.pac.orders import Position
+
+    pos = Position(
+        symbol="EURUSD",
+        direction="BUY",
+        entry_price=1.0820,
+        sl_price=1.0810,
+        tp_price=1.0850,
+        lot_size=1.0,
+        ts_open=datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc),
+    )
+    exit_price = 1.0830
+
+    _pnl_pips, pnl_money, _r_mult = _compute_trade_pnl(pos, exit_price)
+    assert pnl_money == pytest.approx(100.0, abs=5.0)
+
+
+def test_compute_trade_pnl_r_multiple_uses_real_pips() -> None:
+    """r_multiple = pnl_pips / sl_distance_pips — both must be in real pips
+    (or both in price units, but consistently). The pre-fix bug had both in
+    price units, so r_multiple was correct *by accident*. Verify the fix
+    keeps r_multiple correct.
+    """
+    from hedgehog.proposer.pac.engine import _compute_trade_pnl
+    from hedgehog.proposer.pac.orders import Position
+
+    pos = Position(
+        symbol="EURUSD",
+        direction="BUY",
+        entry_price=1.0820,
+        sl_price=1.0810,   # 10-pip SL
+        tp_price=1.0850,
+        lot_size=1.0,
+        ts_open=datetime(2024, 1, 1, 9, 0, tzinfo=timezone.utc),
+    )
+    exit_price = 1.0840   # 20-pip win → 2R
+
+    _pnl_pips, _pnl_money, r_multiple = _compute_trade_pnl(pos, exit_price)
+    assert r_multiple == pytest.approx(2.0, abs=0.05)
+
+
+def test_price_distance_to_pips_helper_exists() -> None:
+    """The helper used by both compute_position_size and _compute_trade_pnl."""
+    from hedgehog.proposer.pac.engine import _price_distance_to_pips
+
+    assert _price_distance_to_pips("EURUSD", 0.00065) == pytest.approx(6.5, abs=1e-9)
+    assert _price_distance_to_pips("XAUUSD", 5.0) == pytest.approx(50.0, abs=1e-9)
