@@ -325,3 +325,57 @@ def test_price_distance_to_pips_helper_exists() -> None:
 
     assert _price_distance_to_pips("EURUSD", 0.00065) == pytest.approx(6.5, abs=1e-9)
     assert _price_distance_to_pips("XAUUSD", 5.0) == pytest.approx(50.0, abs=1e-9)
+
+
+# ---------------------------------------------------------------------------
+# Task 4: D1 promo zone plumbing
+# ---------------------------------------------------------------------------
+
+_D1_FIXTURE = Path(__file__).parent / "fixtures" / "eurusd_d1_2week.csv"
+
+
+def test_run_backtest_resolves_d1_zone_when_d1_bars_provided() -> None:
+    """When d1_bars supplied, engine resolves previous UTC calendar day's
+    D1 bar per signal bar and feeds d1_promo_zone(). Result is non-neutral
+    on bars whose previous D1 day is unambiguously bullish or bearish."""
+    from hedgehog.proposer.pac.engine import _resolve_d1_zone_for_bar
+
+    d1_bars = pd.read_csv(_D1_FIXTURE, parse_dates=["time_utc"])
+
+    # Signal bar on 2024-05-15 12:00 UTC; previous UTC day is 2024-05-14
+    # 2024-05-14 D1: open 1.0770, close 1.0805 -> bullish day
+    # On a bullish day, lower wick (open->low, 1.0770->1.0760) = buyers' promo
+    signal_bar_time = pd.Timestamp("2024-05-15 12:00:00")
+    zone = _resolve_d1_zone_for_bar(signal_bar_time, current_price=1.0762, d1_bars=d1_bars)
+    # 1.0762 is between 14th's low (1.0760) and open (1.0770) -- buyers' promo
+    assert zone in ("bull_promo", "first_touch_bull_promo")
+
+    # Signal bar on 2024-05-23 09:00; previous UTC day = 2024-05-22
+    # 2024-05-22 D1: open 1.0795, close 1.0770 -> bearish day
+    # On a bearish day, upper wick (open->high, 1.0795->1.0820) = sellers' promo
+    signal_bar_time2 = pd.Timestamp("2024-05-23 09:00:00")
+    zone2 = _resolve_d1_zone_for_bar(signal_bar_time2, current_price=1.0815, d1_bars=d1_bars)
+    # 1.0815 is between 22nd's open (1.0795) and high (1.0820) -- sellers' promo
+    assert zone2 in ("bear_promo", "first_touch_bear_promo")
+
+
+def test_run_backtest_returns_neutral_when_no_d1_bars_supplied() -> None:
+    """Backward-compat: omitting d1_bars yields neutral as before."""
+    from hedgehog.proposer.pac.engine import _resolve_d1_zone_for_bar
+
+    zone = _resolve_d1_zone_for_bar(
+        pd.Timestamp("2024-05-15 12:00"), 1.0800, d1_bars=None,
+    )
+    assert zone == "neutral"
+
+
+def test_d1_zone_uses_previous_utc_calendar_day() -> None:
+    """Bar at 2024-05-15 23:55 UTC must look up 2024-05-14's D1 bar
+    (NOT 2024-05-15's -- we look at PREVIOUS day's OHLC)."""
+    from hedgehog.proposer.pac.engine import _previous_d1_bar
+
+    d1_bars = pd.read_csv(_D1_FIXTURE, parse_dates=["time_utc"])
+    d1_row = _previous_d1_bar(pd.Timestamp("2024-05-15 23:55:00"), d1_bars)
+    assert d1_row["time_utc"] == pd.Timestamp("2024-05-14")
+    assert d1_row["open"] == 1.0770
+    assert d1_row["close"] == 1.0805

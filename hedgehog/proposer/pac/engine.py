@@ -5,7 +5,10 @@ time, applies the full §3–§7 decision chain, opens and manages positions, an
 writes closed-trade rows to the ledger.
 
 v1 simplifications (each marked TODO for the phase they will be resolved):
-    - D1 promo zone always returns 'neutral' (no separate D1 bars input). TODO Phase 5.
+    - D1 promo zone: when ``d1_bars`` is supplied to ``run_backtest`` the
+      engine resolves the §3.3 zone via the previous UTC calendar day's D1
+      bar (Task 4). When omitted, the zone defaults to 'neutral' for
+      backward compatibility.
     - Asia / dead sessions produce no entries (deferred per spec). TODO Phase 5.
     - Setup state machines (§6) are not updated inside the loop; setup_type is
       logged as 'none'. TODO Phase 3 journaling.
@@ -39,6 +42,7 @@ from .setups import (
 )
 from .signals import (
     composite_direction,
+    d1_promo_zone,
     detect_signal_candle,
     has_confluence,
     mmd_alignment,
@@ -81,6 +85,77 @@ def _price_distance_to_pips(symbol: str, distance_price: float) -> float:
 
 
 # ---------------------------------------------------------------------------
+# D1 promo-zone helpers (Task 4)
+# ---------------------------------------------------------------------------
+
+def _previous_d1_bar(
+    signal_bar_time: pd.Timestamp,
+    d1_bars: pd.DataFrame,
+) -> pd.Series:
+    """Return the D1 row whose date is the previous UTC calendar day of
+    ``signal_bar_time``.
+
+    Comparison is performed on the *date* component (UTC) of the D1 bar's
+    ``time_utc`` column, so timezone-aware and tz-naive D1 frames both work
+    as long as the timestamps represent UTC midnight (the canonical D1 bar
+    convention used throughout PAC).
+
+    Raises ``ValueError`` if no D1 bar exists for the previous calendar day
+    (e.g. the signal bar's previous day was a weekend / holiday with no D1
+    print). Callers should treat this as a 'no signal' / neutral condition.
+    """
+    target_date = (signal_bar_time.normalize() - pd.Timedelta(days=1)).normalize()
+    # Support both tz-aware and tz-naive d1 time columns by comparing dates.
+    time_col = d1_bars["time_utc"]
+    bar_dates = time_col.dt.normalize()
+    # If target_date and bar_dates differ in tz-awareness, normalize both to naive.
+    if hasattr(bar_dates.iloc[0], "tzinfo") and bar_dates.iloc[0].tzinfo is not None:
+        if target_date.tzinfo is None:
+            target_date = target_date.tz_localize("UTC")
+    else:
+        if target_date.tzinfo is not None:
+            target_date = target_date.tz_convert("UTC").tz_localize(None)
+    mask = bar_dates == target_date
+    matches = d1_bars[mask]
+    if matches.empty:
+        raise ValueError(
+            f"No D1 bar found for previous day {target_date.date()} "
+            f"(signal bar {signal_bar_time})"
+        )
+    return matches.iloc[0]
+
+
+def _resolve_d1_zone_for_bar(
+    signal_bar_time: pd.Timestamp,
+    current_price: float,
+    d1_bars: pd.DataFrame | None,
+) -> str:
+    """Resolve the §3.3 D1 promo zone for one signal bar.
+
+    Delegates to :func:`signals.d1_promo_zone`, which itself looks up the
+    previous-day D1 bar relative to ``signal_bar_time`` and classifies
+    ``current_price`` against its body/wicks.
+
+    Returns ``'neutral'`` if ``d1_bars`` is None (v1-pre-fix backward-compat
+    behavior), or if no previous-day D1 bar is found.
+    """
+    if d1_bars is None:
+        return "neutral"
+    # Convert the signal bar timestamp to a tz-aware UTC datetime for
+    # signals.d1_promo_zone(), which compares on date().
+    current_utc = signal_bar_time
+    if hasattr(current_utc, "to_pydatetime"):
+        current_utc = current_utc.to_pydatetime()
+    if current_utc.tzinfo is None:
+        current_utc = current_utc.replace(tzinfo=timezone.utc)
+    return d1_promo_zone(
+        d1_bars=d1_bars,
+        current_utc=current_utc,
+        current_price=current_price,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
 
@@ -90,8 +165,17 @@ def run_backtest(
     cfg: Config,
     ledger: TradeLedger,
     initial_equity: float = 10_000.0,
+    d1_bars: pd.DataFrame | None = None,
 ) -> dict:
     """Run the event-driven bar loop.
+
+    Parameters
+    ----------
+    d1_bars : pd.DataFrame | None, optional
+        Daily (D1) OHLC bars with columns ``time_utc, open, high, low, close``.
+        When supplied, each signal bar resolves the §3.3 D1 promo zone against
+        the *previous* UTC calendar day's D1 bar. When None (default), the
+        zone is hardcoded to ``'neutral'`` for v1-pre-fix backward compatibility.
 
     Returns a summary dict:
         {
@@ -253,8 +337,15 @@ def run_backtest(
         sent      = sentiment(bars, cfg, bar_idx)
         mmd_align = mmd_alignment(clouds, bar_idx, sent, cfg)
 
-        # TODO Phase 5: load D1 bars and call d1_promo_zone(); for v1 always neutral
-        d1_zone_val = "neutral"
+        # §3.3 D1 promo zone — resolves against previous UTC calendar day
+        # when caller supplied d1_bars (Task 4). When d1_bars is None we keep
+        # the v1-pre-fix neutral behavior for backward compatibility.
+        current_price_close = float(current_bar["close"])
+        d1_zone_val = _resolve_d1_zone_for_bar(
+            signal_bar_time=pd.Timestamp(current_bar["time_utc"]),
+            current_price=current_price_close,
+            d1_bars=d1_bars,
+        )
 
         # Session box (§3.4): only london / america; skip asia / dead
         if current_session in ("london", "america"):

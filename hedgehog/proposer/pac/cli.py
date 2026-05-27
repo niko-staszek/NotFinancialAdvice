@@ -15,6 +15,8 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+import pandas as pd
+
 from .audit import audit_mentor_trades
 from .catalog import build_catalog
 from .freq import analyze_component_frequency
@@ -67,6 +69,17 @@ def _add_backtest(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--output", required=True, help="Path to write trade ledger CSV")
     p.add_argument("--report", help="Optional path to write a summary markdown report")
     p.add_argument("--initial-equity", type=float, default=10000.0, help="Starting account equity for the simulation")
+    p.add_argument(
+        "--d1-bars",
+        type=str,
+        default=None,
+        help=(
+            "Optional path to a D1 OHLC CSV. When supplied, the engine "
+            "resolves the §3.3 D1 promo zone against the previous UTC "
+            "calendar day's D1 bar per signal bar instead of always "
+            "returning 'neutral'."
+        ),
+    )
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -143,10 +156,20 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "backtest":
         bars, meta = read_bars_csv(Path(args.bars), symbol=args.symbol, timeframe="M5")
         cfg = Config()
+        d1_bars = None
+        if args.d1_bars:
+            d1_bars = pd.read_csv(args.d1_bars, parse_dates=["time_utc"])
         out = Path(args.output)
         out.parent.mkdir(parents=True, exist_ok=True)
         with TradeLedger(out) as ledger:
-            summary = run_backtest(bars, symbol=args.symbol, cfg=cfg, ledger=ledger, initial_equity=args.initial_equity)
+            summary = run_backtest(
+                bars,
+                symbol=args.symbol,
+                cfg=cfg,
+                ledger=ledger,
+                initial_equity=args.initial_equity,
+                d1_bars=d1_bars,
+            )
         print(f"Backtest complete: {summary}")
         if args.report:
             report_path = Path(args.report)
