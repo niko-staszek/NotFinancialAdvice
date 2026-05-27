@@ -18,7 +18,7 @@ from pathlib import Path
 from .audit import audit_mentor_trades
 from .catalog import build_catalog
 from .freq import analyze_component_frequency
-from .setups import analyze_setup_distribution
+from .setup_distribution import analyze_setup_distribution
 
 
 def _add_parse_chatdump(sub: argparse._SubParsersAction) -> None:

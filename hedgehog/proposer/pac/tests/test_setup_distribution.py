@@ -4,7 +4,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
-from hedgehog.proposer.pac.setups import analyze_setup_distribution
+from hedgehog.proposer.pac.setup_distribution import analyze_setup_distribution
 
 
 def _write_catalog(path: Path, rows: list[dict]) -> None:
