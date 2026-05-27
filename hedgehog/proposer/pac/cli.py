@@ -18,7 +18,11 @@ from pathlib import Path
 from .audit import audit_mentor_trades
 from .catalog import build_catalog
 from .freq import analyze_component_frequency
-from .setups import analyze_setup_distribution
+from .setup_distribution import analyze_setup_distribution
+from .bars import read_bars_csv
+from .config import Config
+from .engine import run_backtest
+from .ledger import TradeLedger
 
 
 def _add_parse_chatdump(sub: argparse._SubParsersAction) -> None:
@@ -56,6 +60,15 @@ def _add_all(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--offline", action="store_true")
 
 
+def _add_backtest(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser("backtest", help="Run a Plan 4 vectorized backtest on a CSV bar history")
+    p.add_argument("--bars", required=True, help="Path to CSV of M5 bars (mt5_data.py dump-bars output)")
+    p.add_argument("--symbol", required=True, help="Symbol being traded (e.g., EURUSD, XAUUSD)")
+    p.add_argument("--output", required=True, help="Path to write trade ledger CSV")
+    p.add_argument("--report", help="Optional path to write a summary markdown report")
+    p.add_argument("--initial-equity", type=float, default=10000.0, help="Starting account equity for the simulation")
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="pac")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -64,6 +77,7 @@ def _build_parser() -> argparse.ArgumentParser:
     _add_analyze_setups(sub)
     _add_audit_mentors(sub)
     _add_all(sub)
+    _add_backtest(sub)
     return parser
 
 
@@ -124,6 +138,29 @@ def main(argv: list[str] | None = None) -> int:
         )
         analyze_setup_distribution(catalog_csv=catalog, report_path=setups)
         audit_mentor_trades(catalog_csv=catalog, report_path=audit)
+        return 0
+
+    if args.cmd == "backtest":
+        bars, meta = read_bars_csv(Path(args.bars), symbol=args.symbol, timeframe="M5")
+        cfg = Config()
+        out = Path(args.output)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with TradeLedger(out) as ledger:
+            summary = run_backtest(bars, symbol=args.symbol, cfg=cfg, ledger=ledger, initial_equity=args.initial_equity)
+        print(f"Backtest complete: {summary}")
+        if args.report:
+            report_path = Path(args.report)
+            report_path.parent.mkdir(parents=True, exist_ok=True)
+            report_path.write_text(
+                f"# Backtest report\n\n"
+                f"- Symbol: {args.symbol}\n"
+                f"- Bars: {meta.rows} ({meta.start_utc} → {meta.end_utc})\n"
+                f"- Trades opened: {summary['trades_opened']}\n"
+                f"- Trades closed: {summary['trades_closed']}\n"
+                f"- Final equity: ${summary['final_equity']:.2f}\n"
+                f"- Final PnL: ${summary['final_pnl']:.2f}\n",
+                encoding="utf-8",
+            )
         return 0
 
     return 1
