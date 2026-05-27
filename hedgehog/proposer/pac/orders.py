@@ -41,6 +41,10 @@ class Position:
     trailing_active: bool = False
     trailing_atr_frozen: float | None = None
     peak_price_since_activation: float | None = None
+    # Task 6: trade_id is stamped at entry-open so partial-close and final-exit
+    # ledger rows can share the same id. Phase-3 diff must collapse rows by
+    # trade_id before applying its match-key.
+    trade_id: str = ""
 
 
 def compute_sl(
