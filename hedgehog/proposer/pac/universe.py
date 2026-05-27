@@ -88,6 +88,11 @@ PIP_FACTOR_BY_SYMBOL: dict[str, int] = {
 def lookup_pip_factor(symbol: str) -> int:
     """Return the multiplier to convert price-unit distance to pip count.
 
+    Precondition: ``symbol`` must already be canonical (uppercase, post-alias).
+    Call ``normalize_symbol()`` first if the input may be lowercase or an alias
+    (e.g., ``GOLD``→``XAUUSD``). This function is intentionally not
+    auto-canonicalizing so callers see a loud failure on missed normalization.
+
     Raises:
         ValueError: if symbol is not in PIP_FACTOR_BY_SYMBOL. Fail-loud
             policy — silent defaults would skew risk on unrecognized
