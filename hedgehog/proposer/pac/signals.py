@@ -300,3 +300,113 @@ def composite_direction(
         return "bear"
 
     return "neutral"
+
+
+# ==================================================================
+# §4 Entry Trigger (Signal Candle + EMA-Side Rule + Confluence)
+# ==================================================================
+
+def detect_signal_candle(
+    bar: pd.Series,
+    atr: float,
+    cfg: Config,
+) -> Literal["bullish", "bearish", "none"]:
+    """Classify a single bar as a bullish/bearish signal candle or none (§4.1).
+
+    Rules:
+        - body == 0 (doji) → 'none'
+        - range < cfg.candle_range_atr_multiple_min * atr → 'none' (too small)
+        - Bullish: prominent lower wick + close in upper third of range
+        - Bearish: prominent upper wick + close in lower third of range
+        - If both match (extreme outlier), return 'bullish' (deterministic priority)
+    """
+    o: float = float(bar["open"])
+    h: float = float(bar["high"])
+    l: float = float(bar["low"])
+    c: float = float(bar["close"])
+
+    body = abs(c - o)
+    candle_range = h - l
+
+    if body == 0:
+        return "none"
+
+    if candle_range < cfg.candle_range_atr_multiple_min * atr:
+        return "none"
+
+    lower_wick = min(o, c) - l
+    upper_wick = h - max(o, c)
+    close_position_threshold = cfg.close_position_within_wick_pct / 100.0
+
+    bullish = (
+        lower_wick >= cfg.wick_to_body_ratio_min * body
+        and c >= l + (1.0 - close_position_threshold) * candle_range
+    )
+    bearish = (
+        upper_wick >= cfg.wick_to_body_ratio_min * body
+        and c <= l + close_position_threshold * candle_range
+    )
+
+    if bullish:
+        return "bullish"
+    if bearish:
+        return "bearish"
+    return "none"
+
+
+def passes_ema_side_rule(
+    signal_kind: Literal["bullish", "bearish", "none"],
+    bar_close: float,
+    ema21_value: float,
+) -> bool:
+    """Return True if bar_close is on the correct side of the EMA21 for signal_kind (§4.2).
+
+    Rules:
+        - 'none'     → False
+        - NaN EMA    → False
+        - 'bullish'  → bar_close > ema21_value
+        - 'bearish'  → bar_close < ema21_value
+    """
+    if signal_kind == "none":
+        return False
+    if math.isnan(ema21_value):
+        return False
+    if signal_kind == "bullish":
+        return bar_close > ema21_value
+    # bearish
+    return bar_close < ema21_value
+
+
+def has_confluence(
+    bar: pd.Series,
+    active_levels: list[float],
+    atr: float,
+    cfg: Config,
+) -> tuple[bool, float | None, str]:
+    """Check if the bar is within cfg.confluence_pips_threshold_atr_multiple * atr of any level (§4.3).
+
+    Distance to each level is computed as min(abs(bar.high - level), abs(bar.low - level)).
+    The closest level within the threshold is selected.
+
+    Returns:
+        (True, matched_level_price, "mm_or_fib_or_cluster")  — if a level is found
+        (False, None, "")                                     — otherwise
+    """
+    if not active_levels:
+        return (False, None, "")
+
+    threshold = cfg.confluence_pips_threshold_atr_multiple * atr
+
+    best_distance = math.inf
+    best_level: float | None = None
+
+    for level in active_levels:
+        distance = min(abs(float(bar["high"]) - level), abs(float(bar["low"]) - level))
+        if distance < best_distance:
+            best_distance = distance
+            best_level = level
+
+    if best_distance <= threshold:
+        return (True, best_level, "mm_or_fib_or_cluster")
+
+    return (False, None, "")
