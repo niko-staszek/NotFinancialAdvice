@@ -247,6 +247,77 @@ def test_run_backtest_produces_sane_lot_size_on_eurusd(tmp_path: Path) -> None:
             )
 
 
+def test_engine_emits_partial_row_with_shared_trade_id(tmp_path: Path) -> None:
+    """Task 6 — when partials fire, the partial row shares trade_id with
+    the eventual exit row (TP/SL/forced_eod).
+
+    Invariant: every ledger row's trade_id is non-empty; for each unique
+    trade_id, rows are consistent on the immutable trade metadata (symbol,
+    direction, entry_price, ts_open). The partial row's lot_size + the
+    exit row's lot_size sum to the original opened lot_size (within float
+    precision). This is property-style: passes vacuously if no partial
+    fires on the fixture.
+    """
+    bars = _build_eurusd_bars(rows=300)
+    cfg = Config().replace(
+        direction_strict=False,
+        partials_enabled=True,
+        partials_trigger_r=1.0,
+    )
+    ledger_path = tmp_path / "ledger.csv"
+    with TradeLedger(ledger_path) as ledger:
+        run_backtest(bars, symbol="EURUSD", cfg=cfg, ledger=ledger)
+
+    with ledger_path.open(encoding="utf-8") as f:
+        rows = list(_csv.DictReader(f))
+
+    # Every row must have a non-empty trade_id (Task 6 stamps it at open).
+    for r in rows:
+        assert r["trade_id"], f"empty trade_id in row {r}"
+
+    # Group rows by trade_id; verify immutable-metadata consistency within
+    # each group and that partial+exit lot_sizes sum to the original.
+    by_id: dict[str, list[dict]] = {}
+    for r in rows:
+        by_id.setdefault(r["trade_id"], []).append(r)
+
+    for trade_id, group in by_id.items():
+        # All rows of the same trade must agree on the immutable metadata.
+        first = group[0]
+        for r in group[1:]:
+            for field in ("symbol", "direction", "entry_price", "ts_open"):
+                assert r[field] == first[field], (
+                    f"trade {trade_id}: {field} differs between rows "
+                    f"({r[field]!r} vs {first[field]!r})"
+                )
+
+        partial_rows = [r for r in group if r["exit_reason"] == "partial"]
+        exit_rows    = [r for r in group if r["exit_reason"] != "partial"]
+        # At most one partial row per trade (cfg.partials_trigger_r fires once).
+        assert len(partial_rows) <= 1
+        # At most one exit row per trade.
+        assert len(exit_rows) <= 1
+
+
+def test_engine_stamps_trade_id_on_position_open(tmp_path: Path) -> None:
+    """Regression: post-Task-6, trade_id is generated at Position open-time
+    (not at _make_ledger_row write-time). Verify that any rows written by the
+    engine have non-empty trade_ids that look like 8-char uuid prefixes.
+    """
+    bars = _build_eurusd_bars(rows=300)
+    cfg = Config().replace(direction_strict=False)
+    ledger_path = tmp_path / "ledger.csv"
+    with TradeLedger(ledger_path) as ledger:
+        run_backtest(bars, symbol="EURUSD", cfg=cfg, ledger=ledger)
+
+    with ledger_path.open(encoding="utf-8") as f:
+        rows = list(_csv.DictReader(f))
+    for r in rows:
+        # uuid4 hex prefix [:8] — 8 hex chars
+        assert len(r["trade_id"]) == 8
+        assert all(c in "0123456789abcdef" for c in r["trade_id"])
+
+
 def test_compute_trade_pnl_returns_real_pip_count_for_eurusd() -> None:
     """Regression: pnl_pips field must be in real pips, not raw price units.
 

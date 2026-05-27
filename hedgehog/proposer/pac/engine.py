@@ -19,6 +19,7 @@ v1 simplifications (each marked TODO for the phase they will be resolved):
 """
 from __future__ import annotations
 
+import dataclasses
 import uuid
 from datetime import timezone
 from typing import Any
@@ -265,9 +266,40 @@ def run_backtest(
             current_price = float(current_bar["close"])
             updated_pos = maybe_partial_close(pos, current_price, cfg)
             if updated_pos is not None:
+                # Task 6: emit a separate ledger row for the partial leg.
+                #
+                # PnL math: compute against a *temporary* Position that has:
+                #   - the ORIGINAL sl_price (pre-`pos` had it; updated_pos has
+                #     it moved to breakeven), so r_multiple ≈ +partials_trigger_r
+                #     instead of div-by-zero on the BE'd updated_pos.
+                #   - lot_size scaled to cfg.partials_close_fraction so pnl_money
+                #     reflects the actual money taken off the table for just the
+                #     partial portion.
+                partial_pos_for_pnl = dataclasses.replace(
+                    pos,
+                    lot_size=pos.lot_size * cfg.partials_close_fraction,
+                )
+                p_pips, p_money, p_r = _compute_trade_pnl(
+                    partial_pos_for_pnl, current_price,
+                )
+                # write_partial reads pos.lot_size and pos.trade_id, scales
+                # lot_size by cfg.partials_close_fraction internally, writes
+                # the row, and returns the closed lot count.
+                partial_lot_closed = ledger.write_partial(
+                    pos=updated_pos,
+                    ts_signal=updated_pos.ts_open,
+                    ts_close=current_bar_time,
+                    exit_price=current_price,
+                    cfg=cfg,
+                    pnl_pips=p_pips,
+                    pnl_money=p_money,
+                    r_multiple=p_r,
+                )
+                account.equity += p_money
+                # Shrink the in-flight position so the eventual SL/TP/EOD exit
+                # row writes the remaining size — not the original full size.
+                updated_pos.lot_size -= partial_lot_closed
                 pos = updated_pos
-                # Note: partial close writes a separate ledger row in spec v1
-                # For v1 we just update the position in-place (no separate row).
 
             # --- Trailing SL (§7.4) ---
             pos = maybe_trail_sl(pos, current_bar, atr_value, cfg)
@@ -465,6 +497,10 @@ def run_backtest(
             mmd_alignment=mmd_align,
             d1_zone=d1_zone_val,
             direction_strict_at_entry=cfg.direction_strict,
+            # Task 6: stamp trade_id at open-time so partial-close + final-exit
+            # rows share the id. (Previously _make_ledger_row generated a fresh
+            # uuid at write-time, which made partial+exit rows unrelated.)
+            trade_id=str(uuid.uuid4())[:8],
         )
         account.open_positions.append(pos)
         account.trades_this_session[current_session] = (
@@ -698,9 +734,13 @@ def _make_ledger_row(
     r_multiple: float,
     cfg: Config,
 ) -> LedgerRow:
-    """Construct a LedgerRow from an open position + close event."""
+    """Construct a LedgerRow from an open position + close event.
+
+    Task 6: ``trade_id`` is taken from ``pos`` (stamped at open-time) so the
+    final-exit row shares its id with any partial-close row written earlier.
+    """
     return LedgerRow(
-        trade_id=str(uuid.uuid4())[:8],
+        trade_id=pos.trade_id,
         ts_signal=ts_signal,
         ts_open=pos.ts_open,
         ts_close=ts_close,

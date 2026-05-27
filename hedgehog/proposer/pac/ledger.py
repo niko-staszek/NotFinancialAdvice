@@ -5,6 +5,11 @@ import csv
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from hedgehog.proposer.pac.config import Config
+    from hedgehog.proposer.pac.orders import Position
 
 
 @dataclass
@@ -95,6 +100,63 @@ class TradeLedger:
             f"{row.lot_size:.2f}",
             f"{row.risk_pct:.2f}",
         ])
+
+    def write_partial(
+        self,
+        pos: Position,
+        ts_signal: datetime,
+        ts_close: datetime,
+        exit_price: float,
+        cfg: Config,
+        pnl_pips: float,
+        pnl_money: float,
+        r_multiple: float,
+    ) -> float:
+        """Emit a partial-close ledger row sharing the parent trade's id (Task 6).
+
+        Derives the partial lot size as ``cfg.partials_close_fraction *
+        pos.lot_size``, writes a row with ``exit_reason='partial'`` and
+        ``trade_id=pos.trade_id``, and returns the lot count that was closed
+        so the caller can shrink the in-flight Position before its eventual
+        exit row.
+
+        All immutable trade metadata (symbol, direction, entry/SL/TP, setup,
+        confluence, MMD, D1 zone) is copied from ``pos``. The ``exit_price``,
+        ``pnl_*``, and ``r_multiple`` reflect this partial leg only — the
+        engine is responsible for computing them against ``current_price`` at
+        the moment ``maybe_partial_close`` fires. The returned lot count gives
+        the engine a single source of truth for the partial portion.
+
+        Phase 3 diff: rows sharing a ``trade_id`` must be collapsed before
+        applying the match key (otherwise a 2-row partial+exit trade looks
+        like two unrelated trades).
+        """
+        partial_lot_closed = cfg.partials_close_fraction * pos.lot_size
+        row = LedgerRow(
+            trade_id=pos.trade_id,
+            ts_signal=ts_signal,
+            ts_open=pos.ts_open,
+            ts_close=ts_close,
+            symbol=pos.symbol,
+            direction=pos.direction,
+            entry_price=pos.entry_price,
+            sl_price=pos.sl_price,
+            tp_price=pos.tp_price,
+            exit_price=exit_price,
+            exit_reason="partial",
+            pnl_pips=pnl_pips,
+            pnl_money=pnl_money,
+            r_multiple=r_multiple,
+            setup_type=pos.setup_type,
+            direction_strict=cfg.direction_strict,
+            mmd_alignment=pos.mmd_alignment,
+            d1_zone=pos.d1_zone,
+            confluence_type=pos.confluence_type,
+            lot_size=partial_lot_closed,
+            risk_pct=cfg.risk_percent,
+        )
+        self.append(row)
+        return partial_lot_closed
 
     def flush(self) -> None:
         """Flush the file buffer."""
