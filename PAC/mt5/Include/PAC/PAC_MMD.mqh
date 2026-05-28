@@ -23,6 +23,8 @@
 //| hedgehog/proposer/pac/tests/test_mmd.py.                          |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_MMD_MQH__
+#define __PAC_MMD_MQH__
 
 //+------------------------------------------------------------------+
 //| Raw EMA-minus-SMA cloud_value triple, as exposed by buffers 6/7/8 |
@@ -164,3 +166,5 @@ string ClassifyAlignmentFromMidpoints(CloudMidpoints &mids, string sentiment) {
     return ClassifyAlignmentSimple(mids.orange_mid, mids.blue_mid,
                                    mids.green_mid, sentiment);
 }
+
+#endif // __PAC_MMD_MQH__

@@ -3,6 +3,8 @@
 //| Mirrors Plan 4 hedgehog/proposer/pac/helpers/timeutil.py          |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_TIMEUTIL_MQH__
+#define __PAC_TIMEUTIL_MQH__
 
 enum SessionKind {
     SESSION_DEAD    = 0,
@@ -85,3 +87,5 @@ int TimeUtil_CurrentSessionForUtc(datetime utc_time) {
 int TimeUtil_CurrentSession() {
     return TimeUtil_CurrentSessionForUtc(TimeGMT());
 }
+
+#endif // __PAC_TIMEUTIL_MQH__

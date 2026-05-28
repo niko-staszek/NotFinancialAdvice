@@ -39,6 +39,8 @@
 //|   are covered by Plan 4 pytest + Phase 3 ledger diff.             |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_ORDERS_MQH__
+#define __PAC_ORDERS_MQH__
 
 // CTrade is the SOLE MQL5-stdlib import allowed by design Decision 2.
 #include <Trade\Trade.mqh>
@@ -610,3 +612,5 @@ bool Orders_HandleClosedDeal(ulong deal_ticket,
     position_id_out = (ulong)HistoryDealGetInteger(deal_ticket, DEAL_POSITION_ID);
     return true;
 }
+
+#endif // __PAC_ORDERS_MQH__

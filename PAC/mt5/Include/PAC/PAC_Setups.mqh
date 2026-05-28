@@ -38,6 +38,8 @@
 //| "triggered"` to match Python's predicates exactly.                |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_SETUPS_MQH__
+#define __PAC_SETUPS_MQH__
 
 #include "PAC_Targets.mqh"   // MeasuredMove for trap/fail step inputs
 
@@ -535,3 +537,5 @@ bool Setups_StepSpikeChannel(
 bool Setups_TrapTriggered(const TrapState &state)               { return state.state == "triggered"; }
 bool Setups_FailTriggered(const FailState &state)               { return state.state == "triggered"; }
 bool Setups_SpikeChannelTriggered(const SpikeChannelState &state) { return state.state == "triggered"; }
+
+#endif // __PAC_SETUPS_MQH__

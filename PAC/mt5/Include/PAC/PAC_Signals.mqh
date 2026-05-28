@@ -19,6 +19,8 @@
 //| compile against the canonical signatures.                         |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_SIGNALS_MQH__
+#define __PAC_SIGNALS_MQH__
 
 #include "PAC_MMD.mqh"
 #include "PAC_TimeUtil.mqh"
@@ -307,3 +309,5 @@ bool Signals_HasConfluence(
 //| into a single boolean gate consumed by the order layer.           |
 //+------------------------------------------------------------------+
 bool Signals_DetectEntryTrigger(string symbol, DirectionKind dir);
+
+#endif // __PAC_SIGNALS_MQH__

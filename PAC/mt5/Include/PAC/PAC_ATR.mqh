@@ -3,6 +3,8 @@
 //| Mirrors helpers/atr.py                                            |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_ATR_MQH__
+#define __PAC_ATR_MQH__
 
 int g_atr_handle = INVALID_HANDLE;
 
@@ -28,3 +30,5 @@ void ATR_Release() {
         g_atr_handle = INVALID_HANDLE;
     }
 }
+
+#endif // __PAC_ATR_MQH__

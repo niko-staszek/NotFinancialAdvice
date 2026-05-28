@@ -33,6 +33,8 @@
 //| _ComputeATR for the byte-identical reference implementation).     |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_TARGETS_MQH__
+#define __PAC_TARGETS_MQH__
 
 #include "PAC_Swing.mqh"   // Swing, SwingKind, _ComputeATR
 
@@ -483,3 +485,5 @@ double Targets_ApplySettle(double target_price, string direction,
     if (direction == "bull") return target_price - settle_buffer;
     return target_price + settle_buffer;
 }
+
+#endif // __PAC_TARGETS_MQH__

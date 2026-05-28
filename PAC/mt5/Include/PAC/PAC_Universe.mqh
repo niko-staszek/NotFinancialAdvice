@@ -3,6 +3,8 @@
 //| Mirrors hedgehog/proposer/pac/universe.py                         |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_UNIVERSE_MQH__
+#define __PAC_UNIVERSE_MQH__
 #include "PAC_Pip.mqh"
 
 //+------------------------------------------------------------------+
@@ -85,3 +87,5 @@ bool Universe_AreCorrelated(string a, string b) {
     }
     return false;
 }
+
+#endif // __PAC_UNIVERSE_MQH__

@@ -17,6 +17,8 @@
 //| faithfully to keep MQL5 output byte-identical to Plan 4's pytest. |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_SWING_MQH__
+#define __PAC_SWING_MQH__
 
 enum SwingKind { SWING_HIGH = 1, SWING_LOW = -1 };
 
@@ -131,3 +133,5 @@ int Swing_Detect(const MqlRates &bars[], int n,
     ArrayResize(output, out_count);
     return out_count;
 }
+
+#endif // __PAC_SWING_MQH__

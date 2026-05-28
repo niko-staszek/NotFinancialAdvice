@@ -4,6 +4,8 @@
 //| Source: strategy_ea.md §0.4 "Pip definitions"                     |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_PIP_MQH__
+#define __PAC_PIP_MQH__
 
 //+------------------------------------------------------------------+
 //| PipSize: returns the price-unit value of 1 pip for the symbol.   |
@@ -48,3 +50,5 @@ double PipsToPrice(string symbol, double pips) {
     if (ps == 0.0) return 0.0;
     return pips * ps;
 }
+
+#endif // __PAC_PIP_MQH__

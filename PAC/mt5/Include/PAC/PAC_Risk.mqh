@@ -35,6 +35,8 @@
 //|     — the comparison `> window_min` trivially passes.             |
 //+------------------------------------------------------------------+
 #property strict
+#ifndef __PAC_RISK_MQH__
+#define __PAC_RISK_MQH__
 
 #include "PAC_TimeUtil.mqh"   // SessionKind enum
 #include "PAC_Universe.mqh"   // Universe_AreCorrelated for §1.6
@@ -231,3 +233,5 @@ bool Risk_CheckNewsBlackout(const AccountState &acc, bool enabled, int window_mi
     if (acc.last_news_event_minutes_ago == INT_MAX) return true;
     return acc.last_news_event_minutes_ago > window_min;
 }
+
+#endif // __PAC_RISK_MQH__
