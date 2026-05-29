@@ -19,6 +19,7 @@
 #property strict
 #include "helpers\\TestRunner.mqh"
 #include "..\\..\\Include\\PAC\\PAC_Risk.mqh"
+#include "..\\..\\Include\\PAC\\PAC_Signals.mqh"  // DirectionKind / DIR_BUY enum
 
 // Local cfg defaults that mirror Config().
 #define CFG_RISK_PERCENT             1.0
