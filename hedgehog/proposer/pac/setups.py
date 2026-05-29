@@ -242,12 +242,14 @@ def step_fail(
             bars_since_first = bar_idx - state.first_attempt_bar
             if bars_since_first <= cfg.fail_max_bars_between_attempts:
                 low = bar["low"]
-                # Second attempt also must pierce 38.2%, but not go as deep —
-                # falls short by >= shortfall_threshold (less extreme than first).
+                # §6.2: the 2nd attempt must FALL SHORT of the 1st attempt's
+                # depth — "fail to reach the same level as the first attempt"
+                # (strategy.md ~562/566). For a bull MM (downward correction),
+                # shallower ⇒ the 2nd low is HIGHER than the 1st low by at least
+                # second_attempt_shortfall_atr_multiple × ATR.
                 if low <= fib_382:
-                    shortfall = state.first_attempt_extreme - low
-                    # If shortfall is negative it means second went deeper → not a fail setup
-                    # If shortfall >= threshold, second attempt was shallower → valid
+                    # Positive shortfall = 2nd attempt was shallower (higher low).
+                    shortfall = low - state.first_attempt_extreme
                     if shortfall >= shortfall_threshold:
                         return replace(
                             state,
@@ -286,8 +288,11 @@ def step_fail(
             bars_since_first = bar_idx - state.first_attempt_bar
             if bars_since_first <= cfg.fail_max_bars_between_attempts:
                 high = bar["high"]
+                # §6.2 bear mirror: shallower ⇒ the 2nd high is LOWER than the
+                # 1st high by at least second_attempt_shortfall_atr_multiple × ATR.
                 if high >= fib_382:
-                    shortfall = high - state.first_attempt_extreme
+                    # Positive shortfall = 2nd attempt was shallower (lower high).
+                    shortfall = state.first_attempt_extreme - high
                     if shortfall >= shortfall_threshold:
                         return replace(
                             state,
@@ -333,9 +338,12 @@ def step_spike_channel(
         channel_active (after >= channel_min_bars)
           → pullback_active when price retraces toward 50% Fib of A→B
         pullback_active
-          → triggered       when price reacts at C (50% Fib), close in spike direction
-          → invalidated     if pullback wick pierces beyond pullback_invalidation_fib
-                            before triggering (v1: same fib = 50% as c_price, # v2 refine)
+          → triggered       when price reacts at C (50% Fib): close back in the
+                            spike direction at/beyond C AND no wick breached C
+          → invalidated     if even a WICK pierces beyond the
+                            pullback_invalidation_fib (0.5) level of A→B — which
+                            equals C (strategy.md §6.3 ~461: "if even a wick
+                            penetrates past 50%, the entire setup is invalidated")
     """
     if state.state == "idle":
         n = cfg.spike_min_bars
@@ -435,19 +443,27 @@ def step_spike_channel(
     elif state.state == "pullback_active":
         assert state.c_price is not None
         assert state.a_price is not None
+        assert state.b_price is not None
 
-        # Invalidation: wick pierces beyond pullback_invalidation_fib.
-        # v1: use c_price as the invalidation line (same as 50% Fib).
-        # v2: use a separate cfg.pullback_invalidation_fib level.
+        # §6.3 invalidation (strategy.md ~461, emphatic): "if even a WICK
+        # penetrates past 50% [= level C], the entire setup is invalidated."
+        # The invalidation level is the pullback_invalidation_fib (0.5) Fib of
+        # A→B, which is exactly C. Compute it from cfg to wire the configured
+        # value rather than assuming the 0.5 midpoint.
+        invalidation_level = state.a_price + cfg.pullback_invalidation_fib * (
+            state.b_price - state.a_price
+        )
         if state.direction == "bull":
-            # Invalidate if low goes below a_price (full retracement).
-            if bar["low"] < state.a_price:
+            # A bull pullback retraces DOWN toward C; a wick BELOW C is "past 50%".
+            if bar["low"] < invalidation_level:
                 return replace(state, state="invalidated")
-            # Trigger: close above c_price (reaction off the 50% level).
+            # Trigger: reaction off the 50% level — close back at/above C, and
+            # (per the invalidation guard above) no wick breached C this bar.
             if bar["close"] >= state.c_price:
                 return replace(state, state="triggered")
         else:
-            if bar["high"] > state.a_price:
+            # A bear pullback retraces UP toward C; a wick ABOVE C is "past 50%".
+            if bar["high"] > invalidation_level:
                 return replace(state, state="invalidated")
             if bar["close"] <= state.c_price:
                 return replace(state, state="triggered")
