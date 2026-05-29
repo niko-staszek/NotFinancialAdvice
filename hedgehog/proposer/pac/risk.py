@@ -1,6 +1,7 @@
 """§1 Risk Management — 7 risk-rule check functions per strategy_ea.md §1."""
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -33,8 +34,22 @@ def compute_position_size(
     pip_value_per_lot = 10.0
     if sl_distance_pips <= 0:
         return 0.0
-    lot_size = risk_amount / (sl_distance_pips * pip_value_per_lot)
-    return round(lot_size, 2)
+    raw_lots = risk_amount / (sl_distance_pips * pip_value_per_lot)
+
+    # §1.1: "rounded DOWN to the nearest broker-permitted lot step
+    # (SYMBOL_VOLUME_STEP)". Use floor (not round-half-even) so we never risk
+    # MORE than RiskPercent. No broker lot-step/min field exists in Config, so
+    # v1 uses 0.01 to match the 2-dp lot convention used throughout the engine.
+    lot_step = 0.01       # broker SYMBOL_VOLUME_STEP (assumed) — see config note
+    lot_min = 0.01        # broker SYMBOL_VOLUME_MIN (assumed)
+    lots = math.floor(raw_lots / lot_step) * lot_step
+
+    # §1.1: "if the resulting lot size is below the broker minimum
+    # (SYMBOL_VOLUME_MIN), the trade is rejected and logged 'lot size below
+    # minimum — skipped'." Return 0.0; the engine treats lot_size <= 0 as skip.
+    if lots < lot_min:
+        return 0.0
+    return round(lots, 2)  # tidy float artifacts from the step multiply
 
 
 def check_min_rr(entry: float, sl: float, tp: float, cfg: Config) -> bool:

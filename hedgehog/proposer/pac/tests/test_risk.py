@@ -38,6 +38,31 @@ def test_compute_position_size_tighter_sl_larger_lot() -> None:
     assert lot == pytest.approx(2.0, abs=0.01)
 
 
+def test_compute_position_size_floors_not_rounds() -> None:
+    """§1.1 — lot size must floor to the 0.01 step, never round up.
+
+    equity=15380, risk 1% = $153.80; sl=10 pips × $10/pip/lot = $100/lot.
+    raw = 153.80 / 100 = 1.538 lots. round(1.538, 2) == 1.54 (rounds UP →
+    risks slightly MORE than RiskPercent); the spec requires floor → 1.53.
+    """
+    cfg = Config()
+    account = _account(15380.0)
+    lot = compute_position_size(account, sl_distance_pips=10.0, symbol="EURUSD", cfg=cfg)
+    assert lot == pytest.approx(1.53, abs=1e-9)
+
+
+def test_compute_position_size_below_min_rejected() -> None:
+    """§1.1 — raw lots < broker minimum (0.01) → trade rejected, returns 0.0.
+
+    equity=50, risk 1% = $0.50; sl=10 pips × $10/pip/lot = $100/lot.
+    raw = 0.50 / 100 = 0.005 lots, which floors to 0.00 (< 0.01 min) → 0.0.
+    """
+    cfg = Config()
+    account = _account(50.0)
+    lot = compute_position_size(account, sl_distance_pips=10.0, symbol="EURUSD", cfg=cfg)
+    assert lot == 0.0
+
+
 def test_check_min_rr_passes() -> None:
     cfg = Config()
     assert check_min_rr(entry=100.0, sl=99.0, tp=102.0, cfg=cfg) is True
