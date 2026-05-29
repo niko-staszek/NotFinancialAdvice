@@ -1,0 +1,1 @@
+trade_id,ts_signal,ts_open,ts_close,symbol,direction,entry_price,sl_price,tp_price,exit_price,exit_reason,pnl_pips,pnl_money,r_multiple,setup_type,direction_strict,mmd_alignment,d1_zone,confluence_type,lot_size,risk_pct
