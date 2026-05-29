@@ -48,8 +48,10 @@
 //|   b_bar, b_price  : impulse extreme (high for bull, low for bear) |
 //|   c_bar, c_price  : pullback pivot (matches a kind)               |
 //|   d_target        : projected target = c_price ± (b-a) span       |
-//|   validity        : "valid" | "invalid"                           |
-//|   overshoot_bars  : count of bars beyond D — engine increments;   |
+//|   validity        : "valid" | "invalid" — re-derived from the     |
+//|                     post-C price scan (§5.1 C-breach test).        |
+//|   overshoot_bars  : count of consecutive bars held beyond D —     |
+//|                     re-derived from the post-C price scan (§5.3);  |
 //|                     extended_mm_target gates on it.               |
 //+------------------------------------------------------------------+
 struct MeasuredMove {
@@ -97,6 +99,76 @@ struct Cluster {
 };
 
 //+------------------------------------------------------------------+
+//| §5.1 / §5.3 helper — derive an MM's validity and overshoot count   |
+//| from the price history after C (stateless re-derivation, mirrors  |
+//| targets.detect_measured_moves' post-C scan).                       |
+//|                                                                    |
+//| C-breach invalidation (§5.1):                                      |
+//|   Bull: walking forward from c_bar+1, the first bar with HIGH      |
+//|         >= d_target → valid (D reached, breach moot); the first    |
+//|         bar with LOW < c_price → invalid (retraced beyond C before |
+//|         D). Default valid if neither happens.                      |
+//|   Bear: first bar with LOW <= d_target → valid; first bar with     |
+//|         HIGH > c_price → invalid. Default valid.                   |
+//|                                                                    |
+//| Overshoot bars (§5.3):                                             |
+//|   Bull: find reached_at = first bar with HIGH >= d_target (0 if    |
+//|         none); from reached_at+1 count consecutive bars whose LOW  |
+//|         >= d_target — the first bar with LOW < d_target ends the   |
+//|         run.                                                       |
+//|   Bear: reached_at = first bar with LOW <= d_target; from there    |
+//|         count consecutive bars whose HIGH <= d_target — the first  |
+//|         bar with HIGH > d_target ends the run.                     |
+//+------------------------------------------------------------------+
+void _DeriveMMValidityAndOvershoot(MeasuredMove &mm, const MqlRates &bars[], int n_bars) {
+    mm.validity       = "valid";
+    mm.overshoot_bars = 0;
+
+    int scan_start = mm.c_bar + 1;
+    if (scan_start >= n_bars) return;
+
+    bool is_bull = (mm.direction == "bull");
+    double d_target = mm.d_target;
+    double c_price  = mm.c_price;
+
+    // ---- C-breach invalidation: stop on the FIRST of the two events. ----
+    for (int i = scan_start; i < n_bars; i++) {
+        double hi = bars[i].high;
+        double lo = bars[i].low;
+        if (is_bull) {
+            if (hi >= d_target) { mm.validity = "valid";   break; }
+            if (lo <  c_price)  { mm.validity = "invalid"; break; }
+        } else {
+            if (lo <= d_target) { mm.validity = "valid";   break; }
+            if (hi >  c_price)  { mm.validity = "invalid"; break; }
+        }
+    }
+
+    // ---- Overshoot bars: count consecutive bars held beyond D. ----
+    int reached_at = -1;
+    for (int i = scan_start; i < n_bars; i++) {
+        if (is_bull) {
+            if (bars[i].high >= d_target) { reached_at = i; break; }
+        } else {
+            if (bars[i].low <= d_target)  { reached_at = i; break; }
+        }
+    }
+    if (reached_at < 0) { mm.overshoot_bars = 0; return; }
+
+    int count = 0;
+    for (int i = reached_at + 1; i < n_bars; i++) {
+        if (is_bull) {
+            if (bars[i].low >= d_target) count++;
+            else break;
+        } else {
+            if (bars[i].high <= d_target) count++;
+            else break;
+        }
+    }
+    mm.overshoot_bars = count;
+}
+
+//+------------------------------------------------------------------+
 //| §5.1 Detect AB=CD measured-move patterns from a swing list.       |
 //|                                                                   |
 //| Mirrors targets.detect_measured_moves line-for-line:              |
@@ -104,7 +176,7 @@ struct Cluster {
 //|   bear patterns:                                                  |
 //|                                                                   |
 //|   Bull (low → high → low):                                        |
-//|     A < EMA(A) AND B > EMA(B) AND C < EMA(C)                      |
+//|     close(A) < EMA(A) AND close(B) > EMA(B) AND close(C) < EMA(C)  |
 //|     C > A (partial pullback, not full retest)                     |
 //|     (B - A) >= impulse_atr_multiple_min × ATR(B)                  |
 //|     d_target = C + (B - A)                                        |
@@ -126,8 +198,10 @@ struct Cluster {
 //|   atr_period           : ATR lookback (20 matches Wilder default) |
 //|   out_mms              : output MM array (sized to count)         |
 //|                                                                   |
-//| EMA-side check uses pivot prices (a.price/b.price/c.price), NOT   |
-//| bar close — see targets.py module docstring for rationale.        |
+//| EMA-side check uses the bar CLOSE at each pivot bar index (NOT    |
+//| the swing wick extreme) — B must genuinely CLOSE across the EMA;  |
+//| a wick touch is insufficient. Matches targets.detect_measured_    |
+//| moves (the canonical Python behaviour).                            |
 //+------------------------------------------------------------------+
 int Targets_DetectMeasuredMoves(
     const MqlRates &bars[], int n_bars,
@@ -169,12 +243,20 @@ int Targets_DetectMeasuredMoves(
         double atr_at_b = atr[b_idx];
         if (atr_at_b <= 0.0) continue;
 
-        // EMA bounds — skip if any pivot bar lacks EMA.
+        // EMA bounds — skip if any pivot bar lacks EMA or a bar close.
         if (a_idx >= ema_len || b_idx >= ema_len || c_idx >= ema_len) continue;
+        if (a_idx >= n_bars || b_idx >= n_bars || c_idx >= n_bars) continue;
         double ema_a = ema_series[a_idx];
         double ema_b = ema_series[b_idx];
         double ema_c = ema_series[c_idx];
         if (ema_a == EMPTY_VALUE || ema_b == EMPTY_VALUE || ema_c == EMPTY_VALUE) continue;
+
+        // EMA-cross check anchors on the bar CLOSE at each pivot bar (NOT the
+        // swing wick extreme). B must genuinely CLOSE across the EMA — a wick
+        // touch is insufficient. Mirrors targets.detect_measured_moves.
+        double close_a = bars[a_idx].close;
+        double close_b = bars[b_idx].close;
+        double close_c = bars[c_idx].close;
 
         // ---- Bull: low → high → low ----
         if (a_kind == SWING_LOW && b_kind == SWING_HIGH && c_kind == SWING_LOW) {
@@ -182,8 +264,8 @@ int Targets_DetectMeasuredMoves(
 
             if (ab_distance < impulse_atr_mult_min * atr_at_b) continue;
 
-            // EMA-side check on pivot prices.
-            if (!(a_price < ema_a && b_price > ema_b && c_price < ema_c)) continue;
+            // EMA-side check on bar closes at the pivot bars.
+            if (!(close_a < ema_a && close_b > ema_b && close_c < ema_c)) continue;
 
             // C must be above A (partial pullback only).
             if (c_price <= a_price) continue;
@@ -197,8 +279,9 @@ int Targets_DetectMeasuredMoves(
             buf[buf_count].c_bar           = c_idx;
             buf[buf_count].c_price         = c_price;
             buf[buf_count].d_target        = c_price + ab_distance;
-            buf[buf_count].validity        = "valid";
-            buf[buf_count].overshoot_bars  = 0;
+            // §5.1 C-breach invalidation + §5.3 overshoot bars — re-derived
+            // statelessly from the price history after C.
+            _DeriveMMValidityAndOvershoot(buf[buf_count], bars, n_bars);
             buf_count++;
             next_id++;
         }
@@ -208,7 +291,8 @@ int Targets_DetectMeasuredMoves(
 
             if (ab_distance < impulse_atr_mult_min * atr_at_b) continue;
 
-            if (!(a_price > ema_a && b_price < ema_b && c_price > ema_c)) continue;
+            // EMA-side check on bar closes at the pivot bars (mirror of bull).
+            if (!(close_a > ema_a && close_b < ema_b && close_c > ema_c)) continue;
 
             // C must be below A (partial pullback only).
             if (c_price >= a_price) continue;
@@ -222,8 +306,9 @@ int Targets_DetectMeasuredMoves(
             buf[buf_count].c_bar           = c_idx;
             buf[buf_count].c_price         = c_price;
             buf[buf_count].d_target        = c_price - ab_distance;
-            buf[buf_count].validity        = "valid";
-            buf[buf_count].overshoot_bars  = 0;
+            // §5.1 C-breach invalidation + §5.3 overshoot bars — re-derived
+            // statelessly from the price history after C (mirror of bull).
+            _DeriveMMValidityAndOvershoot(buf[buf_count], bars, n_bars);
             buf_count++;
             next_id++;
         }

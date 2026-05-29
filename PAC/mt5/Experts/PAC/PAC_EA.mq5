@@ -76,8 +76,11 @@ input string InpLedgerPath   = "PAC\\ledger.csv";       // ledger output (MQL5/F
 
 // Window of closed bars copied each new bar for swing/MM/cluster recompute.
 // engine.py recomputes over the full series each bar; we cap the lookback to
-// a generous window (sufficient for sma_period + warmup + swing history) to
-// keep per-bar CopyRates bounded inside the Strategy Tester.
+// a generous window. The signal warmup is max(sma_period, PAC_MMD_SLOWEST_PERIOD)
+// + WARMUP_EXTRA.  With the default InpSmaPeriod=61 that is
+// max(61, 1440) + 50 = 1490 bars, leaving ~10 bars of headroom under
+// BAR_WINDOW=1500.  If InpSmaPeriod is raised above 1450 the warmup would
+// exceed BAR_WINDOW — OnInit emits a warning in that case.
 #define BAR_WINDOW             1500
 
 // §6 setup priority is applied directly in Setups_StepAll: on simultaneous
@@ -201,11 +204,19 @@ DirectionKind Signals_ComputeDirection(string symbol)
     g_last_d1_zone = d1_zone;
 
     // §3.4 session box — only london / america; else "inside" (engine.py).
+    // The London box is the PRIMARY session-box filter during BOTH the London
+    // AND America windows (strategy.md §3.4): during the America window we feed
+    // the box function SESSION_LONDON so the held London box (08:00–13:59 PLT)
+    // drives above/inside/below, rather than building an america-only box that
+    // would reset at 14:00 PLT. SessionBoxHighLow filters prior bars by the
+    // passed session arg, so passing SESSION_LONDON builds the London box even
+    // on an america-time bar.
     int session = TimeUtil_CurrentSessionForUtc(iTime(symbol, PERIOD_M5, 1));
     string box_pos = "inside";
     if (session == SESSION_LONDON || session == SESSION_AMERICA) {
+        int box_session = (session == SESSION_AMERICA) ? SESSION_LONDON : session;
         double sh, sl;
-        if (SessionBoxHighLow(symbol, session, sh, sl)) {
+        if (SessionBoxHighLow(symbol, box_session, sh, sl)) {
             box_pos = Signals_SessionBoxPosition(close, sh, sl, atr_val,
                                                  SESSION_BOX_MIN_ATR);
         }
@@ -372,6 +383,15 @@ int OnInit()
                     (int)srv_utc_offset);
     }
 
+    // Diagnostic: warn when warmup_bars would exceed BAR_WINDOW, which means
+    // the EA will never become warm and will silently never trade.
+    int computed_warmup = MathMax(InpSmaPeriod, PAC_MMD_SLOWEST_PERIOD) + WARMUP_EXTRA;
+    if (computed_warmup > BAR_WINDOW) {
+        PrintFormat("PAC_EA: WARNING: warmup_bars (%d) exceeds BAR_WINDOW (%d) "
+                    "— EA will never warm up; raise BAR_WINDOW or lower InpSmaPeriod.",
+                    computed_warmup, BAR_WINDOW);
+    }
+
     PrintFormat("PAC_EA: initialized for %s", _Symbol);
     return INIT_SUCCEEDED;
 }
@@ -489,9 +509,19 @@ void OnNewBar()
     int n = CopyClosedBars(bars);
     if (n <= 0) return;
 
-    // --- Warmup: engine.py needs sma_period + WARMUP_EXTRA bars ---
-    int warmup_bars = InpSmaPeriod + WARMUP_EXTRA;
+    // --- Warmup: signal evaluation must wait for the slowest MMD cloud
+    //     (Green, period 1440) to be warm. Mirrors engine._signal_warmup_bars
+    //     = max(sma_period, 1440) + WARMUP_EXTRA. We also require the MMD
+    //     cloud-midpoint reads to return valid non-empty values (i.e. the
+    //     iCustom buffers are populated). Per §3.2 the MMD indicator being
+    //     entirely unavailable soft-fails to "weakened" and does NOT block
+    //     trading, so the read requirement applies only when MMD is available.
+    int warmup_bars = MathMax(InpSmaPeriod, PAC_MMD_SLOWEST_PERIOD) + WARMUP_EXTRA;
     bool warmed = (n >= warmup_bars);
+    if (warmed && MMD_Available()) {
+        CloudMidpoints warm_mids;
+        if (!ReadCloudMidpoints(1, warm_mids)) warmed = false;
+    }
 
     // ============================================================
     // 1. Drawdown gate (cheap; halts entry path on circuit-breaker)
@@ -793,9 +823,10 @@ double EmaValueAtShift(int handle, int bar_shift)
 //|                 + [fib prices] + [cluster prices]                 |
 //|                                                                   |
 //| Rebuilds g_active_levels / g_active_types each bar (state-free —  |
-//| engine.py recomputes from scratch every bar; overshoot_bars is    |
-//| always 0 on fresh detection so extended targets never contribute, |
-//| matching engine.py behaviour).                                    |
+//| engine.py recomputes from scratch every bar). overshoot_bars is   |
+//| re-derived from the post-C price scan inside detect_measured_     |
+//| moves, so the §5.3 extended (138.2%) target fires once a valid MM |
+//| has held beyond D for overshoot_bars_min bars (matches engine.py).|
 //+------------------------------------------------------------------+
 void Targets_Update(string symbol, const MqlRates &bars[], int n, double atr_value)
 {
@@ -974,7 +1005,8 @@ void Setups_StepAll(string symbol, const MqlRates &bars[], int n, double atr_val
         Setups_StepSpikeChannel(next_spike[s], bo, bh, bl, bc, cur_idx,
                                 w_opens, w_closes, wn, atr_value,
                                 InpSpikeMinBars, InpSpikeMinMagnitudeAtr,
-                                InpSpikeMaxCounterBars, InpChannelMinBars);
+                                InpSpikeMaxCounterBars, InpChannelMinBars,
+                                InpPullbackInvalidationFib);
     }
 
     // ---- 3. Collect fires + pick winner by priority ----

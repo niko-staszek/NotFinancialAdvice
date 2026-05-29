@@ -26,6 +26,11 @@
 #ifndef __PAC_MMD_MQH__
 #define __PAC_MMD_MQH__
 
+// Slowest MMD cloud period (Green cloud, 1440 × M5 bars ≈ 5 days).
+// Used in iCustom arguments and referenced by PAC_EA.mq5 for warmup sizing
+// so that both stay in sync from a single definition.
+#define PAC_MMD_SLOWEST_PERIOD 1440
+
 //+------------------------------------------------------------------+
 //| Raw EMA-minus-SMA cloud_value triple, as exposed by buffers 6/7/8 |
 //| of PAC_MMD_Clouds. Kept for API parity with the iCustom contract  |
@@ -51,7 +56,7 @@ int  g_mmd_handle    = INVALID_HANDLE;
 bool g_mmd_available = false;
 
 bool InitMMD(string symbol) {
-    g_mmd_handle = iCustom(symbol, PERIOD_M5, "PAC\\PAC_MMD_Clouds", 48, 288, 1440);
+    g_mmd_handle = iCustom(symbol, PERIOD_M5, "PAC\\PAC_MMD_Clouds", 48, 288, PAC_MMD_SLOWEST_PERIOD);
     g_mmd_available = (g_mmd_handle != INVALID_HANDLE);
     if (!g_mmd_available)
         PrintFormat("PAC_MMD: iCustom failed (err=%d) — fallback to weakened", GetLastError());
