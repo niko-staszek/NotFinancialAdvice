@@ -10,24 +10,36 @@ Behavioural spec: `../strategy_ea.md`.
 
 ## Status — read this first
 
-**The MQL5 sources in this tree have NOT yet been compiled or run in
-MetaEditor / MetaTrader 5.** They were written 1:1 against the Python
-reference and the design spec, but no `.ex5` has been produced and no
-Strategy Tester run has been executed. The next step before any backtest
-is a **compile pass**: open each file in MetaEditor and fix whatever the
-MQL5 compiler flags (forward-reference ordering, implicit casts, `iCustom`
-argument arity, CTrade API drift, etc.). Until that pass is done, treat
-everything here as source-complete but unvalidated.
+**Compile pass: DONE.** The indicator (`PAC_MMD_Clouds.mq5`), the EA
+(`PAC_EA.mq5`), and all 15 `Scripts/PAC_Tests/*.mq5` scripts compile
+**0 errors / 0 warnings** against the MetaEditor build for terminal
+`D0E8209F77C8CF37AD8BF550E51FF075`. Only one fix was needed during the
+pass (a missing `#include` of `PAC_Signals.mqh` in `test_pac_risk.mq5`
+for the `DirectionKind` enum).
 
-Consequently:
+**Strategy Tester smoke (Task 21): DONE.** `PAC_EA` ran end-to-end in the
+MT5 Strategy Tester (EURUSD M5, Model 1) over both 2024-05 (6,336 bars)
+and 2026-05-01→15 (2,880 bars): clean `OnInit`, MMD indicator loaded via
+`iCustom`, full bar loop, **no runtime errors**, and a schema-correct
+21-column ledger (header byte-identical to `ledger.py`, CRLF, no BOM).
+Artifact + report under `runs/2026-05-EURUSD-mql5/`.
 
-- The end-to-end Strategy Tester smoke (Plan 5 Task 21) is **deferred** —
-  it requires a clean MetaEditor compile plus a running MT5 with history,
-  neither of which was available when this tree was authored.
-- The MQL5 unit-test scripts under `Scripts/PAC_Tests/` likewise have not
-  been run; `tools/run_mql5_tests.py` (below) is ready to drive them once
-  MT5 is present, and its log-parsing layer is unit-tested independently
-  of MT5.
+**Still open (Phase 3, not blocking the build):**
+
+- **0 trades fired in either smoke window** — including Plan 4's exact
+  2026-05-01→15 range where the Python engine fired 1 trade. This is the
+  first triangulation divergence. Likely causes (see
+  `runs/2026-05-EURUSD-mql5/report.md`): the EA computes the *real* §3.3
+  D1 promo zone whereas Plan 4's committed smoke ran `d1_bars=None`
+  (always `neutral`, permissive); and tester broker bars differ from the
+  dumped CSV Plan 4 read. Phase 3 reconciles these on matched inputs.
+- Because no trade fired in the smoke, the **data-row path** of
+  `PAC_Logger.mqh` / `Orders_Submit` / closure logging is exercised only
+  by the MQL5 unit scripts, not yet by an end-to-end ST trade.
+- The MQL5 unit-test scripts compile but their **assertions have not been
+  executed** (scripts run via MetaEditor F5 on a chart, or via
+  `tools/run_mql5_tests.py` once wired to this terminal). The harness's
+  log-parsing layer is unit-tested independently of MT5.
 
 ## One-time setup
 
@@ -50,8 +62,9 @@ Consequently:
    `Include/PAC`, `Scripts/PAC_Tests`, and `Presets` exactly as they appear
    in this directory.
 
-3. **Compile (compile pass — currently pending, see Status above).** Order
-   matters because the EA loads the indicator via `iCustom`:
+3. **Compile (compile pass — DONE, see Status above; steps kept for
+   reproducibility on a fresh checkout).** Order matters because the EA
+   loads the indicator via `iCustom`:
 
    1. MetaEditor → `Indicators/PAC/PAC_MMD_Clouds.mq5` → F7. Produces
       `PAC_MMD_Clouds.ex5`.
