@@ -713,3 +713,12 @@ def test_symbol_iteration_with_explicit_alpha_sort_kwarg():
     from hedgehog.proposer.pac.engine import _order_symbols_for_iteration
     result = _order_symbols_for_iteration(["B", "A", "C"], alphabetize=True)
     assert result == ["A", "B", "C"]
+
+
+def test_warmup_covers_max_mmd_cloud_period():
+    """Signal eval must not begin until the slowest MMD cloud (1440) is warm.
+    Pre-fix: warmup=111 < 1440 -> bars 111-1439 evaluate on a NaN green cloud."""
+    from hedgehog.proposer.pac.engine import _signal_warmup_bars
+    from hedgehog.proposer.pac.config import Config
+    w = _signal_warmup_bars(Config())
+    assert w >= 1440, f"warmup {w} < 1440 - MMD green cloud not warm"

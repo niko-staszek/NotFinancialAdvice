@@ -69,6 +69,17 @@ from .universe import lookup_pip_factor, normalize_symbol
 
 _PIP_VALUE_PER_LOT = 10.0   # v1: $10 per pip per lot, all instruments
 _WARMUP_EXTRA = 50          # bars beyond sma_period before we start evaluating
+_MMD_MAX_PERIOD = 1440      # Green cloud — slowest MMD cloud; SMA(1440) needs 1440 bars
+
+
+def _signal_warmup_bars(cfg) -> int:
+    """Bars to skip before signal evaluation: slowest indicator lookback + buffer.
+
+    Must cover the MMD green cloud (1440), not just sma_period — else early bars
+    evaluate on a NaN/degenerate MMD (green cloud NaN until bar 1439, which forces
+    mmd_alignment to 'weakened' so the §3.2 veto can never fire).
+    """
+    return max(cfg.sma_period, _MMD_MAX_PERIOD) + _WARMUP_EXTRA
 
 # §6 setup priority — higher index = lower priority. When multiple §6
 # state machines reach 'triggered' on the same bar, the leftmost-listed
@@ -245,7 +256,7 @@ def run_backtest(
     sma_series   = bars["close"].rolling(window=cfg.sma_period).mean()
     clouds       = compute_clouds(bars)
 
-    warmup_bars = cfg.sma_period + _WARMUP_EXTRA
+    warmup_bars = _signal_warmup_bars(cfg)
 
     # ------------------------------------------------------------------
     # Step 2 — bar loop
