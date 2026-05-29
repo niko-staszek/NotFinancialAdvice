@@ -327,6 +327,8 @@ The direction filter is composed of four independent sub-components (§3.1–§3
 
 **Output:** `mmd_alignment: confirmed|weakened|vetoed`.
 
+> **Implementation note — cloud-stacking proxy when bands overlap:** The stacking classifier orders the three main clouds by their midpoints `mid = (ema_band + sma_band) / 2`. When the EMA/SMA bands of two clouds heavily overlap, midpoint ordering can diverge from band-edge stacking, and `MMD_CLOUDS.md` defines no tie-break for that case. The chosen reading: **per-cloud midpoint `(ema+sma)/2` ordering is the authoritative stacking proxy** (it is monotonic and sign-correct). No separate band-edge tie-break is defined; when bands overlap, midpoint ordering (center of mass) is the sole criterion.
+
 **Quantitative thresholds:**
 
 | Threshold | Default | Source |
@@ -471,7 +473,9 @@ The entry trigger is the second gate in the PAC entry pipeline, evaluated only a
 
 **Inputs:** Signal candle from §4.1 (specifically, `candle.low` for a bullish signal, `candle.high` for a bearish signal — the wick extreme that represents the rejection point). EMA-side validity from §4.2 (`signal_valid = true`). Active level set from the §5 Target Engine: all currently live measured-move points (§5.1), all currently live Fibonacci levels and cluster prices (§5.2). `iATR(20)` value at bar 1 for the ATR-scaled threshold.
 
-**Output:** `entry_triggered: bool`. When `true`, also emits `confluence_level: float` (the matched level's price) and `confluence_type: mm_a|mm_b|mm_c|mm_d|fib_retracement|fib_extension|cluster` identifying which level class produced the match.
+**Output:** `entry_triggered: bool`. When `true`, also emits `confluence_level: float` (the matched level's price) and `confluence_type: string` identifying which level class produced the match.
+
+> **v1 implementation note — `confluence_type` is a constant:** The v1 implementation passes active levels as a bare `list[float]` with no type tag, so the level class is unrecoverable at match time. `confluence_type` therefore always emits the constant string `"mm_or_fib_or_cluster"` in v1. This field flows only to the ledger CSV column for post-hoc journaling — it never gates any entry decision. Level-class identification (i.e., distinguishing `mm_a`, `mm_b`, `mm_c`, `mm_d`, `fib_retracement`, `fib_extension`, `cluster`) is deferred to a future version when the active-level array carries a `{price, type}` struct rather than bare floats.
 
 **Quantitative thresholds:**
 
@@ -691,7 +695,7 @@ bearish fail: mirror
 
 ### §6.3 Spike & Channel
 
-**Rule:** A sharp directional spike followed by a rotational channel that continues in the same direction as the spike. The pattern has four reference points: A = spike base (origin); A' = spike peak (the extreme reached at the end of the spike); B = highest or lowest point within the rotational channel that follows A'; C = the 50% Fibonacci retracement of the A→B range. The EA waits for price to pull back to C. If even a wick pierces past 50% and closes beyond C in the counter direction, the setup is invalidated. Target D is the 100% expansion of A→B projected from C (AB = CD measured move). If price inside the channel reaches 138.2% Fibonacci of the A→A' spike impulse, expect exhaustion — the EA exits before that level rather than holding for D.
+**Rule:** A sharp directional spike followed by a rotational channel that continues in the same direction as the spike. The pattern has four reference points: A = spike base (origin); A' = spike peak (the extreme reached at the end of the spike); B = highest or lowest point within the rotational channel that follows A'; C = the 50% Fibonacci retracement of the A→B range. The EA waits for price to pull back to C. If even a **wick** penetrates past the 50% level, the entire setup is invalidated — a close beyond C is not required; the wick alone is sufficient. (Canonical source: `strategy.md` line 461: "if even a WICK penetrates past 50%, the entire setup is invalidated.") Target D is the 100% expansion of A→B projected from C (AB = CD measured move). If price inside the channel reaches 138.2% Fibonacci of the A→A' spike impulse, expect exhaustion — the EA exits before that level rather than holding for D.
 
 **Setup signature:**
 ```
@@ -866,7 +870,9 @@ This becomes the `bool ShouldOpen()` function in the MQL5 EA (Phase 2).
 
 6. **(Optional) Setup recognition** from §6.1–§6.3 logged for journaling — NOT a hard gate. The trade is allowed even when no §6 setup matches (the §3–§5 chain is sufficient on its own). Setup matches affect SL placement nuance and conviction logging only.
 
-**Order of evaluation:** Steps 1–5 must short-circuit on first failure — do not compute downstream conditions if an upstream condition fails. This is a performance optimization since §4–§5 are the heavier compute. Step 6 evaluates only if steps 1–5 all pass.
+**Order of evaluation:** Steps 1–5 must short-circuit on first failure — do not compute downstream conditions if an upstream condition fails. Step 6 evaluates only if steps 1–5 all pass.
+
+> **Implementation note — gate evaluation order:** The implementation evaluates the gates in the order **Direction (§3.5) → Trigger (§4.3) → Risk (§1)**, which differs from the numbered listing above. Because all gates are AND-combined, the pass/fail outcome is identical regardless of evaluation order; only the failure-reason logged on a multi-gate miss differs. The implementation order is the blessed order: it is cheaper-first (Direction and Trigger are lightweight comparisons; §1 risk-sizing is heavier), and it matches the actual `ShouldOpen()` logic in Phase 2 MQL5 code.
 
 ---
 
