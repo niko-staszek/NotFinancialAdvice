@@ -448,10 +448,15 @@ def run_backtest(
             d1_bars=d1_bars,
         )
 
-        # Session box (§3.4): only london / america; skip asia / dead
+        # Session box (§3.4): only london / america; skip asia / dead.
+        # §3.4: "The London box is the primary session-box filter during both
+        # the London and America session windows." So during the america window
+        # we inherit the LONDON box rather than building an america-only box
+        # (which would reset at 14:00 PLT). Map america -> london for the box.
         if current_session in ("london", "america"):
+            box_session = "london"
             box_pos = session_box_position(
-                bars, bar_idx, current_session, cfg, atr_value=atr_value,
+                bars, bar_idx, box_session, cfg, atr_value=atr_value,
             )
         else:
             # Asia / dead — no entry per v1 spec; use 'inside' to make composite neutral

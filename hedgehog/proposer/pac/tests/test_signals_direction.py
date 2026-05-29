@@ -141,6 +141,57 @@ def test_session_box_position_inside_narrow_box() -> None:
     assert result == "inside"
 
 
+def _london_then_america_bars() -> pd.DataFrame:
+    """Fixture: a London box and an America box that give DIFFERENT verdicts.
+
+    Winter (2026-01-15, CET +1): London = 08:00–13:59 PLT = 07:00–12:59 UTC;
+    America = 14:00–21:59 PLT = 13:00–20:59 UTC.
+
+    London bars sit near 100–104 (box ≈ [99.5, 104.5]); America bars sit near
+    200–204 (box ≈ [199.5, 204.5]). The final bar is in the America window and
+    closes at 150.0 — strictly ABOVE the London box but strictly BELOW the
+    America box. So asking for 'london' must say 'above' while 'america' says
+    'below'. This isolates which box drives the verdict.
+    """
+    london_times = list(pd.date_range("2026-01-15 07:00:00+00:00", periods=6, freq="5min"))
+    america_times = list(pd.date_range("2026-01-15 13:00:00+00:00", periods=6, freq="5min"))
+    times = pd.DatetimeIndex(london_times + america_times)
+    closes = [100.0, 101.0, 102.0, 103.0, 104.0, 103.0,   # london window
+              200.0, 201.0, 202.0, 203.0, 204.0, 150.0]   # america window (last = current bar)
+    return pd.DataFrame({
+        "time_utc": times,
+        "open": closes,
+        "high": [c + 0.5 for c in closes],
+        "low": [c - 0.5 for c in closes],
+        "close": closes,
+    })
+
+
+def test_session_box_position_america_bar_with_london_arg_uses_london_box() -> None:
+    """§3.4 — during the America window the London box is the primary filter.
+
+    The current bar (idx 11) is in the America window and closes at 150.0.
+    Resolving against the LONDON box ([99.5, 104.5]) → 150 > 104.5 → 'above'.
+    """
+    bars = _london_then_america_bars()
+    cfg = Config()
+    result = session_box_position(bars, bar_idx=11, session="london", cfg=cfg, atr_value=1.0)
+    assert result == "above"
+
+
+def test_session_box_position_america_box_would_disagree() -> None:
+    """Control: the America-only box would give a DIFFERENT answer ('below').
+
+    Confirms the fixture genuinely distinguishes the two boxes, so the
+    london-arg assertion above is meaningful (not an artifact of identical boxes).
+    """
+    bars = _london_then_america_bars()
+    cfg = Config()
+    result = session_box_position(bars, bar_idx=11, session="america", cfg=cfg, atr_value=1.0)
+    # America box (prior america bars 6–10) ≈ [199.5, 204.5]; close 150 < 199.5 → below
+    assert result == "below"
+
+
 def test_composite_direction_bull_when_all_aligned() -> None:
     cfg = Config()
     result = composite_direction(

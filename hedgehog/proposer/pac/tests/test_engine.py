@@ -151,8 +151,9 @@ def test_position_size_uses_pip_count_not_price_units() -> None:
     lots = compute_position_size(account, sl_distance_pips, "EURUSD", cfg)
 
     # 1% of $10k = $100 risk; $10/pip/lot × 6.5 pips = $65/lot;
-    # 100 / 65 = ~1.538 → rounded to 1.54
-    assert lots == pytest.approx(1.54, abs=0.01)
+    # 100 / 65 = ~1.5385 → FLOORED to the 0.01 lot step = 1.53 (§1.1 rounds
+    # DOWN, never up; previously this asserted 1.54 from round-half-even).
+    assert lots == pytest.approx(1.53, abs=1e-9)
 
 
 def test_position_size_xauusd_pip_conversion() -> None:
@@ -396,6 +397,83 @@ def test_price_distance_to_pips_helper_exists() -> None:
 
     assert _price_distance_to_pips("EURUSD", 0.00065) == pytest.approx(6.5, abs=1e-9)
     assert _price_distance_to_pips("XAUUSD", 5.0) == pytest.approx(50.0, abs=1e-9)
+
+
+def _build_winter_session_bars() -> pd.DataFrame:
+    """M5 bars spanning London → America windows on 2026-01-15 (winter, CET +1).
+
+    London = 08:00–13:59 PLT = 07:00–12:59 UTC; America = 14:00–21:59 PLT =
+    13:00–20:59 UTC. Start 07:00 UTC and run 120 bars (10h) so the loop
+    evaluates a healthy run of bars whose session_for() == 'america'.
+    """
+    start_utc = datetime(2026, 1, 15, 7, 0, tzinfo=timezone.utc)
+    n = 120
+    times = [start_utc + timedelta(minutes=5 * i) for i in range(n)]
+    closes = [100.0 + (i % 7) * 0.5 for i in range(n)]  # mild noise, ATR > 0
+    return pd.DataFrame({
+        "time_utc": pd.to_datetime(times, utc=True),
+        "open": closes,
+        "high": [c + 0.5 for c in closes],
+        "low": [c - 0.5 for c in closes],
+        "close": closes,
+        "tick_volume": [100] * n,
+        "real_volume": [0] * n,
+        "spread": [1] * n,
+    })
+
+
+def test_engine_uses_london_box_during_america_window(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """§3.4 — the London box is the primary session-box filter during BOTH the
+    London and America windows. So when the current bar is in the America
+    window the engine must request the 'london' box, NOT an 'america'-only box.
+
+    Spies on engine.session_box_position to capture (current_session_of_bar,
+    session_arg_passed). Pre-fix the engine passed current_session verbatim, so
+    america bars requested 'america'; post-fix america bars must request
+    'london'. London bars must still request 'london'.
+    """
+    from hedgehog.proposer.pac import engine as engine_module
+    from hedgehog.proposer.pac.helpers.timeutil import session_for
+
+    # Shrink warmup so the america-window bars are actually evaluated (the real
+    # warmup is ~1450 bars for the MMD green cloud). ATR(20) still needs ~20
+    # bars, which the 120-bar fixture provides before reaching the America window.
+    monkeypatch.setattr(engine_module, "_signal_warmup_bars", lambda cfg: 25)
+
+    real_fn = engine_module.session_box_position
+    calls: list[tuple[str, str]] = []
+
+    def spy(bars, bar_idx, session, cfg, atr_value):  # type: ignore[no-untyped-def]
+        bar_time = bars["time_utc"].iloc[bar_idx]
+        if hasattr(bar_time, "to_pydatetime"):
+            bar_time = bar_time.to_pydatetime()
+        if bar_time.tzinfo is None:
+            bar_time = bar_time.replace(tzinfo=timezone.utc)
+        calls.append((session_for(bar_time), session))
+        return real_fn(bars, bar_idx, session, cfg, atr_value=atr_value)
+
+    monkeypatch.setattr(engine_module, "session_box_position", spy)
+
+    bars = _build_winter_session_bars()
+    cfg = Config()
+    with TradeLedger(tmp_path / "ledger.csv") as ledger:
+        run_backtest(bars, symbol="EURUSD", cfg=cfg, ledger=ledger)
+
+    america_calls = [arg for (sess, arg) in calls if sess == "america"]
+    london_calls = [arg for (sess, arg) in calls if sess == "london"]
+
+    # The fixture must actually exercise the america window, else the test is vacuous.
+    assert america_calls, "fixture did not produce any america-window session_box calls"
+    # §3.4: america-window bars inherit the LONDON box.
+    assert all(arg == "london" for arg in america_calls), (
+        f"engine requested non-london box during america window: {set(america_calls)}"
+    )
+    # London-window bars still request their own box.
+    assert all(arg == "london" for arg in london_calls), (
+        f"engine requested non-london box during london window: {set(london_calls)}"
+    )
 
 
 # ---------------------------------------------------------------------------
