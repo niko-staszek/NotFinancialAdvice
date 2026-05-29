@@ -1,0 +1,7 @@
+label,timestamp_utc,symbol,direction,expect_fire,source
+M1,2025-12-10T17:29:22Z,XAUUSD,SELL,yes,"mentor ALLin Lukas Serwin; catalog msg_id 1448365994245357638 (18:29:22+01:00 CET); retrospective post of a completed PAC 'return to range' SELL setup from the PRIOR session — match window spans Dec 9 session through the Dec 10 post"
+S1,2025-05-05T09:40:58Z,XAUUSD,BUY,unknown,"student kiewra82; catalog msg_id 1368885177518002176; 'gold, option to play the 3rd leg on a correction'; anchor only"
+S2,2025-05-06T17:35:32Z,XAUUSD,BUY,unknown,"student augustus.majowy; catalog msg_id 1369366993483862098; 'PAC 2-leg MM & MMD confirmation'; anchor only"
+S3,2025-06-04T11:15:53Z,XAUUSD,SELL,unknown,"student kiewra82; catalog msg_id 1379780700110192681; gold SELL similar to prior oil action; anchor only"
+S4,2025-06-11T08:31:37Z,XAUUSD,BUY,unknown,"student augustus.majowy; catalog msg_id 1382276075723161700; 'gold PAC 2-leg longs, TP1 hit'; likely post-trade report; anchor only"
+S5,2025-08-12T05:39:00Z,EURUSD,BUY,unknown,"student lukaszkoza_08365; catalog msg_id 1404700682937700432; EURUSD play from prior evening; anchor only"
