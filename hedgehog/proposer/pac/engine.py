@@ -484,7 +484,7 @@ def run_backtest(
         # Step 6 — confluence check
         # ------------------------------------------------------------------
         passed, matched_level, confluence_type = has_confluence(
-            current_bar, active_levels, atr_value, cfg,
+            current_bar, active_levels, atr_value, cfg, signal_kind,
         )
         if not passed:
             continue
