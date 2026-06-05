@@ -81,17 +81,20 @@ void Risk_InitAccountState(AccountState &acc, double starting_equity) {
 //| Mirrors compute_position_size():                                  |
 //|   risk_amount   = equity × (risk_percent / 100)                   |
 //|   pip_value_per_lot = 10.0  (v1 assumption — same as risk.py)     |
-//|   lot_size      = risk_amount / (sl_distance_pips × pip_value)    |
-//|   return round(lot_size, 2)                                       |
+//|   raw_lots      = risk_amount / (sl_distance_pips × pip_value)    |
+//|   lots          = floor(raw_lots / step) × step                   |
+//|                   (step = SYMBOL_VOLUME_STEP; floor never rounds   |
+//|                    up past the configured risk; MQL5's real        |
+//|                    broker step supersedes risk.py's 0.01 literal)  |
+//|   if lots < SYMBOL_VOLUME_MIN → return 0.0 (logged, skipped)       |
 //|                                                                   |
 //| Returns 0.0 when sl_distance_pips <= 0 (matches Python guard).    |
 //|                                                                   |
 //| Parameters:                                                       |
 //|   acc        — current account state (only .equity is read)       |
 //|   sl_pips    — stop-loss distance in pips                         |
-//|   symbol     — instrument symbol (unused in v1; retained for API  |
-//|                parity so v2 broker-dependent pip values can hook  |
-//|                in without signature breakage)                     |
+//|   symbol     — instrument symbol; read for SYMBOL_VOLUME_STEP and  |
+//|                SYMBOL_VOLUME_MIN to floor/validate the lot size    |
 //|   risk_pct   — cfg.risk_percent (e.g. 1.0 = 1% of equity)         |
 //+------------------------------------------------------------------+
 double Risk_ComputePositionSize(const AccountState &acc, double sl_pips,
@@ -99,7 +102,23 @@ double Risk_ComputePositionSize(const AccountState &acc, double sl_pips,
     double risk_amount = acc.equity * (risk_pct / 100.0);
     double pip_value_per_lot = 10.0;   // v1 assumption per risk.py
     if (sl_pips <= 0) return 0.0;
-    double lots = risk_amount / (sl_pips * pip_value_per_lot);
+    double raw_lots = risk_amount / (sl_pips * pip_value_per_lot);
+
+    // Floor to the broker lot step (NEVER round up — rounding up would
+    // overshoot the configured risk). MQL5 exposes the real broker step,
+    // which is more correct than risk.py's hard-coded 0.01 literal. Fall
+    // back to 0.01 defensively if the broker reports a 0 step.
+    double step = SymbolInfoDouble(symbol, SYMBOL_VOLUME_STEP);
+    if (step <= 0.0) step = 0.01;
+    double lots = MathFloor(raw_lots / step) * step;
+
+    // Reject (and log) any size below the broker minimum lot.
+    double min_lot = SymbolInfoDouble(symbol, SYMBOL_VOLUME_MIN);
+    if (lots < min_lot) {
+        PrintFormat("Risk_ComputePositionSize %s: lot size below minimum — skipped",
+                    symbol);
+        return 0.0;
+    }
     return NormalizeDouble(lots, 2);
 }
 

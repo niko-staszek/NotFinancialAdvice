@@ -187,7 +187,8 @@ void TestSpikeChannelDetectsSpike() {
         opens, closes, 5,
         /* atr */ 1.0,
         SPIKE_MIN_BARS, SPIKE_MIN_MAGNITUDE_ATR,
-        SPIKE_MAX_COUNTER_BARS, CHANNEL_MIN_BARS
+        SPIKE_MAX_COUNTER_BARS, CHANNEL_MIN_BARS,
+        /* pullback_invalidation_fib */ 0.5
     );
     ASSERT_TRUE(advanced, "SpikeChannel_spike_advanced");
     // Python test allows {"spike_detected", "channel_active"}; the MQL5
@@ -220,7 +221,8 @@ void TestSpikeChannelNoSpikeFlat() {
         4,
         opens, closes, 5, 1.0,
         SPIKE_MIN_BARS, SPIKE_MIN_MAGNITUDE_ATR,
-        SPIKE_MAX_COUNTER_BARS, CHANNEL_MIN_BARS
+        SPIKE_MAX_COUNTER_BARS, CHANNEL_MIN_BARS,
+        /* pullback_invalidation_fib */ 0.5
     );
     ASSERT_STR_EQ(s.state, "idle", "SpikeChannel_flat_stays_idle");
 }

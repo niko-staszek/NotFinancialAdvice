@@ -382,11 +382,20 @@ def has_confluence(
     active_levels: list[float],
     atr: float,
     cfg: Config,
+    signal_kind: str,
 ) -> tuple[bool, float | None, str]:
-    """Check if the bar is within cfg.confluence_pips_threshold_atr_multiple * atr of any level (§4.3).
+    """Check if the bar's rejection wick is within proximity of any level (§4.3).
 
-    Distance to each level is computed as min(abs(bar.high - level), abs(bar.low - level)).
-    The closest level within the threshold is selected.
+    The proximity check uses the **rejection wick only** — the wick in the
+    direction of the trade (spec §4.3):
+        - bullish signal → bar.low  (lower rejection wick)
+        - bearish signal → bar.high (upper rejection wick)
+
+    Distance to each level is computed as abs(wick_extreme - level). The closest
+    level within cfg.confluence_pips_threshold_atr_multiple * atr (inclusive) is
+    selected (nearest-level-wins). This brings Python into parity with the MQL5
+    engine, which already passes the rejection-wick extreme to
+    Signals_HasConfluence.
 
     Returns:
         (True, matched_level_price, "mm_or_fib_or_cluster")  — if a level is found
@@ -395,13 +404,21 @@ def has_confluence(
     if not active_levels:
         return (False, None, "")
 
+    if signal_kind == "bullish":
+        wick_extreme = float(bar["low"])
+    elif signal_kind == "bearish":
+        wick_extreme = float(bar["high"])
+    else:
+        # No directional signal → no rejection wick to anchor on.
+        return (False, None, "")
+
     threshold = cfg.confluence_pips_threshold_atr_multiple * atr
 
     best_distance = math.inf
     best_level: float | None = None
 
     for level in active_levels:
-        distance = min(abs(float(bar["high"]) - level), abs(float(bar["low"]) - level))
+        distance = abs(wick_extreme - level)
         if distance < best_distance:
             best_distance = distance
             best_level = level

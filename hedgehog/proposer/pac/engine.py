@@ -69,6 +69,17 @@ from .universe import lookup_pip_factor, normalize_symbol
 
 _PIP_VALUE_PER_LOT = 10.0   # v1: $10 per pip per lot, all instruments
 _WARMUP_EXTRA = 50          # bars beyond sma_period before we start evaluating
+_MMD_MAX_PERIOD = 1440      # Green cloud — slowest MMD cloud; SMA(1440) needs 1440 bars
+
+
+def _signal_warmup_bars(cfg) -> int:
+    """Bars to skip before signal evaluation: slowest indicator lookback + buffer.
+
+    Must cover the MMD green cloud (1440), not just sma_period — else early bars
+    evaluate on a NaN/degenerate MMD (green cloud NaN until bar 1439, which forces
+    mmd_alignment to 'weakened' so the §3.2 veto can never fire).
+    """
+    return max(cfg.sma_period, _MMD_MAX_PERIOD) + _WARMUP_EXTRA
 
 # §6 setup priority — higher index = lower priority. When multiple §6
 # state machines reach 'triggered' on the same bar, the leftmost-listed
@@ -245,7 +256,7 @@ def run_backtest(
     sma_series   = bars["close"].rolling(window=cfg.sma_period).mean()
     clouds       = compute_clouds(bars)
 
-    warmup_bars = cfg.sma_period + _WARMUP_EXTRA
+    warmup_bars = _signal_warmup_bars(cfg)
 
     # ------------------------------------------------------------------
     # Step 2 — bar loop
@@ -437,10 +448,15 @@ def run_backtest(
             d1_bars=d1_bars,
         )
 
-        # Session box (§3.4): only london / america; skip asia / dead
+        # Session box (§3.4): only london / america; skip asia / dead.
+        # §3.4: "The London box is the primary session-box filter during both
+        # the London and America session windows." So during the america window
+        # we inherit the LONDON box rather than building an america-only box
+        # (which would reset at 14:00 PLT). Map america -> london for the box.
         if current_session in ("london", "america"):
+            box_session = "london"
             box_pos = session_box_position(
-                bars, bar_idx, current_session, cfg, atr_value=atr_value,
+                bars, bar_idx, box_session, cfg, atr_value=atr_value,
             )
         else:
             # Asia / dead — no entry per v1 spec; use 'inside' to make composite neutral
@@ -473,7 +489,7 @@ def run_backtest(
         # Step 6 — confluence check
         # ------------------------------------------------------------------
         passed, matched_level, confluence_type = has_confluence(
-            current_bar, active_levels, atr_value, cfg,
+            current_bar, active_levels, atr_value, cfg, signal_kind,
         )
         if not passed:
             continue

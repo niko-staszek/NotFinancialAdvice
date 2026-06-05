@@ -287,12 +287,14 @@ bool Setups_StepTrap(
 //|     first_attempt_done → second_attempt_done when                 |
 //|       bars_since_first <= fail_max_bars_between_attempts AND      |
 //|       low <= fib_382 AND                                          |
-//|       (first_attempt_extreme - low) >= shortfall_threshold        |
-//|         [i.e. second attempt was SHALLOWER than first]            |
+//|       (low - first_attempt_extreme) >= shortfall_threshold        |
+//|         [i.e. second attempt was SHALLOWER than first — its low   |
+//|          sits HIGHER than the first attempt's low]                |
 //|     second_attempt_done → triggered when close > fib_382          |
 //|                                                                   |
 //|   Bear MM: mirror — uses high vs fib_382 (now lower than a_price  |
-//|     because ab_span < 0), shortfall = high - first_attempt_extreme|
+//|     because ab_span < 0), shortfall = first_attempt_extreme - high|
+//|     (positive when the 2nd high is LOWER = shallower)             |
 //|                                                                   |
 //| Returns true iff state advanced.                                  |
 //+------------------------------------------------------------------+
@@ -325,7 +327,11 @@ bool Setups_StepFail(
             if (bars_since_first <= fail_max_bars_between_attempts) {
                 double low = bar_low;
                 if (low <= fib_382) {
-                    double shortfall = state.first_attempt_extreme - low;
+                    // The 2nd attempt must still pierce the 38.2% fib but be
+                    // SHALLOWER than the 1st — i.e. its low is HIGHER than the
+                    // first attempt's extreme. shortfall is POSITIVE when
+                    // shallower (low above the first low).
+                    double shortfall = low - state.first_attempt_extreme;
                     if (shortfall >= shortfall_threshold) {
                         state.state = "second_attempt_done";
                         state.second_attempt_extreme = low;
@@ -359,7 +365,10 @@ bool Setups_StepFail(
             if (bars_since_first <= fail_max_bars_between_attempts) {
                 double high = bar_high;
                 if (high >= fib_382) {
-                    double shortfall = high - state.first_attempt_extreme;
+                    // Mirror of bull: the 2nd attempt high must be LOWER than
+                    // the first attempt's extreme (shallower). shortfall is
+                    // POSITIVE when shallower (high below the first high).
+                    double shortfall = state.first_attempt_extreme - high;
                     if (shortfall >= shortfall_threshold) {
                         state.state = "second_attempt_done";
                         state.second_attempt_extreme = high;
@@ -400,13 +409,16 @@ bool Setups_StepFail(
 //|         bull: low  <= c → pullback_active                         |
 //|         bear: high >= c → pullback_active                         |
 //|                                                                   |
-//|   pullback_active                                                 |
+//|   pullback_active (invalidation tested BEFORE trigger — a wick    |
+//|   alone past the 50% level kills the setup even if close recovers):|
+//|     invalidation_level = a_price + pullback_invalidation_fib ×    |
+//|                          (b_price - a_price)   [= C at fib 0.5]    |
 //|     bull:                                                         |
-//|       low  < a_price        → invalidated                         |
-//|       close >= c_price      → triggered                           |
+//|       low  < invalidation_level → invalidated                     |
+//|       close >= c_price          → triggered                       |
 //|     bear:                                                         |
-//|       high > a_price        → invalidated                         |
-//|       close <= c_price      → triggered                           |
+//|       high > invalidation_level → invalidated                     |
+//|       close <= c_price          → triggered                       |
 //|                                                                   |
 //|   triggered/invalidated are terminal.                             |
 //|                                                                   |
@@ -422,6 +434,8 @@ bool Setups_StepFail(
 //|   spike_min_magnitude_atr            : cfg.spike_min_magnitude_atr|
 //|   spike_max_counter_bars             : cfg.spike_max_counter_bars |
 //|   channel_min_bars                   : cfg.channel_min_bars (5)   |
+//|   pullback_invalidation_fib          : cfg.pullback_invalidation_ |
+//|     fib (0.5) — Fib of A→B that invalidates on a wick breach      |
 //|                                                                   |
 //| Returns true iff state advanced (or, while in channel_active,     |
 //| b_price/c_price were updated — informational only).               |
@@ -435,7 +449,8 @@ bool Setups_StepSpikeChannel(
     int spike_min_bars,
     double spike_min_magnitude_atr,
     int spike_max_counter_bars,
-    int channel_min_bars
+    int channel_min_bars,
+    double pullback_invalidation_fib
 ) {
     if (state.state == "idle") {
         if (window_n < spike_min_bars) return false;
@@ -507,8 +522,14 @@ bool Setups_StepSpikeChannel(
         return true;
     }
     else if (state.state == "pullback_active") {
+        // §6.3: a WICK alone past the pullback invalidation level kills the
+        // setup even if the close recovers — so the invalidation test must
+        // come BEFORE the trigger test. invalidation_level equals C only
+        // when pullback_invalidation_fib == 0.5.
+        double invalidation_level =
+            state.a_price + pullback_invalidation_fib * (state.b_price - state.a_price);
         if (state.direction == "bull") {
-            if (bar_low < state.a_price) {
+            if (bar_low < invalidation_level) {
                 state.state = "invalidated";
                 return true;
             }
@@ -517,7 +538,7 @@ bool Setups_StepSpikeChannel(
                 return true;
             }
         } else {
-            if (bar_high > state.a_price) {
+            if (bar_high > invalidation_level) {
                 state.state = "invalidated";
                 return true;
             }

@@ -78,14 +78,15 @@ def test_passes_ema_side_rule_nan_ema() -> None:
 
 def test_has_confluence_finds_close_level() -> None:
     bar = _bar(o=100, h=101, l=99, c=100.5)
-    levels = [100.2, 105.0, 110.0]  # 100.2 is within 0.3*ATR=0.3 of bar.high=101 (diff=0.8) → fails
-    # Actually need to recheck: bar.high=101, bar.low=99. Closest level distance:
-    # 100.2: min(|101-100.2|, |99-100.2|) = min(0.8, 1.2) = 0.8
-    # 105.0: distance much larger
-    # 110.0: even larger
-    # threshold = 0.3 * 5 = 1.5 → 100.2 within threshold
+    levels = [100.2, 105.0, 110.0]
+    # §4.3: bullish signal → rejection wick is bar.low=99.
+    # 100.2: |99 - 100.2| = 1.2
+    # 105.0 / 110.0: distance much larger
+    # threshold = 0.3 * 5 = 1.5 → 100.2 within threshold via the LOW wick
     cfg = Config()
-    passed, matched, ctype = has_confluence(bar, levels, atr=5.0, cfg=cfg)
+    passed, matched, ctype = has_confluence(
+        bar, levels, atr=5.0, cfg=cfg, signal_kind="bullish",
+    )
     assert passed is True
     assert matched == pytest.approx(100.2)
 
@@ -94,7 +95,9 @@ def test_has_confluence_no_levels_in_range() -> None:
     bar = _bar(o=100, h=101, l=99, c=100.5)
     levels = [200.0, 50.0]  # far away
     cfg = Config()
-    passed, matched, ctype = has_confluence(bar, levels, atr=1.0, cfg=cfg)
+    passed, matched, ctype = has_confluence(
+        bar, levels, atr=1.0, cfg=cfg, signal_kind="bullish",
+    )
     assert passed is False
     assert matched is None
 
@@ -102,5 +105,70 @@ def test_has_confluence_no_levels_in_range() -> None:
 def test_has_confluence_empty_levels() -> None:
     bar = _bar(o=100, h=101, l=99, c=100.5)
     cfg = Config()
-    passed, matched, ctype = has_confluence(bar, [], atr=1.0, cfg=cfg)
+    passed, matched, ctype = has_confluence(
+        bar, [], atr=1.0, cfg=cfg, signal_kind="bullish",
+    )
     assert passed is False
+
+
+# ---------------------------------------------------------------------------
+# §4.3 rejection-wick-only proximity (LV11) — the proximity check must use the
+# rejection wick (bar.low for bullish, bar.high for bearish), NOT either wick.
+# ---------------------------------------------------------------------------
+
+
+def test_has_confluence_bullish_ignores_high_wick() -> None:
+    """Bullish: a level touching only the HIGH wick must NOT confluence (§4.3).
+
+    Rejection wick for bullish is bar.low=100. Level=110 sits on the (wrong)
+    high wick and is far from the rejection low → spec rejects.
+    """
+    bar = _bar(o=101, h=110, l=100, c=109)
+    levels = [110.0]  # touches bar.high exactly, but bar.high is the WRONG wick
+    cfg = Config()
+    # threshold = 0.3 * 5 = 1.5; |low(100) - 110| = 10 >> 1.5 → reject
+    passed, matched, ctype = has_confluence(
+        bar, levels, atr=5.0, cfg=cfg, signal_kind="bullish",
+    )
+    assert passed is False
+    assert matched is None
+
+
+def test_has_confluence_bullish_matches_low_wick() -> None:
+    """Bullish: a level within threshold of bar.low (rejection wick) → match."""
+    bar = _bar(o=101, h=110, l=100, c=109)
+    levels = [100.5]  # within 0.3*5=1.5 of the rejection low=100
+    cfg = Config()
+    passed, matched, ctype = has_confluence(
+        bar, levels, atr=5.0, cfg=cfg, signal_kind="bullish",
+    )
+    assert passed is True
+    assert matched == pytest.approx(100.5)
+
+
+def test_has_confluence_bearish_ignores_low_wick() -> None:
+    """Bearish: a level touching only the LOW wick must NOT confluence (§4.3).
+
+    Rejection wick for bearish is bar.high=110. Level=100 sits on the (wrong)
+    low wick → spec rejects.
+    """
+    bar = _bar(o=109, h=110, l=100, c=101)
+    levels = [100.0]  # touches bar.low exactly, but bar.low is the WRONG wick
+    cfg = Config()
+    passed, matched, ctype = has_confluence(
+        bar, levels, atr=5.0, cfg=cfg, signal_kind="bearish",
+    )
+    assert passed is False
+    assert matched is None
+
+
+def test_has_confluence_bearish_matches_high_wick() -> None:
+    """Bearish: a level within threshold of bar.high (rejection wick) → match."""
+    bar = _bar(o=109, h=110, l=100, c=101)
+    levels = [109.5]  # within 0.3*5=1.5 of the rejection high=110
+    cfg = Config()
+    passed, matched, ctype = has_confluence(
+        bar, levels, atr=5.0, cfg=cfg, signal_kind="bearish",
+    )
+    assert passed is True
+    assert matched == pytest.approx(109.5)
