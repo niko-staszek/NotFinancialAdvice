@@ -51,6 +51,15 @@ Price has **touched within settle tolerance** of the target:
 
 Touch = an M5 bar whose `[low, high]` range comes within tolerance of the target price.
 
+**Tolerance is adjustable, not fixed.** The values above are PSND defaults (the baseline tier). The
+pipeline also sweeps a tolerance ladder per instrument — default `×{1, 2, 3, 4}` (e.g. FX 5/10/15/20
+pips, XAU 15/30/45/60) — so a too-tight tolerance does not understate completion. Reported as a
+**tolerance-sensitivity** view: completion-rate and median-hours as a function of tolerance, per
+instrument. If completion jumps sharply when tolerance loosens, the default was too small for that
+instrument and the loosened tier is flagged as the operative one. Ladder multipliers live in
+`config.py`. Note: loosening tolerance also shrinks the achievable R in Engine B (entry-to-target
+distance falls), so T2 is computed at the operative tolerance and the trade-off is shown, not hidden.
+
 ### 2.4 Completion clock
 - Clock **starts** at window close (`anchor + N`).
 - Clock **cap = 48h** (two cycles — captures slower instruments like gold/crypto).
@@ -135,6 +144,8 @@ All entry instances → one tidy CSV per instrument (raw evidence behind T2).
 Per anchor, a heatmap-style table: rows = instrument × block(1…24h), values =
 `completion_rate%`, `median_hours`, `p25/p75 hours`, `N`, `instant_rate%`. Rendered as markdown
 tables + (optional) CSV for plotting. Best cells (high completion %, low median hours) flagged.
+Computed at each tolerance tier; a companion **tolerance-sensitivity** table (§2.3) shows how
+completion%/median-hours shift as tolerance loosens, with the operative tier flagged per instrument.
 
 ### T2 — Best entry
 Per instrument: rows = entry type, cols = `median_R`, `win%`, `median_MAE_R`, `N`, `beats_baseline?`.
@@ -158,7 +169,7 @@ No metric appears in any report unless it traces to a file in that folder.
 CBS/
   README.md              # what CBS is, how to run, how to read reports
   strategy.md            # this methodology, locked for audit
-  config.py              # instruments, tolerances, anchors(0-23), blocks(1-24), ATR k, costs
+  config.py              # instruments, tolerance ladder, anchors(0-23), blocks(1-24), ATR k, costs
   data/                  # M5 bars dumped from MT5 (large files gitignored)
   cbs/
     bars.py              # load/validate M5 CSV → indexed frames; resample to H1 where needed
