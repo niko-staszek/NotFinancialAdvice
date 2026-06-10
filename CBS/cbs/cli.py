@@ -49,6 +49,7 @@ def main() -> None:
             anchors=tuple(args.anchors), blocks=tuple(args.blocks),
             tol_mults=C.TOLERANCE_MULTIPLIERS, cap_hours=C.CLOCK_CAP_HOURS,
             atr_period=C.ATR_PERIOD_M5, atr_k=C.ATR_SL_K, lookback_hours=C.ENTRY_LOOKBACK_HOURS,
+            min_risk_atr_k=C.MIN_RISK_ATR_K,
         )
         all_timing += timing
         all_entries += entries

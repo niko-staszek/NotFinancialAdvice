@@ -35,9 +35,18 @@ class EntryResult:
 
 
 def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
-                   anchor: int, block: int) -> EntryResult:
+                   anchor: int, block: int, min_risk: float = 0.0) -> EntryResult:
     side_up = ctx.approach_side == "up"
-    risk = (sig.entry_price - sig.invalidation_price) if side_up else (sig.invalidation_price - sig.entry_price)
+    raw_risk = (sig.entry_price - sig.invalidation_price) if side_up else (sig.invalidation_price - sig.entry_price)
+    # A structural stop that sits a hair from entry makes planned R explode toward
+    # infinity (tiny denominator). Enforce a minimum stop distance: when the raw
+    # stop is tighter than `min_risk`, widen the invalidation to that floor so R
+    # stays a realistic, comparable number.
+    invalidation = sig.invalidation_price
+    risk = raw_risk
+    if min_risk > 0 and 0 < raw_risk < min_risk:
+        risk = min_risk
+        invalidation = sig.entry_price - min_risk if side_up else sig.entry_price + min_risk
     reward = (ctx.target - sig.entry_price) if side_up else (sig.entry_price - ctx.target)
     r_mult = math.nan if risk <= 0 else reward / risk
 
@@ -50,7 +59,7 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
     if len(path) == 0:
         return EntryResult(
             symbol=ctx.symbol, date=date, anchor=anchor, block=block, name=sig.name,
-            entry_price=sig.entry_price, invalidation_price=sig.invalidation_price,
+            entry_price=sig.entry_price, invalidation_price=invalidation,
             target=ctx.target, r_multiple=r_mult, mfe_r=math.nan, mae_r=math.nan,
             realized_r=math.nan, win=False, cost_spread_price=spread_price,
             entry_lead_hours=(ctx.completion_ts - sig.entry_time).total_seconds() / 3600.0,
@@ -62,12 +71,12 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
     lows = path["low"].to_numpy()
     highs = path["high"].to_numpy()
     if side_up:
-        hit_sl = lows <= sig.invalidation_price
+        hit_sl = lows <= invalidation
         hit_tp = highs >= ctx.target
         fav = highs - sig.entry_price
         adv = lows - sig.entry_price
     else:
-        hit_sl = highs >= sig.invalidation_price
+        hit_sl = highs >= invalidation
         hit_tp = lows <= ctx.target
         fav = sig.entry_price - lows
         adv = sig.entry_price - highs
@@ -90,7 +99,7 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
 
     return EntryResult(
         symbol=ctx.symbol, date=date, anchor=anchor, block=block, name=sig.name,
-        entry_price=sig.entry_price, invalidation_price=sig.invalidation_price,
+        entry_price=sig.entry_price, invalidation_price=invalidation,
         target=ctx.target, r_multiple=r_mult, mfe_r=mfe_r, mae_r=mae_r,
         realized_r=realized_r, win=win,
         cost_spread_price=spread_price, entry_lead_hours=lead,

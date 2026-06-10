@@ -28,7 +28,8 @@ def split_in_out_sample(df: pd.DataFrame, *, oos_months: int = 6,
 def run_instrument(df: pd.DataFrame, *, symbol: str, pip_size: float, base_tol_pips: float,
                    anchors, blocks, tol_mults, cap_hours: int, atr_period: int,
                    atr_k: float, lookback_hours: int,
-                   entry_tol_mult: int = 1) -> tuple[list[TimingRecord], list[EntryResult]]:
+                   entry_tol_mult: int = 1,
+                   min_risk_atr_k: float = 0.5) -> tuple[list[TimingRecord], list[EntryResult]]:
     """Run the full grid for one instrument. Returns (timing_records, entry_results).
 
     Timing is recorded for every tolerance tier (feeds T1 sensitivity). Entries are
@@ -70,10 +71,12 @@ def run_instrument(df: pd.DataFrame, *, symbol: str, pip_size: float, base_tol_p
                     has_post = bool((ctx.m5["time_utc"] >= close_ts).any())
                     if not has_pre or not has_post:
                         continue
+                    min_risk = min_risk_atr_k * ctx.atr_m5
                     for name, fn in DETECTORS.items():
                         sig = fn(ctx)
                         if sig is None:
                             continue
                         entries.append(evaluate_entry(ctx, sig, date=date,
-                                                      anchor=anchor, block=block))
+                                                      anchor=anchor, block=block,
+                                                      min_risk=min_risk))
     return timing, entries

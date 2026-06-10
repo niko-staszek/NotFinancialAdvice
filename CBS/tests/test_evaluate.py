@@ -32,6 +32,21 @@ def test_r_multiple_long_win(m5_factory) -> None:
     assert math.isclose(res.realized_r, 3.0, rel_tol=1e-9)
 
 
+def test_min_risk_floor_widens_too_tight_stop(m5_factory) -> None:
+    # entry 1.10 with a near-touching SL 1.099 (raw risk 0.001) would give a huge
+    # planned R. With min_risk=0.10 the stop is floored: R = (1.40-1.10)/0.10 = 3.0
+    # and the reported invalidation_price reflects the widened 1.00 stop.
+    ctx = _ctx(m5_factory)
+    sig = EntrySignal("x", entry_price=1.10, invalidation_price=1.099,
+                      entry_time=pd.Timestamp("2024-01-01T01:00:00", tz="UTC"))
+    res = evaluate_entry(ctx, sig, date="2024-01-01", anchor=0, block=1, min_risk=0.10)
+    assert math.isclose(res.r_multiple, 3.0, rel_tol=1e-9)
+    assert math.isclose(res.invalidation_price, 1.00, rel_tol=1e-9)
+    # without the floor, the near-zero stop yields a massive R
+    res0 = evaluate_entry(ctx, sig, date="2024-01-01", anchor=0, block=1)
+    assert res0.r_multiple > 100
+
+
 def test_loss_when_invalidation_hit_before_target(m5_factory) -> None:
     ctx = _ctx(m5_factory)
     sig = EntrySignal("x", entry_price=1.10, invalidation_price=1.06,
