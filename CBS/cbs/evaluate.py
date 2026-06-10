@@ -104,3 +104,56 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
         realized_r=realized_r, win=win,
         cost_spread_price=spread_price, entry_lead_hours=lead,
     )
+
+
+@dataclass(frozen=True)
+class RRResult:
+    symbol: str
+    date: str
+    anchor: int
+    block: int
+    name: str
+    rr: float
+    win: bool
+    realized_r: float
+    entry_lead_hours: float
+
+
+def evaluate_entry_rr(ctx: EntryContext, sig: EntrySignal, *, date: str, anchor: int,
+                      block: int, rr_list, settle_tol: float) -> list:
+    """Evaluate a fired entry at fixed reward:risk stops. TP = target (touched within
+    settle_tol, matching the timing engine). For each rr, SL = entry -/+ reward/rr.
+    SL is checked first on a bar spanning both (conservative loss). The detector's own
+    invalidation is ignored here — this isolates entry condition from SL policy."""
+    side_up = ctx.approach_side == "up"
+    reward = (ctx.target - sig.entry_price) if side_up else (sig.entry_price - ctx.target)
+    if reward <= 0:
+        return []   # entry already at/through target — no trade
+    i = int(ctx.m5["time_utc"].searchsorted(sig.entry_time, side="left"))
+    path = ctx.m5.iloc[i:]
+    if len(path) == 0:
+        return []
+    lows = path["low"].to_numpy()
+    highs = path["high"].to_numpy()
+    if side_up:
+        hit_tp = highs >= (ctx.target - settle_tol)
+    else:
+        hit_tp = lows <= (ctx.target + settle_tol)
+    lead = (ctx.completion_ts - sig.entry_time).total_seconds() / 3600.0
+    out = []
+    for rr in rr_list:
+        risk = reward / rr
+        if side_up:
+            hit_sl = lows <= (sig.entry_price - risk)
+        else:
+            hit_sl = highs >= (sig.entry_price + risk)
+        event = hit_sl | hit_tp
+        if event.any():
+            k = int(event.argmax())
+            win = bool(hit_tp[k] and not hit_sl[k])
+        else:
+            win = False
+        out.append(RRResult(symbol=ctx.symbol, date=date, anchor=anchor, block=block,
+                            name=sig.name, rr=float(rr), win=win,
+                            realized_r=(float(rr) if win else -1.0), entry_lead_hours=lead))
+    return out

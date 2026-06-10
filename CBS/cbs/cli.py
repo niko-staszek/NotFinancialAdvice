@@ -36,7 +36,7 @@ def main() -> None:
     args = ap.parse_args()
 
     data_dir = Path(args.data)
-    all_timing, all_entries = [], []
+    all_timing, all_entries, all_rr = [], [], []
     log_lines = []
     for sym in args.instruments:
         csv = _find_csv(data_dir, sym)
@@ -44,15 +44,18 @@ def main() -> None:
             log_lines.append(f"SKIP {sym}: no data file")
             continue
         df = load_m5_csv(csv)
-        timing, entries = run_instrument(
+        settle_tol = C.BASE_TOLERANCE_PIPS[sym] * C.PIP_SIZE[sym]
+        timing, entries, rr_rows = run_instrument(
             df, symbol=sym, pip_size=C.PIP_SIZE[sym], base_tol_pips=C.BASE_TOLERANCE_PIPS[sym],
             anchors=tuple(args.anchors), blocks=tuple(args.blocks),
             tol_mults=C.TOLERANCE_MULTIPLIERS, cap_hours=C.CLOCK_CAP_HOURS,
             atr_period=C.ATR_PERIOD_M5, atr_k=C.ATR_SL_K, lookback_hours=C.ENTRY_LOOKBACK_HOURS,
             min_risk_atr_k=C.MIN_RISK_ATR_K,
+            rr_list=C.RR_LIST, settle_tol=settle_tol,
         )
         all_timing += timing
         all_entries += entries
+        all_rr += rr_rows
         log_lines.append(f"OK {sym}: {len(timing)} timing, {len(entries)} entries from {csv.name}")
 
     cfg = {"instruments": args.instruments, "anchors": args.anchors, "blocks": args.blocks,
@@ -60,7 +63,8 @@ def main() -> None:
            "atr_k": C.ATR_SL_K, "atr_period": C.ATR_PERIOD_M5}
     out = write_audit_run(Path(args.out), run_name=args.run, config=cfg,
                           timing=all_timing, entries=all_entries,
-                          log_text="\n".join(log_lines), utcstamp=args.utcstamp)
+                          log_text="\n".join(log_lines), utcstamp=args.utcstamp,
+                          rr=all_rr)
     print(f"wrote {out}")
 
 

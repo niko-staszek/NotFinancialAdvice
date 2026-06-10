@@ -65,6 +65,57 @@ def test_no_sl_room_returns_nan_r(m5_factory) -> None:
     assert math.isnan(res.realized_r)
 
 
+def test_rr_grid_win_when_target_hit_before_rr_stop(m5_factory) -> None:
+    from CBS.cbs.evaluate import evaluate_entry_rr
+    ctx = _ctx(m5_factory)   # target 1.4, approach up; fwd rises to 1.45 with low never below 1.05
+    sig = EntrySignal("x", entry_price=1.10, invalidation_price=0.0,  # invalidation ignored in rr mode
+                      entry_time=pd.Timestamp("2024-01-01T01:00:00", tz="UTC"))
+    rows = evaluate_entry_rr(ctx, sig, date="2024-01-01", anchor=0, block=1,
+                             rr_list=(1.0, 2.0, 3.0), settle_tol=0.001)
+    assert {r.rr for r in rows} == {1.0, 2.0, 3.0}
+    # reward = 1.40-1.10 = 0.30. rr=1 -> SL 0.80; rr=3 -> SL 1.20. Path low never below 1.05,
+    # so even the rr=3 stop (1.20) is NOT hit -> all win.
+    by = {r.rr: r for r in rows}
+    assert by[3.0].win is True and by[3.0].realized_r == 3.0
+    assert by[1.0].win is True and by[1.0].realized_r == 1.0
+
+
+def test_rr_grid_tight_stop_loses(m5_factory) -> None:
+    from CBS.cbs.evaluate import evaluate_entry_rr
+    # entry=1.10, target=1.40, reward=0.30.
+    # rr=3 -> risk=0.10 -> SL=1.00; rr=1 -> risk=0.30 -> SL=0.80.
+    # fwd dips to 0.98 early (hits rr=3 SL at 1.00) before rallying to target.
+    # rr=1 SL at 0.80 is not hit (low only reaches 0.98 > 0.80).
+    window = [(1.0, 1.5, 0.9, 1.1)] * 12
+    fwd = [(1.1, 1.12, 0.98, 1.08)] * 3 + [(1.08, 1.45, 1.08, 1.40)]
+    df = m5_factory("2024-01-01T00:00:00", window + fwd)
+    ctx = build_context(df, symbol="EURUSD",
+        window_close_ts=pd.Timestamp("2024-01-01T01:00:00", tz="UTC"),
+        completion_ts=pd.Timestamp("2024-01-01T01:20:00", tz="UTC"),
+        target=1.4, approach_side="up", pip_size=0.0001,
+        lookback_hours=12, atr_period=14, atr_k=1.5)
+    sig = EntrySignal("x", entry_price=1.10, invalidation_price=0.0,
+                      entry_time=pd.Timestamp("2024-01-01T01:00:00", tz="UTC"))
+    by = {r.rr: r for r in evaluate_entry_rr(ctx, sig, date="2024-01-01", anchor=0, block=1,
+                                             rr_list=(1.0, 3.0), settle_tol=0.001)}
+    # rr=3 SL 1.00 is hit by the 0.98 dip -> loss; rr=1 SL 0.80 is not hit -> win
+    assert by[3.0].win is False and by[3.0].realized_r == -1.0
+    assert by[1.0].win is True
+
+
+def test_build_t3_winrate_and_expectancy() -> None:
+    from CBS.cbs.evaluate import RRResult
+    from CBS.cbs.report import build_t3
+    recs = [RRResult(symbol="EURUSD", date="d", anchor=0, block=1, name="sr_retest",
+                     rr=2.0, win=(i < 1), realized_r=(2.0 if i < 1 else -1.0), entry_lead_hours=1.0)
+            for i in range(3)]  # 1 win, 2 losses at rr=2 -> win_rate 1/3, expectancy (2-1-1)/3=0
+    t3 = build_t3(recs)
+    row = t3[(t3["name"] == "sr_retest") & (t3["rr"] == 2.0)].iloc[0]
+    assert abs(row["win_rate"] - 1/3) < 1e-9
+    assert abs(row["expectancy_r"] - 0.0) < 1e-9
+    assert abs(row["breakeven_win"] - 1/3) < 1e-9   # 1/(rr+1)
+
+
 def test_same_bar_sl_and_tp_counts_as_loss(m5_factory) -> None:
     # one post-window bar spans BOTH the SL (1.00) and the TP/target (1.40)
     window = [(1.0, 1.5, 0.9, 1.1)] * 12

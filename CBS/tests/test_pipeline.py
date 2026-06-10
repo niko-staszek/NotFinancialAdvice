@@ -21,13 +21,14 @@ def test_run_instrument_smoke(m5_factory) -> None:
                 1.0 + 0.001 * (i % 10) - 0.005, 1.0 + 0.001 * (i % 10)) for i in range(288)]
         rows += day
     df = m5_factory("2024-01-01T00:00:00", rows)
-    timing, entries = run_instrument(
+    timing, entries, rr_rows = run_instrument(
         df, symbol="EURUSD", pip_size=0.0001, base_tol_pips=5,
         anchors=(0,), blocks=(1,), tol_mults=(1, 2), cap_hours=48,
         atr_period=14, atr_k=1.5, lookback_hours=12,
     )
     assert isinstance(timing, list)
     assert isinstance(entries, list)
+    assert isinstance(rr_rows, list)
     assert all(t.symbol == "EURUSD" for t in timing)
 
 
@@ -42,11 +43,12 @@ def test_run_instrument_skips_window_with_gapped_context(m5_factory) -> None:
                      [(2000.0, 2001.0, 1999.0, 2000.0)] * 3      # below target -> not instant
                      + [(2000.0, 2006.0, 2000.0, 2005.0)] * 3)   # touches 2005
     df = pd.concat([window_first_hour, fwd], ignore_index=True)
-    timing, entries = run_instrument(
+    timing, entries, rr_rows = run_instrument(
         df, symbol="XAUUSD", pip_size=0.1, base_tol_pips=15,
         anchors=(0,), blocks=(2,), tol_mults=(1,), cap_hours=48,
         atr_period=14, atr_k=1.5, lookback_hours=1,
     )
     # Must complete without raising; the gapped window yields no evaluable entries.
     assert entries == []
+    assert rr_rows == []
     assert any(t.completed for t in timing)

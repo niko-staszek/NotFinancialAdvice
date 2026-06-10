@@ -7,7 +7,7 @@ import pandas as pd
 
 from .timing import measure_move, TimingRecord
 from .entries import build_context, DETECTORS
-from .evaluate import evaluate_entry, EntryResult
+from .evaluate import evaluate_entry, EntryResult, evaluate_entry_rr
 
 
 def _trading_days(df: pd.DataFrame) -> list[str]:
@@ -29,8 +29,10 @@ def run_instrument(df: pd.DataFrame, *, symbol: str, pip_size: float, base_tol_p
                    anchors, blocks, tol_mults, cap_hours: int, atr_period: int,
                    atr_k: float, lookback_hours: int,
                    entry_tol_mult: int = 1,
-                   min_risk_atr_k: float = 0.5) -> tuple[list[TimingRecord], list[EntryResult]]:
-    """Run the full grid for one instrument. Returns (timing_records, entry_results).
+                   min_risk_atr_k: float = 0.5,
+                   rr_list=(1.0, 2.0, 3.0),
+                   settle_tol: float = 0.0) -> tuple[list[TimingRecord], list[EntryResult], list]:
+    """Run the full grid for one instrument. Returns (timing_records, entry_results, rr_rows).
 
     Timing is recorded for every tolerance tier (feeds T1 sensitivity). Entries are
     evaluated only at `entry_tol_mult` (default 1, the PSND baseline) so the same
@@ -38,6 +40,7 @@ def run_instrument(df: pd.DataFrame, *, symbol: str, pip_size: float, base_tol_p
     """
     timing: list[TimingRecord] = []
     entries: list[EntryResult] = []
+    rr_rows: list = []
     days = _trading_days(df)
 
     for date in days:
@@ -79,4 +82,8 @@ def run_instrument(df: pd.DataFrame, *, symbol: str, pip_size: float, base_tol_p
                         entries.append(evaluate_entry(ctx, sig, date=date,
                                                       anchor=anchor, block=block,
                                                       min_risk=min_risk))
-    return timing, entries
+                        rr_rows.extend(evaluate_entry_rr(ctx, sig, date=date,
+                                                         anchor=anchor, block=block,
+                                                         rr_list=rr_list,
+                                                         settle_tol=settle_tol))
+    return timing, entries, rr_rows

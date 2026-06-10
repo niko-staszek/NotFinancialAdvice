@@ -16,7 +16,7 @@ from typing import Sequence
 import pandas as pd
 
 from .timing import TimingRecord
-from .evaluate import EntryResult
+from .evaluate import EntryResult, RRResult
 
 _KEYS = ["symbol", "anchor", "block", "tol_mult"]
 
@@ -59,6 +59,16 @@ def build_t2(records: Sequence[EntryResult]) -> pd.DataFrame:
     return out
 
 
+def build_t3(records) -> pd.DataFrame:
+    df = pd.DataFrame([asdict(r) for r in records])
+    g = df.groupby(["symbol", "name", "rr"], as_index=False).agg(
+        n=("win", "size"), win_rate=("win", "mean"), expectancy_r=("realized_r", "mean"),
+    )
+    g["breakeven_win"] = 1.0 / (g["rr"] + 1.0)
+    g["edge"] = g["win_rate"] - g["breakeven_win"]
+    return g.sort_values(["symbol", "rr", "expectancy_r"], ascending=[True, True, False]).reset_index(drop=True)
+
+
 def _write_csv(path: Path, records, df: pd.DataFrame | None = None) -> None:
     if df is None:
         df = pd.DataFrame([asdict(r) for r in records])
@@ -67,7 +77,8 @@ def _write_csv(path: Path, records, df: pd.DataFrame | None = None) -> None:
 
 def write_audit_run(base_dir: Path, *, run_name: str, config: dict,
                     timing: Sequence[TimingRecord], entries: Sequence[EntryResult],
-                    log_text: str, utcstamp: str = "run") -> Path:
+                    log_text: str, utcstamp: str = "run",
+                    rr: Sequence = ()) -> Path:
     """Write raw CSVs, config, log, and a sha256 manifest. Returns the run folder.
 
     `utcstamp` is supplied by the caller (no wall-clock inside the analysis path).
@@ -80,6 +91,9 @@ def write_audit_run(base_dir: Path, *, run_name: str, config: dict,
     build_t1(timing).to_csv(out / "t1_time_to_complete.csv", index=False)
     if entries:
         build_t2(entries).to_csv(out / "t2_best_entry.csv", index=False)
+    if rr:
+        _write_csv(out / "rr_raw.csv", rr)
+        build_t3(rr).to_csv(out / "t3_best_entry_by_rr.csv", index=False)
     (out / "config.json").write_text(json.dumps(config, indent=2, default=str), encoding="utf-8")
     (out / "run.log").write_text(log_text, encoding="utf-8")
 

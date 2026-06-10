@@ -34,6 +34,8 @@ ANCHORS: tuple[int, ...] = tuple(range(24))          # 0..23
 BLOCKS: tuple[int, ...] = tuple(range(1, 25))        # 1..24 hours
 TOLERANCE_MULTIPLIERS: tuple[int, ...] = (1, 2, 3, 4)
 
+RR_LIST: tuple[float, ...] = (1.0, 2.0, 3.0)   # reward:risk levels tested by Engine B's R:R grid
+
 CLOCK_CAP_HOURS: int = 48
 ATR_PERIOD_M5: int = 14
 ATR_SL_K: float = 1.5            # fallback SL = entry ± k*ATR when no structural level
