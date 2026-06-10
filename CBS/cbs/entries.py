@@ -10,6 +10,7 @@ registered in DETECTORS.
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import Callable, Optional
@@ -410,4 +411,102 @@ DETECTORS.update({
     "liquidity_sweep": liquidity_sweep,
     "breaker": breaker,
     "eqh_eql_raid": eqh_eql_raid,
+})
+
+
+# --- Time / level detectors -------------------------------------------------
+
+def session_open_retrace(ctx: EntryContext) -> Optional[EntrySignal]:
+    """Move >=0.5 ATR toward target, then retrace to the window-close price."""
+    fwd = _post_window(ctx)
+    start = float(_window_close_bar(ctx)["close"])
+    thr = 0.5 * ctx.atr_m5
+    moved = False
+    if ctx.approach_side == "up":
+        for row in fwd.itertuples(index=False):
+            if not moved and row.high >= start + thr:
+                moved = True
+            elif moved and row.low <= start:
+                return EntrySignal("session_open_retrace", start, start - thr, row.time_utc)
+    else:
+        for row in fwd.itertuples(index=False):
+            if not moved and row.low <= start - thr:
+                moved = True
+            elif moved and row.high >= start:
+                return EntrySignal("session_open_retrace", start, start + thr, row.time_utc)
+    return None
+
+
+def prior_level_react(ctx: EntryContext) -> Optional[EntrySignal]:
+    """Reaction off a prior-period level (no prior break required): support for up,
+    resistance for down."""
+    fwd = _post_window(ctx)
+    half = 0.5 * ctx.atr_m5
+    if ctx.approach_side == "up":
+        level = _prior_extreme(ctx, "low")
+        for row in fwd.itertuples(index=False):
+            if row.low <= level and row.close > level:
+                return EntrySignal("prior_level_react", level, level - half, row.time_utc)
+    else:
+        level = _prior_extreme(ctx, "high")
+        for row in fwd.itertuples(index=False):
+            if row.high >= level and row.close < level:
+                return EntrySignal("prior_level_react", level, level + half, row.time_utc)
+    return None
+
+
+def opening_range_break(ctx: EntryContext) -> Optional[EntrySignal]:
+    """First-hour (12 M5 bars) range after window close; break then retest of the edge."""
+    fwd = _post_window(ctx).reset_index(drop=True)
+    if len(fwd) < 13:
+        return None
+    rng = fwd.iloc[:12]
+    rhigh = float(rng["high"].max()); rlow = float(rng["low"].min())
+    rest = fwd.iloc[12:]
+    if ctx.approach_side == "up":
+        broken = False
+        for row in rest.itertuples(index=False):
+            if not broken and row.high > rhigh:
+                broken = True
+            elif broken and row.low <= rhigh:
+                return EntrySignal("opening_range_break", rhigh, rlow, row.time_utc)
+    else:
+        broken = False
+        for row in rest.itertuples(index=False):
+            if not broken and row.low < rlow:
+                broken = True
+            elif broken and row.high >= rlow:
+                return EntrySignal("opening_range_break", rlow, rhigh, row.time_utc)
+    return None
+
+
+def round_number(ctx: EntryContext) -> Optional[EntrySignal]:
+    """Tap of the nearest round-number grid level (pip_size*50) in the path.
+
+    Grid step = pip_size * 50: FX 0.0050, JPY 0.50, XAU 5.0, crypto 50.0 — the
+    common 'big-figure / half-figure' levels."""
+    fwd = _post_window(ctx)
+    start = float(_window_close_bar(ctx)["close"])
+    step = ctx.pip_size * 50.0
+    half = 0.5 * ctx.atr_m5
+    if step <= 0:
+        return None
+    if ctx.approach_side == "up":
+        rn = math.floor(start / step) * step   # nearest round number at/below start
+        for row in fwd.itertuples(index=False):
+            if row.low <= rn:
+                return EntrySignal("round_number", rn, rn - half, row.time_utc)
+    else:
+        rn = math.ceil(start / step) * step     # nearest round number at/above start
+        for row in fwd.itertuples(index=False):
+            if row.high >= rn:
+                return EntrySignal("round_number", rn, rn + half, row.time_utc)
+    return None
+
+
+DETECTORS.update({
+    "session_open_retrace": session_open_retrace,
+    "prior_level_react": prior_level_react,
+    "opening_range_break": opening_range_break,
+    "round_number": round_number,
 })
