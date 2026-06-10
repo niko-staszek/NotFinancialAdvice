@@ -46,6 +46,15 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
     if len(path):
         spread_price = float(path["spread"].iloc[0]) * ctx.pip_size
 
+    if len(path) == 0:
+        return EntryResult(
+            symbol=ctx.symbol, date=date, anchor=anchor, block=block, name=sig.name,
+            entry_price=sig.entry_price, invalidation_price=sig.invalidation_price,
+            target=ctx.target, r_multiple=r_mult, mfe_r=math.nan, mae_r=math.nan,
+            realized_r=math.nan, win=False, cost_spread_price=spread_price,
+            entry_lead_hours=(ctx.completion_ts - sig.entry_time).total_seconds() / 3600.0,
+        )
+
     win = False
     mfe = 0.0
     mae = 0.0
@@ -60,7 +69,7 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
             mae = min(mae, sig.entry_price - row.high)
             hit_sl = row.high >= sig.invalidation_price
             hit_tp = row.low <= ctx.target
-        if hit_sl and not hit_tp:
+        if hit_sl:
             win = False
             break
         if hit_tp:

@@ -48,3 +48,22 @@ def test_no_sl_room_returns_nan_r(m5_factory) -> None:
     res = evaluate_entry(ctx, sig, date="2024-01-01", anchor=0, block=1)
     assert math.isnan(res.r_multiple)
     assert math.isnan(res.realized_r)
+
+
+def test_same_bar_sl_and_tp_counts_as_loss(m5_factory) -> None:
+    # one post-window bar spans BOTH the SL (1.00) and the TP/target (1.40)
+    window = [(1.0, 1.5, 0.9, 1.1)] * 12
+    fwd = [(1.10, 1.45, 0.95, 1.20)]   # high 1.45 >= target 1.40 AND low 0.95 <= SL 1.00
+    df = m5_factory("2024-01-01T00:00:00", window + fwd)
+    ctx = build_context(
+        df, symbol="EURUSD",
+        window_close_ts=pd.Timestamp("2024-01-01T01:00:00", tz="UTC"),
+        completion_ts=pd.Timestamp("2024-01-01T01:05:00", tz="UTC"),
+        target=1.4, approach_side="up", pip_size=0.0001,
+        lookback_hours=12, atr_period=14, atr_k=1.5,
+    )
+    sig = EntrySignal("x", entry_price=1.10, invalidation_price=1.00,
+                      entry_time=pd.Timestamp("2024-01-01T01:00:00", tz="UTC"))
+    res = evaluate_entry(ctx, sig, date="2024-01-01", anchor=0, block=1)
+    assert res.win is False
+    assert res.realized_r == -1.0

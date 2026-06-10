@@ -45,6 +45,7 @@ def build_t1(records: Sequence[TimingRecord]) -> pd.DataFrame:
 
 def build_t2(records: Sequence[EntryResult]) -> pd.DataFrame:
     df = pd.DataFrame([asdict(r) for r in records])
+    df = df[df["realized_r"].notna()].copy()
     grp = df.groupby(["symbol", "name"], as_index=False)
     out = grp.agg(
         n=("win", "size"),

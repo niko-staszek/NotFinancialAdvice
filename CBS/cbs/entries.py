@@ -70,6 +70,8 @@ def _post_window(ctx: EntryContext) -> pd.DataFrame:
 def _window_close_bar(ctx: EntryContext) -> pd.Series:
     """Last bar at/before window_close_ts (the bar whose close defines window close price)."""
     pre = ctx.m5.loc[ctx.m5["time_utc"] < ctx.window_close_ts]
+    if pre.empty:
+        raise ValueError("no bars before window_close_ts")
     return pre.iloc[-1]
 
 
