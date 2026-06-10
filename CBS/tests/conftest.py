@@ -17,8 +17,10 @@ def make_m5(start: str, rows: list[tuple[float, float, float, float]], spread: i
             "open": o, "high": h, "low": l, "close": c,
             "tick_volume": 1, "real_volume": 0, "spread": spread,
         })
-    df = pd.DataFrame(recs)
-    df["time_utc"] = pd.to_datetime(df["time_utc"], utc=True)
+    cols = ["time_utc", "open", "high", "low", "close", "tick_volume", "real_volume", "spread"]
+    df = pd.DataFrame(recs, columns=cols)
+    if not df.empty:
+        df["time_utc"] = pd.to_datetime(df["time_utc"], utc=True)
     return df
 
 
