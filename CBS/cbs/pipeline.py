@@ -63,6 +63,13 @@ def run_instrument(df: pd.DataFrame, *, symbol: str, pip_size: float, base_tol_p
                                         approach_side=rec.approach_side, pip_size=pip_size,
                                         lookback_hours=lookback_hours, atr_period=atr_period,
                                         atr_k=atr_k)
+                    # A market gap (weekend/session break) can leave the clipped context
+                    # with no bar before or after window close — detectors that reference
+                    # the window-close bar can't be evaluated, so skip the window.
+                    has_pre = bool((ctx.m5["time_utc"] < close_ts).any())
+                    has_post = bool((ctx.m5["time_utc"] >= close_ts).any())
+                    if not has_pre or not has_post:
+                        continue
                     for name, fn in DETECTORS.items():
                         sig = fn(ctx)
                         if sig is None:
