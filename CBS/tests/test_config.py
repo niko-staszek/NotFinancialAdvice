@@ -27,5 +27,5 @@ def test_grid_dimensions() -> None:
     assert config.TOLERANCE_MULTIPLIERS == (1, 2, 3, 4)
 
 
-def test_clock_cap_is_48h() -> None:
-    assert config.CLOCK_CAP_HOURS == 48
+def test_clock_cap_is_72h() -> None:
+    assert config.CLOCK_CAP_HOURS == 72
