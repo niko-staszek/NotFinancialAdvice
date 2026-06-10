@@ -28,6 +28,7 @@ class EntryResult:
     r_multiple: float
     mfe_r: float
     mae_r: float
+    realized_r: float
     win: bool
     cost_spread_price: float
     entry_lead_hours: float
@@ -68,11 +69,13 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
 
     mfe_r = math.nan if risk <= 0 else mfe / risk
     mae_r = math.nan if risk <= 0 else mae / risk
+    realized_r = math.nan if risk <= 0 else (r_mult if win else -1.0)
     lead = (ctx.completion_ts - sig.entry_time).total_seconds() / 3600.0
 
     return EntryResult(
         symbol=ctx.symbol, date=date, anchor=anchor, block=block, name=sig.name,
         entry_price=sig.entry_price, invalidation_price=sig.invalidation_price,
-        target=ctx.target, r_multiple=r_mult, mfe_r=mfe_r, mae_r=mae_r, win=win,
+        target=ctx.target, r_multiple=r_mult, mfe_r=mfe_r, mae_r=mae_r,
+        realized_r=realized_r, win=win,
         cost_spread_price=spread_price, entry_lead_hours=lead,
     )

@@ -41,18 +41,19 @@ def test_build_t1_excludes_instant_from_speed_stats() -> None:
 def _entry(**kw):
     base = dict(symbol="EURUSD", date="2024-01-01", anchor=0, block=1, name="sr_retest",
                 entry_price=1.1, invalidation_price=1.0, target=1.4, r_multiple=3.0,
-                mfe_r=3.0, mae_r=-0.5, win=True, cost_spread_price=0.0001, entry_lead_hours=1.0)
+                mfe_r=3.0, mae_r=-0.5, realized_r=3.0, win=True, cost_spread_price=0.0001,
+                entry_lead_hours=1.0)
     base.update(kw)
     return EntryResult(**base)
 
 
-def test_build_t2_ranks_entries_by_median_r() -> None:
-    recs = [_entry(name="sr_retest", r_multiple=3.0, win=True),
-            _entry(name="sr_retest", r_multiple=2.0, win=True),
-            _entry(name="first_m5_close", r_multiple=0.5, win=False)]
+def test_build_t2_ranks_entries_by_expectancy_r() -> None:
+    recs = [_entry(name="sr_retest", r_multiple=3.0, win=True, realized_r=3.0),
+            _entry(name="sr_retest", r_multiple=2.0, win=True, realized_r=2.0),
+            _entry(name="first_m5_close", r_multiple=0.5, win=False, realized_r=-1.0)]
     t2 = build_t2(recs)
     row = t2[(t2["symbol"] == "EURUSD") & (t2["name"] == "sr_retest")].iloc[0]
-    assert abs(row["median_r"] - 2.5) < 1e-9
+    assert abs(row["expectancy_r"] - 2.5) < 1e-9
     assert abs(row["win_rate"] - 1.0) < 1e-9
 
 

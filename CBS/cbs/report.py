@@ -48,12 +48,13 @@ def build_t2(records: Sequence[EntryResult]) -> pd.DataFrame:
     grp = df.groupby(["symbol", "name"], as_index=False)
     out = grp.agg(
         n=("win", "size"),
-        median_r=("r_multiple", "median"),
+        expectancy_r=("realized_r", "mean"),
         win_rate=("win", "mean"),
+        avg_planned_rr=("r_multiple", "mean"),
         median_mae_r=("mae_r", "median"),
         median_lead_hours=("entry_lead_hours", "median"),
     )
-    out = out.sort_values(["symbol", "median_r"], ascending=[True, False]).reset_index(drop=True)
+    out = out.sort_values(["symbol", "expectancy_r"], ascending=[True, False]).reset_index(drop=True)
     return out
 
 

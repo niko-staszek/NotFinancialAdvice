@@ -29,6 +29,7 @@ def test_r_multiple_long_win(m5_factory) -> None:
     assert math.isclose(res.r_multiple, 3.0, rel_tol=1e-9)
     assert res.win is True
     assert res.mae_r <= 0
+    assert math.isclose(res.realized_r, 3.0, rel_tol=1e-9)
 
 
 def test_loss_when_invalidation_hit_before_target(m5_factory) -> None:
@@ -37,6 +38,7 @@ def test_loss_when_invalidation_hit_before_target(m5_factory) -> None:
                       entry_time=pd.Timestamp("2024-01-01T01:00:00", tz="UTC"))
     res = evaluate_entry(ctx, sig, date="2024-01-01", anchor=0, block=1)
     assert res.win is False
+    assert res.realized_r == -1.0
 
 
 def test_no_sl_room_returns_nan_r(m5_factory) -> None:
@@ -45,3 +47,4 @@ def test_no_sl_room_returns_nan_r(m5_factory) -> None:
                       entry_time=pd.Timestamp("2024-01-01T01:00:00", tz="UTC"))
     res = evaluate_entry(ctx, sig, date="2024-01-01", anchor=0, block=1)
     assert math.isnan(res.r_multiple)
+    assert math.isnan(res.realized_r)
