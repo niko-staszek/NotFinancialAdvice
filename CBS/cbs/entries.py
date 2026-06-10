@@ -267,3 +267,147 @@ DETECTORS.update({
     "fvg_fill": fvg_fill,
     "fib_cluster": fib_cluster,
 })
+
+
+# --- Liquidity / ICT detectors ----------------------------------------------
+
+def order_block(ctx: EntryContext) -> Optional[EntrySignal]:
+    """Last opposing-close bar before the impulse; enter on return into its range."""
+    fwd = _post_window(ctx)
+    ob = None      # (low, high)
+    armed = False  # impulse confirmed: price closed beyond the OB
+    if ctx.approach_side == "up":
+        for row in fwd.itertuples(index=False):
+            if ob is not None and armed and row.low <= ob[1]:
+                return EntrySignal("order_block", ob[1], ob[0], row.time_utc)
+            if ob is not None and not armed and row.close > ob[1]:
+                armed = True
+            if row.close < row.open:
+                ob = (float(row.low), float(row.high)); armed = False
+    else:
+        for row in fwd.itertuples(index=False):
+            if ob is not None and armed and row.high >= ob[0]:
+                return EntrySignal("order_block", ob[0], ob[1], row.time_utc)
+            if ob is not None and not armed and row.close < ob[0]:
+                armed = True
+            if row.close > row.open:
+                ob = (float(row.low), float(row.high)); armed = False
+    return None
+
+
+def liquidity_sweep(ctx: EntryContext) -> Optional[EntrySignal]:
+    """Raid beyond the prior-day extreme then reclaim within 3 bars."""
+    fwd = _post_window(ctx).reset_index(drop=True)
+    if ctx.approach_side == "up":
+        pdl = _prior_extreme(ctx, "low")
+        swept_i = None; sweep_low = None
+        for i, row in enumerate(fwd.itertuples(index=False)):
+            if swept_i is None:
+                if row.low < pdl:
+                    swept_i = i; sweep_low = float(row.low)
+            else:
+                if i - swept_i > 3:
+                    swept_i = None; continue
+                sweep_low = min(sweep_low, float(row.low))
+                if row.close > pdl:
+                    return EntrySignal("liquidity_sweep", float(row.close), sweep_low, row.time_utc)
+    else:
+        pdh = _prior_extreme(ctx, "high")
+        swept_i = None; sweep_high = None
+        for i, row in enumerate(fwd.itertuples(index=False)):
+            if swept_i is None:
+                if row.high > pdh:
+                    swept_i = i; sweep_high = float(row.high)
+            else:
+                if i - swept_i > 3:
+                    swept_i = None; continue
+                sweep_high = max(sweep_high, float(row.high))
+                if row.close < pdh:
+                    return EntrySignal("liquidity_sweep", float(row.close), sweep_high, row.time_utc)
+    return None
+
+
+def breaker(ctx: EntryContext) -> Optional[EntrySignal]:
+    """Failed order block: OB extreme broken, then price reclaims the OB → flip."""
+    fwd = _post_window(ctx)
+    ob = None; broken_ext = None
+    if ctx.approach_side == "up":
+        for row in fwd.itertuples(index=False):
+            if ob is not None:
+                if broken_ext is None and row.low < ob[0]:
+                    broken_ext = float(row.low)
+                elif broken_ext is not None:
+                    broken_ext = min(broken_ext, float(row.low))
+                    if row.close > ob[1]:
+                        return EntrySignal("breaker", ob[1], broken_ext, row.time_utc)
+            if row.close < row.open:
+                ob = (float(row.low), float(row.high)); broken_ext = None
+    else:
+        for row in fwd.itertuples(index=False):
+            if ob is not None:
+                if broken_ext is None and row.high > ob[1]:
+                    broken_ext = float(row.high)
+                elif broken_ext is not None:
+                    broken_ext = max(broken_ext, float(row.high))
+                    if row.close < ob[0]:
+                        return EntrySignal("breaker", ob[0], broken_ext, row.time_utc)
+            if row.close > row.open:
+                ob = (float(row.low), float(row.high)); broken_ext = None
+    return None
+
+
+def _equal_level(values, band: float, side: str):
+    """Cluster values into `band`-width buckets; return the level of a >=2-member
+    cluster on the given side ('low' -> lowest such cluster min, 'high' -> highest max)."""
+    if band <= 0 or len(values) < 2:
+        return None
+    buckets: dict = {}
+    for v in values:
+        key = round(float(v) / band)
+        buckets.setdefault(key, []).append(float(v))
+    cands = [vals for vals in buckets.values() if len(vals) >= 2]
+    if not cands:
+        return None
+    if side == "low":
+        return min(min(v) for v in cands)
+    return max(max(v) for v in cands)
+
+
+def eqh_eql_raid(ctx: EntryContext) -> Optional[EntrySignal]:
+    """Raid of equal lows (up) / equal highs (down) then reversal back through them."""
+    pre = ctx.m5.loc[ctx.m5["time_utc"] < ctx.window_close_ts]
+    band = 0.25 * ctx.atr_m5
+    fwd = _post_window(ctx)
+    if ctx.approach_side == "up":
+        level = _equal_level(pre["low"].values, band, "low")
+        if level is None:
+            return None
+        raided = False; raid_low = None
+        for row in fwd.itertuples(index=False):
+            if not raided and row.low < level:
+                raided = True; raid_low = float(row.low)
+            elif raided:
+                raid_low = min(raid_low, float(row.low))
+                if row.close > level:
+                    return EntrySignal("eqh_eql_raid", level, raid_low, row.time_utc)
+    else:
+        level = _equal_level(pre["high"].values, band, "high")
+        if level is None:
+            return None
+        raided = False; raid_high = None
+        for row in fwd.itertuples(index=False):
+            if not raided and row.high > level:
+                raided = True; raid_high = float(row.high)
+            elif raided:
+                raid_high = max(raid_high, float(row.high))
+                if row.close < level:
+                    return EntrySignal("eqh_eql_raid", level, raid_high, row.time_utc)
+    return None
+
+
+DETECTORS.update({
+    "order_block": order_block,
+    "liquidity_sweep": liquidity_sweep,
+    "breaker": breaker,
+    "eqh_eql_raid": eqh_eql_raid,
+})
