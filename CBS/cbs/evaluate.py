@@ -41,7 +41,8 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
     reward = (ctx.target - sig.entry_price) if side_up else (sig.entry_price - ctx.target)
     r_mult = math.nan if risk <= 0 else reward / risk
 
-    path = ctx.m5.loc[ctx.m5["time_utc"] >= sig.entry_time].reset_index(drop=True)
+    i = int(ctx.m5["time_utc"].searchsorted(sig.entry_time, side="left"))
+    path = ctx.m5.iloc[i:]
     spread_price = 0.0
     if len(path):
         spread_price = float(path["spread"].iloc[0]) * ctx.pip_size
@@ -55,26 +56,32 @@ def evaluate_entry(ctx: EntryContext, sig: EntrySignal, *, date: str,
             entry_lead_hours=(ctx.completion_ts - sig.entry_time).total_seconds() / 3600.0,
         )
 
-    win = False
-    mfe = 0.0
-    mae = 0.0
-    for row in path.itertuples(index=False):
-        if side_up:
-            mfe = max(mfe, row.high - sig.entry_price)
-            mae = min(mae, row.low - sig.entry_price)
-            hit_sl = row.low <= sig.invalidation_price
-            hit_tp = row.high >= ctx.target
-        else:
-            mfe = max(mfe, sig.entry_price - row.low)
-            mae = min(mae, sig.entry_price - row.high)
-            hit_sl = row.high >= sig.invalidation_price
-            hit_tp = row.low <= ctx.target
-        if hit_sl:
-            win = False
-            break
-        if hit_tp:
-            win = True
-            break
+    # Vectorized hold-to-target walk. SL is checked first on a bar that spans both
+    # levels (conservative loss). MFE/MAE accumulate up to and including the first
+    # event bar (or the whole path if neither level is hit).
+    lows = path["low"].to_numpy()
+    highs = path["high"].to_numpy()
+    if side_up:
+        hit_sl = lows <= sig.invalidation_price
+        hit_tp = highs >= ctx.target
+        fav = highs - sig.entry_price
+        adv = lows - sig.entry_price
+    else:
+        hit_sl = highs >= sig.invalidation_price
+        hit_tp = lows <= ctx.target
+        fav = sig.entry_price - lows
+        adv = sig.entry_price - highs
+
+    event = hit_sl | hit_tp
+    if event.any():
+        k = int(event.argmax())
+        win = bool(hit_tp[k] and not hit_sl[k])
+        end = k + 1
+    else:
+        win = False
+        end = len(path)
+    mfe = max(0.0, float(fav[:end].max()))
+    mae = min(0.0, float(adv[:end].min()))
 
     mfe_r = math.nan if risk <= 0 else mfe / risk
     mae_r = math.nan if risk <= 0 else mae / risk

@@ -31,9 +31,16 @@ def load_m5_csv(path: Path) -> pd.DataFrame:
 
 
 def slice_window(df: pd.DataFrame, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
-    """Return bars with start <= time_utc < end (half-open)."""
-    mask = (df["time_utc"] >= start) & (df["time_utc"] < end)
-    return df.loc[mask].reset_index(drop=True)
+    """Return bars with start <= time_utc < end (half-open).
+
+    Uses searchsorted on the time-sorted frame (O(log n)) instead of a full
+    boolean mask (O(n)) — this is the hot path, called once per grid cell.
+    Requires df sorted ascending by time_utc (load_m5_csv guarantees this).
+    """
+    s = df["time_utc"]
+    lo = int(s.searchsorted(start, side="left"))
+    hi = int(s.searchsorted(end, side="left"))
+    return df.iloc[lo:hi].reset_index(drop=True)
 
 
 def resample_h1(df: pd.DataFrame) -> pd.DataFrame:

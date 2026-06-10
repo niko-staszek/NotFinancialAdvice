@@ -40,21 +40,31 @@ class EntryContext:
     pip_size: float
     atr_m5: float
     atr_k: float
+    post: pd.DataFrame = None  # bars at/after window close, precomputed once (hot path)
 
 
 def build_context(df: pd.DataFrame, *, symbol: str, window_close_ts: pd.Timestamp,
                   completion_ts: pd.Timestamp, target: float, approach_side: str,
                   pip_size: float, lookback_hours: int, atr_period: int,
                   atr_k: float) -> EntryContext:
-    """Clip `df` to [window_close_ts - lookback, completion_ts] and assemble context."""
-    lo = window_close_ts - timedelta(hours=lookback_hours)
-    m5 = df.loc[(df["time_utc"] >= lo) & (df["time_utc"] <= completion_ts)].reset_index(drop=True)
+    """Clip `df` to [window_close_ts - lookback, completion_ts] and assemble context.
+
+    searchsorted slice (O(log n)) on the time-sorted frame, not a boolean mask.
+    """
+    lo_ts = window_close_ts - timedelta(hours=lookback_hours)
+    s = df["time_utc"]
+    i0 = int(s.searchsorted(lo_ts, side="left"))            # >= lo_ts
+    i1 = int(s.searchsorted(completion_ts, side="right"))   # <= completion_ts (inclusive)
+    m5 = df.iloc[i0:i1].reset_index(drop=True)
     h1 = resample_h1(m5)
     atr = atr_m5(m5, period=atr_period)
+    # Post-window slice (>= window close), computed once and shared by all detectors.
+    j = int(m5["time_utc"].searchsorted(window_close_ts, side="left"))
+    post = m5.iloc[j:].reset_index(drop=True)
     return EntryContext(symbol=symbol, m5=m5, h1=h1, window_close_ts=window_close_ts,
                         completion_ts=completion_ts, target=target,
                         approach_side=approach_side, pip_size=pip_size,
-                        atr_m5=atr, atr_k=atr_k)
+                        atr_m5=atr, atr_k=atr_k, post=post)
 
 
 def _atr_sl(ctx: EntryContext, entry: float) -> float:
@@ -64,6 +74,10 @@ def _atr_sl(ctx: EntryContext, entry: float) -> float:
 
 
 def _post_window(ctx: EntryContext) -> pd.DataFrame:
+    # Precomputed in build_context; fall back to a fresh slice if absent (e.g. a
+    # hand-built EntryContext in a test that did not set `post`).
+    if ctx.post is not None:
+        return ctx.post
     return ctx.m5.loc[ctx.m5["time_utc"] >= ctx.window_close_ts].reset_index(drop=True)
 
 

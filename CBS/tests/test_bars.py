@@ -52,3 +52,16 @@ def test_atr_m5_positive(m5_factory) -> None:
     df = m5_factory("2024-01-01T00:00:00", [(1.0, 1.2, 0.8, 1.0)] * 20)
     val = atr_m5(df, period=14)
     assert val > 0
+
+
+def test_slice_window_matches_boolean_mask(m5_factory) -> None:
+    # searchsorted slice must equal the naive boolean-mask result, including for
+    # start/end that fall strictly between bar timestamps.
+    df = m5_factory("2024-01-01T00:00:00", [(i, i + 1, i - 1, i) for i in range(100)])
+    for start_min, end_min in [(0, 60), (12, 47), (3, 3), (95, 200), (-10, 5)]:
+        base = pd.Timestamp("2024-01-01T00:00:00", tz="UTC")
+        start = base + timedelta(minutes=start_min) + timedelta(seconds=30)  # off-grid
+        end = base + timedelta(minutes=end_min) + timedelta(seconds=30)
+        got = slice_window(df, start, end)
+        ref = df.loc[(df["time_utc"] >= start) & (df["time_utc"] < end)].reset_index(drop=True)
+        pd.testing.assert_frame_equal(got, ref)

@@ -58,16 +58,22 @@ def measure_move(df: pd.DataFrame, *, symbol: str, anchor: int, block: int,
     completed = False
     instant = False
     hours = math.nan
-    scanned = 0
-    for i, row in enumerate(fwd.itertuples(index=False)):
-        scanned += 1
-        if _touches(row.low, row.high, tgt.value, tol_price):
+    scanned = len(fwd)
+    if len(fwd):
+        # Vectorized first-touch: band overlap (low-tol <= target <= high+tol).
+        lows = fwd["low"].to_numpy()
+        highs = fwd["high"].to_numpy()
+        touch = (lows - tol_price <= tgt.value) & (tgt.value <= highs + tol_price)
+        if touch.any():
+            idx = int(touch.argmax())
             completed = True
-            instant = (i == 0)
-            bar_close_ts = row.time_utc + timedelta(minutes=5)
-            delta = (bar_close_ts - close_ts).total_seconds() / 3600.0
-            hours = 0.0 if instant else delta
-            break
+            instant = (idx == 0)
+            scanned = idx + 1
+            if instant:
+                hours = 0.0
+            else:
+                bar_close_ts = fwd["time_utc"].iloc[idx] + timedelta(minutes=5)
+                hours = (bar_close_ts - close_ts).total_seconds() / 3600.0
 
     return TimingRecord(
         symbol=symbol, date=date, anchor=anchor, block=block, tol_mult=tol_mult,
