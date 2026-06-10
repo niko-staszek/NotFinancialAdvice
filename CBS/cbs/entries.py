@@ -98,17 +98,19 @@ def first_pullback_pct(ctx: EntryContext, pct: float = 0.3) -> Optional[EntrySig
         return None
     start = float(_window_close_bar(ctx)["close"])
     if ctx.approach_side == "up":
-        ext = float(fwd["high"].cummax().iloc[-1])
-        pull_level = ext - pct * (ext - start)
+        ext = start
         for row in fwd.itertuples(index=False):
-            if row.low <= pull_level:
+            pull_level = ext - pct * (ext - start)
+            if ext > start and row.low <= pull_level:
                 return EntrySignal("first_pullback_pct", pull_level, _atr_sl(ctx, pull_level), row.time_utc)
+            ext = max(ext, row.high)
     else:
-        ext = float(fwd["low"].cummin().iloc[-1])
-        pull_level = ext + pct * (start - ext)
+        ext = start
         for row in fwd.itertuples(index=False):
-            if row.high >= pull_level:
+            pull_level = ext + pct * (start - ext)
+            if ext < start and row.high >= pull_level:
                 return EntrySignal("first_pullback_pct", pull_level, _atr_sl(ctx, pull_level), row.time_utc)
+            ext = min(ext, row.low)
     return None
 
 
@@ -141,7 +143,7 @@ def sr_retest(ctx: EntryContext) -> Optional[EntrySignal]:
             if not broken and row.high > level:
                 broken = True
                 continue
-            if broken and row.low <= level + 0.25 * ctx.atr_m5 and row.close >= level:
+            if broken and row.low <= level and row.close >= level:
                 return EntrySignal("sr_retest", level, level - tol, row.time_utc)
     else:
         level = _prior_extreme(ctx, "low")
@@ -150,7 +152,7 @@ def sr_retest(ctx: EntryContext) -> Optional[EntrySignal]:
             if not broken and row.low < level:
                 broken = True
                 continue
-            if broken and row.high >= level - 0.25 * ctx.atr_m5 and row.close <= level:
+            if broken and row.high >= level and row.close <= level:
                 return EntrySignal("sr_retest", level, level + tol, row.time_utc)
     return None
 
@@ -179,7 +181,6 @@ def swing_retest(ctx: EntryContext) -> Optional[EntrySignal]:
     pre = ctx.m5.loc[ctx.m5["time_utc"] < ctx.window_close_ts].reset_index(drop=True)
     if len(pre) < 5:
         return None
-    tol = 0.25 * ctx.atr_m5
     fwd = _post_window(ctx)
     if ctx.approach_side == "up":
         highs = pre["high"].values
@@ -194,7 +195,7 @@ def swing_retest(ctx: EntryContext) -> Optional[EntrySignal]:
             if not broken and row.high > swing:
                 broken = True
                 continue
-            if broken and row.low <= swing + tol:
+            if broken and row.low <= swing:
                 return EntrySignal("swing_retest", swing, swing - 0.5 * ctx.atr_m5, row.time_utc)
     else:
         lows = pre["low"].values
@@ -209,7 +210,7 @@ def swing_retest(ctx: EntryContext) -> Optional[EntrySignal]:
             if not broken and row.low < swing:
                 broken = True
                 continue
-            if broken and row.high >= swing - tol:
+            if broken and row.high >= swing:
                 return EntrySignal("swing_retest", swing, swing + 0.5 * ctx.atr_m5, row.time_utc)
     return None
 
@@ -220,20 +221,19 @@ def ema21_retest(ctx: EntryContext) -> Optional[EntrySignal]:
         return None
     h1["ema"] = _ema(h1["close"], 21)
     post = h1.loc[h1["time_utc"] >= ctx.window_close_ts].reset_index(drop=True)
-    tol = 0.25 * ctx.atr_m5
     reclaimed = False
     for row in post.itertuples(index=False):
         if ctx.approach_side == "up":
             if not reclaimed and row.close > row.ema:
                 reclaimed = True
                 continue
-            if reclaimed and row.low <= row.ema + tol and row.close >= row.ema:
+            if reclaimed and row.low <= row.ema and row.close >= row.ema:
                 return EntrySignal("ema21_retest", float(row.ema), float(row.ema) - 0.5 * ctx.atr_m5, row.time_utc)
         else:
             if not reclaimed and row.close < row.ema:
                 reclaimed = True
                 continue
-            if reclaimed and row.high >= row.ema - tol and row.close <= row.ema:
+            if reclaimed and row.high >= row.ema and row.close <= row.ema:
                 return EntrySignal("ema21_retest", float(row.ema), float(row.ema) + 0.5 * ctx.atr_m5, row.time_utc)
     return None
 
@@ -243,19 +243,20 @@ def fib_cluster(ctx: EntryContext) -> Optional[EntrySignal]:
     if len(fwd) < 3:
         return None
     start = float(_window_close_bar(ctx)["close"])
-    tol = 0.25 * ctx.atr_m5
     if ctx.approach_side == "up":
-        ext = float(fwd["high"].cummax().iloc[-1])
-        level = ext - 0.618 * (ext - start)
+        ext = start
         for row in fwd.itertuples(index=False):
-            if row.low <= level + tol:
+            level = ext - 0.618 * (ext - start)
+            if ext > start and row.low <= level:
                 return EntrySignal("fib_cluster", level, level - 0.5 * ctx.atr_m5, row.time_utc)
+            ext = max(ext, row.high)
     else:
-        ext = float(fwd["low"].cummin().iloc[-1])
-        level = ext + 0.618 * (start - ext)
+        ext = start
         for row in fwd.itertuples(index=False):
-            if row.high >= level - tol:
+            level = ext + 0.618 * (start - ext)
+            if ext < start and row.high >= level:
                 return EntrySignal("fib_cluster", level, level + 0.5 * ctx.atr_m5, row.time_utc)
+            ext = min(ext, row.low)
     return None
 
 
