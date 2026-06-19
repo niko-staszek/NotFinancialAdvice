@@ -13,7 +13,7 @@ Trading strategy research, backtesting, and automation across forex, crypto, ind
 | [API](API/strategy.md) | **API Box** — Session-range mean-reversion using Fibonacci scaled limit orders off the overnight box | EURUSD, GBPUSD, USDCHF, USDJPY | M5 |
 | [MMD](MMD/MMD_CLOUDS.md) | **Magic Moving Averages** — Multi-layer cloud system (standalone strategy + indicator/filter for other strategies) | Any | H1 (primary) |
 | [CBS](CBS/strategy.md) | **"Can't Be Simpler"** — Target-driven strategy using H+L-O pivot with Fibonacci clusters, three sub-strategies (Reaction, Coming, Averaging) | Forex majors, XAUUSD, XTIUSD, BTCUSD, ETHUSD | H1 (exec), H4 (trend) |
-| [MF](MF/) | **Money Flow** — *(research phase, reference videos only)* | — | — |
+| [MF](MF/strategy.md) | **Money Flow** — Swing strategy aligning entries with COT large-speculator positioning, the Money Flow indicator, and technical confluence (EMA/SMA cross, Fibonacci, POC) | Minor crosses (primary), majors, XAUUSD, USOIL, indices | H4 / H1 |
 
 ## How Strategies Connect
 
@@ -43,6 +43,6 @@ NotFinancialAdvice/
   API/          API Box (session range mean-reversion)
   MMD/          Magic Moving Averages (clouds, diamonds, ribbons, schemas)
   CBS/          "Can't Be Simpler" (target-driven, 3 sub-strategies)
-  MF/           Money Flow (research)
+  MF/           Money Flow (COT + flow-based swing)
   research/     General research & notes
 ```

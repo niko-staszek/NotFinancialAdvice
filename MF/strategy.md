@@ -303,12 +303,3 @@ Each hypothesis can be walk-forward tested on 10 years of D1 + H4 data independe
 | Pairs | Majors + metals + indices | Minors preferred; majors secondary |
 
 **Overlap:** Fibonacci 38.2–61.8% pullback zone is identical. Swing definition and market structure (BoS/CHoCH) shared. EMA 21 used in both (PAC as signal-candle filter; MF paired with SMA 66 as cross zone).
-
----
-
-## Not Covered (out of scope for v1)
-
-- The exact construction of the proprietary Money Flow indicator (community tooling). For testing from scratch, the closest public analogue is a currency-strength meter combining relative performance of each G7 currency vs. a basket.
-- The exact construction of Volume Edge (institutional order data). For testing, skip this component or substitute with TradingView's Session Volume Profile for POC purposes (covers point 7 but not point 8).
-- Kintel (the community's COT + news dashboard). Use barchart.com directly for COT ingestion.
-- Manual fundamental analysis beyond the tier-1-news filter.
