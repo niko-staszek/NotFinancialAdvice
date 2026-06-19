@@ -1,0 +1,614 @@
+# Transcript — "How to SWING Trade like a Pro"
+
+- Channel: Andrea Cimi
+- URL: https://www.youtube.com/watch?v=2MBKUuyCQ_o
+- Published: 2026-06-18 | Length: 1:44:26 (6266s) | Views ~13.9K at capture
+- Source: YouTube auto-captions via youtube-transcript-api (1.2.4); consecutive-dedup
+  cleaned, re-paragraphed, timestamp marker every ~30s. Auto-caption artifacts remain
+  (e.g. "Coot"=COT, "Britain Woods"=Bretton Woods, "WCL"=WALCL, "T5 E"=T5YIE,
+  "[ __ ]"=censored profanity). Machine transcript — not hand-corrected.
+
+---
+
+[00:00]
+In this video, I will explain you from scratch, even if you're an absolute beginner, one of the most powerful trading strategies or methodologies that exist. This isn't going to be your average technical analysis concept or easy $500 a day strategy. None of that. Listen, I've been around the block in this racket for a while now. I've seen and tried all the retail nonsense. And then I've spent years learning and trading side by side in the trading floors of some of the best traders out there. World trading champions, hedge fund managers, prop firm traders, real
+
+[00:32]
+prop traders. And in this video, we'll show you the exact blueprint, the road map step by step that I have learned from them and that they apply in the market every single day to follow the long-term flow of smart money. So, not a risky short-term day trading inefficiency that will stop working tomorrow. None of that. A swing trading approach that systematically extracts money from these huge >> interact of global trade has shifted dramatically. >> Low and predictable flows of money fifth
+
+[01:03]
+straight negative week. See oil prices out 101 right now >> that in the medium longterm are predictably going into some markets and out from others. So, first we will learn all the basics of fundamental analysis and how the entire financial system works. And then we're going to learn exactly how capital flows out of some market into others based on what the Federal Reserve does and whatever's going on with the world thanks to intermarket analysis. And finally, how to follow this flow thanks to the Coot report and volume analysis with two
+
+[01:35]
+entry models to time your entries that you're going to be able to use right away on gold, stocks, forex, and most markets. and I'll explain it in a stupid simple way so that even if you're a beginner, you're going to be able to understand and by the end of this video, you're going to be able to swing trade like a pro. As always, this is not financial advice. Everything is just for educational purposes only. Read the disclaimer in the description. And to start from the basic, I have to admit, even though I'm slightly embarrassed, that the first time I heard about fundamentals and macroeconomics, I thought boring, looks hard to understand. Why do
+
+[02:07]
+I even care about the economy? My guru told me, "You don't need fundamental analysis to be profitable. You just need an RSI." Sure. So, I ignored it for longer than I'd care to admit. But then I met Yan Smolen. Jan Smolen is a three times world trading champion in the Robins Cup, professor and PhD in finance and now floor trader in a trading firm. And he explained me and showed me that 90% of the money in financial markets moves because of this. It's literally the most important thing you need to
+
+[02:38]
+know in finance. It's the basics that every professional trader knows about and not because it's just the analysis of reality and is historically extremely reliable. But also, it's the main way that big banks, hedge funds, and all these big guys actually trade. Here's why. In every market, there is something called the order book, which is basically the menu of available liquidity in the market. Let's say, for example, this is the book of Bitcoin. If you want to buy Bitcoin, you can either make an offer to buy and put it in the book as a buy limit and put your one
+
+[03:10]
+Bitcoin buying offer at the price of 98, for example, and wait for a seller to accept that offer. Or if you need to buy now, you can buy market and accept the best sell offer there is in the book. So this is like buying and selling passively. It's the so-called passive liquidity. This instead, these bubbles are aggressive liquidity. So if you buy at 98, you can buy at the price you want, but you have no guarantee that a seller will come because price might skyrocket all of a sudden. So if you want the guarantee that you're going to
+
+[03:40]
+buy, you're going to have to pay a slightly higher price, 101. So here you will pay 101 and you will pay a little more than the best buyer, you will probably pay a dollar more. And this is the so-called spread, right? So let's say the spread is $1 or let's say it's even $10, right? That's your cost of making a trade now. And for you with your small trading account, this is not going to be a big deal. But if you need to buy a billion Bitcoin or a billion dollars worth of Bitcoin, well, it's going to be slightly harder. And this $10 of transaction cost that you have as
+
+[04:11]
+a retail trader will probably be somewhere in the millions. And actually, if you buy it now and maybe sell it 2 hours later because you want to scalp and day trade, well, for you it's easy. You're going to pay $20, make your leveraged profit. You're fine. No one will care. No one will notice. But if you bought a billion dollar worth of Bitcoin and sell it right after, there's literally not enough liquidity because maybe there will be, you know, a,000 here, there will be 2,000 here, $3,000 worth of Bitcoin, 3,500. But when you have a billion dollar, if you bought
+
+[04:43]
+everything now, you would have to first buy a little bit here, then buy a little bit here, then buy. So you will buy at increasingly higher prices and pay a huge amount of spread. And if you were to close that position right away, you will pay even more in commissions and you could literally lose hundreds of millions of dollars. So for a retail trader, it's easy to day trade. And as day traders, it's easy to scalp. But when you have these huge amounts of money, it's kind of harder to day trade. There's a limited amount of liquidity. So because of this physical constraint,
+
+[05:14]
+what they will do instead is they will take this huge order that they have and they will split it into multiple small orders and basically use algorithms to fill these orders. gradually in the market. This way they can optimize the transaction cost and don't end up paying huge amounts of money in spread. So maybe this $1 billion order that Black Croc is putting into Bitcoin will be placed in the market gradually in a matter of day throughout the entire day throughout the week and it will take time because big money is slow and that
+
+[05:46]
+my friend is our edge because this phenomena creates a predictable flow of buy and sell orders in the market. the so-called orderflow autocorrelation which is a well-documented academical phenomenon that basically says if there's a lot of buy orders it's likely that there will be more buy orders and as a consequence this creates some predictable behaviors that are known as drifts what in the retail space we call trends. So there are trends that lasts for days and weeks and months because if it takes an entire day or an entire week
+
+[06:18]
+to even fill one of these orders and then it's going to take another day or another week to exit this order to sell whatever I bought, it automatically means that I have to kind of swing trade. And if I have to speculate, I'm going to speculate on long-term price movements. And the best way to predict what the price is going to do in the long term is macroeconomics and fundamentals. And that's why one of the most widely used trading approaches or styles or strategy is global macro. Some of the best traders and investors in the
+
+[06:49]
+world are global macro traders. Think for example about George Soros or think about Warren Buffett, the most fundamental trader of all time. Like literally some of the highest performing hedge funds in the world are either quantitative hedge funds or global macro hedge funds because it's mathematical. If the economy is going great, the stock market will tend to go up. If the economy is not doing so great, the stock market will tend to drift down. And the money that is going out of the stock market typically tries to go in something more safer like bonds, the
+
+[07:20]
+so-called risk-free markets. And if the bonds aren't giving enough yield, maybe the money will flow into gold instead. And we can predict where the economy will go, hence where the stock market is likely to be going, hence where the money is going to flow if in bonds or gold. And trust me when I tell you I did not expect the level of predictability of these trends. I genuinely was not aware of. So I posted two trading ideas on Trading View literally calling the top of GBPUSD and the bottom of the recent mega trend we had in gold. Let me
+
+[07:50]
+show you. So let me go on my Trading View account and my profile. This used to be my old uh trading name. So, I've posted a lot of trading ideas when I was still doing price action. And this gold analysis was basically a cycle analysis of the entire gold chart. And these lines you see here are the price of gold, the balance of the Federal Reserve in orange, and the interest rates in blue. And there's always a phase 1, phase 2, phase three in the cycle of gold. And I kind of go through the phases of the cycles based on what the Federal Reserve is doing. Then I
+
+[08:21]
+expected that the next phase of the trend would be extremely extremely bullish and that a new cycle was about to happen. So here we basically bought gold at September 2023 and the rest as they say is history. Boom. That's exactly what happened later. It did around 86% in the following 2 years and then once more went all the way up to 5,200 and that's where we are today because the gold cycle are just mathematical. The next trade idea I've published in 2021 was the short on
+
+[08:51]
+GBPUSD. It's funny because I was still using WOFF method and my idea here was to short after the distribution because FOMC was talking about tapering and that's typically the beginning of a new cycle for the dollar instead. Couldn't load new bars, but well, this was a short in 2021. Let's go to GBPUSD in 2021. Well, I call that short exactly here. And this was the longest trend in GBPUSD we have seen probably in history. Did minus 26% which is 4,000 pips and
+
+[09:22]
+plotted the all-time lows on GBPUSD. All based on following the money, based on interest rates and what the economy will do and what you'll learn in this video. And not only this, but for the entirety of the last year, me and my trading and business partner, Fabio Valentini, which is not only a great scalper, but an amazing swing trader as well, have publicly shared our trading ideas both in our community, in our YouTube channels, and in the channel of some of the biggest investment bank in the world, BNP Paribbath. And the results were delicious. And we did it with the exact same methodology you're about to learn. So stay tuned. But to truly master all this, we need to start from
+
+[09:53]
+the basic. I'll put the chapter in this video cuz it's probably going to be long so that you can follow along better. You can pause this video, come back later. Let's start by understanding what money really is. How is it created? Because finance revolves around money. You're trying to make money from the market of money with your own money based on how other people's money is going to move to other forms of money. So, we might as well start with that. Money is of course what we use for transaction. Before we used to, you know, uh please admire my drawing skills, change a fish with a
+
+[10:24]
+fish. And we would transact by exchanging things with things. Then instead we started using things like salt, like grain and like non-p perishable, easy to count and measure um type of goods in exchange for fish. And then instead of random things, we started using precious metals, little coins of gold and silver and copper in exchange for fish. And then people were like, you know what, I'm carrying all of this money around these bags of gold and it's dangerous because, you know, a thief could come out of nowhere. So instead of having pure gold, which is
+
+[10:55]
+valuable, I'm going to put it in a safe place called the bank. Proudly, some of the first banks were from my city, Venice, mostly managed by some very smart Jewish people that are typically the top guys in finance. Unlike, for example, for Christians and Muslims, where interest rates, it's technically banned. While traditionally in the Jewish culture, it's okay to ask interest to strangers, but not within the Jewish people. So a lot of the most successful bankers in history in the banking dynasties were Jewish. So, you would deposit this gold in the bank and they would just take care of it. And in exchange, they will leave you with the
+
+[11:25]
+note of the bank, the so-called bank note, a little piece of paper that says, "This paper certifies that this guy has this amount of gold at my bank." So, instead of trading with gold directly, we started trading with pieces of paper known as banknotes. And this system was called the gold standard. All of the cash, all of the paper money that was around was backed by some quantity of gold or silver, you name it. Then throughout history, the governments and
+
+[11:56]
+the big banks decided that somehow the gold standard was not efficient for the economy because of huge inflation crisis that started happening and big amounts of speculation around it. So starting first in 1933 where in America they basically forced people to give all their gold to the Federal Reserve and after the world war with the Britain Woods agreement and ultimately culminating in 1971 with the so-called Nixon shock right before some of the most important wars in the Middle East that then pushed oil prices up and the big inflation crisis in this exact year they decided to completely drop the gold
+
+[12:28]
+standard. So from that day money does not represent and is not backed is not guaranteed by a quantity of gold. It's backed it's guaranteed by the government and all of the world followed. So now this cash this paper this money is valuable because we give it value because we trust that someone else will accept it as a payment method and because of this faith that someone else will accept it. It's called the fiat currency or fiduciary currency. Fiat comes from the Latin faith. So that was the birth of fiat money. But um if
+
+[12:59]
+there's no gold that creates the money, what exactly creates the money? Long story short, a bunch of people you never voted for. Short story long, it's created from banks, either the central bank or inside of commercial banks, the private ones. And this is very important to understand because it determines why we have predictable cycles in the economy and in the markets. So how money creation works is in two ways and it works differently in the public sector than in the private one. So, if for example you need money, you go to the bank, they check your credit score and
+
+[13:31]
+they grant you a loan for, let's say, $100,000. Long story short, whenever they give you the loan, they don't take the money from someone else's account and give it to you because then if they come and ask for the money, what money they're going to give them? At the beginning, they did. They understood it was risky. So, they created the system called the fractional reserve. So, based on the fact that I have money, I'm going to create some out of thin air. So, they create 100k out of nowhere. They lend it to you and you give them back with an interest rate. For example, you know, 10% interest rate. So banks have the
+
+[14:02]
+power to create money out of thin air so that they can earn the interest from you. So basically free money. Kind of cool, right? Makes you want to open a bank. And when you give the money back, that money doesn't exist anymore. It's canled in the accounting books of banks. When the US government needs money instead, they will issue the so-called bonds, right? Which is basically the same thing. A bonds basically says, "Hey, if you lend me money, let's say it's 100k, I will give it back with example 5% interest rate and you can trust me because I'm the government. I'm going to [ __ ] pay it back." And
+
+[14:33]
+typically banks or the Fed indirectly, we'll learn how it works later, will lend the money to the government and he will pay it back with that interest rate. That's how money is created. The Fed will print reserves out of nowhere so that all the banks will be able to buy these bonds. So, as you understand, money exists because of debt. The only way to create new currency, new money in today's financial system, in today's world, is through debt. So money equals debt. There is public debt, there is private debt. But regardless of private
+
+[15:05]
+or public, what matters is debt needs to be repaid. Think about it. When you earn money, you can spend that amount of money. That's it. But if you take on debt, you will be able to spend more money. and next month you're going to be able to spend even more money. So your spending capacity increases, but at some point you're going to give it back, right? So you're going to have to spend a little less cuz I need to pay the debt. Uh a little less cuz I need to pay the debt. A little less, a little less. And at some point I might spend more
+
+[15:36]
+than I earn. And more until the debt is fully repaid. At which point I'll start earning more than I spend. At which point this thing will rebalance itself. I'll pay my own debt and I'm back at square one. So there is a cycle in debt. If I use this money to invest in my business or I invested in something that gives me a return, then fine, I'll be able to pay back because this debt increased my productivity. If I spent it on a new car, on a new TV or something that is not really productive, that's
+
+[16:06]
+bad debt and I'm going to struggle a lot here. And this principle work for you as they work for the economy cuz the economy doesn't grow like this linearly. It it grows in cycle because there's a phase of leveraging where we use debt as a leverage to make more money to make the economy grow and a phase of deleveraging where we collectively pay the debt back and then up and then down and there's these cycles in the economy that happen every 5 to 7 years the so-called short-term cycle and also throughout hundreds of years the so-called long-term cycle. If we draw
+
+[16:37]
+the productivity line, there was one line that grows linear which is called structural growth. So through time, productivity or the GDP increases through time even without the need of a debt if that economy is productive and powerful. So for example, it has a good demographic. So people are making a lot of babies. Look at China. Look at India. They've been the fastest growing economies because they had people making so many babies. There's like billions of people there. So strong demographic brings growth because we can all be more
+
+[17:09]
+productive. Secondly, of course, it's technological innovation. If some robots can do what humans can do, we can put humans into something more productive and we can all be more productive. Of course, this comes also with a good amount of political stability. Political stability is very important for structural growth. Otherwise, if there's a dictator that constantly kills everyone, it's going to be hard to grow, right? So that's structural growth. And then you have leverage growth. That is what's creating these cycles in the economy because first people take on a lot of debt and since we can invest more
+
+[17:41]
+in technological innovation and there is literally more money moving around the economy, people tend to spend more, businesses earn more money, they can hire even more people. So more people have jobs, people having a job means they can spend even more money and the economy grows. That phase is the expansion. So, the fact that people spend based on debt brings about the expansion. And this typically happens when interest rates on loans are low because if the interest rate is 1%, I'm
+
+[18:11]
+okay to take on debt. If the interest rates are like 10%. Uh, I'm going to think twice about doing that cuz that's a lot of money. That's a lot of cost to to borrow money. But at some point, interest rates might go up or and people will need to start repaying their money, blah blah blah. They'll they'll need to spend less. So companies will earn less. They will have to fire some people. Those people don't have a job anymore. So they spend even less and collectively the economy starts to suffer. So after a phase of slowdown that culminates in the peak, we have a phase of contraction in
+
+[18:42]
+the economy or if it's really bad, it becomes a recession where economy doesn't grow, it actually shrinks. If it's really really bad and this typically happens every 100 years, we fall into a depression. So at that point, the Federal Reserve might say, "Hey, uh there's a lot of problems around here. Everyone paid its debt, but everyone is suffering. So you know what? Let's uh lower interest rates and stimulate people to take on loans so that everyone can spend more and the economy will start growing again and the entire cycle starts all over again." So
+
+[19:14]
+as you can already see, interest rates are a key factor into how people take on debt and to how these cycles unfold. But this is just what the economy does. What the markets will do, it's a little bit more interesting because markets are desperately trying to predict when this is going to happen. Desperately. So they'll tend to anticipate what the economy will do with a lag of 6 to9 months. So for example, if this is how the economy goes, you'll likely see the stock market doing the same thing but
+
+[19:46]
+before. If this is the economy, the markets will look like something like this. they will try to anticipate. Let's see some examples. So this is the monthly chart of the S&P 500, the American stock market index. This is the same chart. We can put it as a line chart where you can see for example the stock market crash of 1929, the dotcom bubble burst in the 2000, the 2008 financial crisis, the COVID crash, all the history of the stock market. Let's add the real GDP. So this red line that we've added is the GDP, the productivity
+
+[20:18]
+of the US. And if we zoom in, we can see these cycles unfolding. So for example, in the 1970s, you could see that this red line started going down. That's a recession. But we can also see that the stock market started falling long before that happened. And we can see and yes, at some point the economy recovered, but the stock market predicted that long before. Something similar happened in the 1980s. There was another recession, but markets peaked way before and bottomed way before. The economy bottomed here in the 2008 financial
+
+[20:49]
+crisis. The stock market topped in October. The economy topped in May. While the economy bottomed in June of the following year, the market bottomed in February. The only time where they were kind of simultaneous was during the COVID crash. They crashed so fast together, but still the market bottomed way before. But sometimes these bets, they don't go as expected. For example, here the stock market was expecting a recession, but that recession ultimately didn't happen. But this is the point. Markets will always try to anticipate
+
+[21:22]
+what the economy will do. They will try to buy the stocks before anyone else. They will try to sell the stock before the crash happens. And historically, most of the time, they got it right. So, if you're a beginner in macroeconomics, don't think that you will know better than the markets. The markets can stay irrational way longer than you can stay solvent. So, if you're moving your first steps, always trust the master. Always trust what the markets are telling you. We're not just going to make our own predictions about the economy and get angry at the markets because they're not respecting our vision. Not going to
+
+[21:52]
+happen. We're following the money here, not making a crusade to be contrarian and reverse the top of the market. Okay? But let me show you something even cooler. And the fun thing is when the stock market crashes, you've seen all over the headlines, all over the [ __ ] newspapers and the media, the stock market just burned trillions of dollars. Well, they didn't burn it, bro. They just moved it somewhere else. And you might ask, well, where do they put it? Let's add the US 30-year bond in a new price scale. What you're seeing now on the chart is the stock market compared
+
+[22:24]
+to the bond market. This is the price of US Treasury bonds. And will you look at that? As the stock market crashes, the bond market roars. Why? Because the bond market is basically lending money risk-free to the government with a small interest rate. So when everyone's panicking, uh, let me put my cash somewhere safe or just cash that is guaranteed to have a return, right? This is something very frequent during market crashes. Also here in the 2018 market
+
+[22:54]
+crash, you see the stock market is crashing and the bonds boom. Okay? So money doesn't burn. It's just moved from one place to another. And we can know if money is going out of somewhere, where is it going to go? But to do that, we need to understand the markets. What drives money from one market to another and why? The so-called market drivers. So let's understand what drives every single market from stocks to bonds to forex to gold. Starting from probably
+
+[23:27]
+the most underestimated one, the most unknown from retails and the most important for banks. Ladies and gentlemen, introducing the most important market of them all, the bond market. What's a bond? Great question. I'm proud of you. Imagine like a piece of paper like an I owe you where someone for example the US government says I owe you 100k. So if you buy this you're basically lending 100k and I'll give it back in like 5 years and I'll pay a 5%
+
+[23:59]
+interest rates on top. So, every year I will pay you also $5,000. And I can either pay it all at the end, the so-called zero coupon bonds, or I can pay to you once every six months or once every year, so that you kind of have a fixed income. That's why the bond market is also known as the fixed income market or the fixed income asset class. You know, some basic culture, some street vocabulary about finance. And you can do this too, by the way. You can give money to the government risk-free. But I
+
+[24:29]
+understand that 5% return on your money isn't good enough for you because you're broke. Remember, banks are not. Warren Buffett is not. So 5% risk-free on billions of dollars with an S, it's kind of a lot of money. That's why bonds are so loved. And by the way, not only the US government can issue bonds, it can also be, you know, Apple, the so-called corporate bonds. So based on the issuer
+
+[25:01]
+you can have treasury bonds or you can have corporate bonds which is public debt and private debt. The interest rates that a bond pays we call this the yield. Remember every bond has an expiration. And this thing over here is called the nominal value. And of course in all of this the most important number is this little guy over here the yield. How much are you paying me for lending this money? So the yield is probably the most important. And it's important to understand why they came up with this number. And the yield is determined
+
+[25:31]
+first by the Fed funds rate. So the Fed the Federal Reserve interest rates. If the Fed is setting the interest rate at 3%, well, I kind of want you to at least pay me 3%. The second component is time, the so-called time premium. If I lend you money for 5 years, that's a long time. If I lend it to you for 3 months, it's not a lot of time. Maybe I can ask for a little less. But if I lend it to you for 30 years, well, I'm going to want 7% at least. So, the more time I'm lending you the money, the more money I
+
+[26:02]
+want. So, I want a premium for the time I wait. The other component is the risk component, the so-called risk premium. Yes, you are the government. So, I'm not risking much lending money to you because in case you're going to borrow more, you're going to find a way. You're the government for [ __ ] sake. But if you're Apple, for example, or if you're an average brokie, well, I'm going to want a higher premium for my risk based on how creditw worthy I assess you are. And finally, inflation. If I'm lending
+
+[26:33]
+you money, and that money, because it's cash, I'm going to get cash back. I gave you cash, I'll get cash. This is cash. that cash because of inflation will lose value through time on average 2 3% per year at least. So I want this to be at least higher than inflation or what I expect inflation to be in these 5 years. So recapping the Federal Reserve sets the base. The rest is defined by how much time I'm lending you the money, how risky is it to borrow to you, and my
+
+[27:05]
+expectations on inflation in the meantime. If this is all being paid, I'm okay lending you money because it's a very low-risk investment if you're the US government. And talking about risk, there's an actual way to rate the risk. The lowest risk, if I'm lending to the US government, it's typically a triple A rating. If it's a little bit riskier, it's going to be double A, A, or even triple B. Then if it gets riskier, it can be a double B or a B or triple C or double C or a C. We're getting riskier
+
+[27:36]
+and riskier until if you cannot pay your debt within the time we agreed on or with the amount of money we agreed on and you have to restructure the debt and we have to start negotiating it means you've defaulted. You've defaulted on your debt. You cannot pay it. From AA to triple B, we call these investment grade bonds. From double B to C, we call these junk bonds. I'm okay getting 5% on an investment grade bonds. on a junk bond I might want even 10%. Right? So I'm
+
+[28:07]
+taking the risk but I want a better reward. So sometimes even investing in junk bonds potentially is cool. And this as we said is default. So the higher the risk the higher the percentage I want. Then of course comes the time premium. And about the time premium if you plot a chart with yield on time if it's a 3 months bond maybe it will pay 3%. 6 months maybe a little higher. 1 year maybe a little higher. Two years maybe a little higher. Three years a little higher. 5 years a little higher. Seven
+
+[28:37]
+years a little higher. 10 years well a little higher. 20 years well definitely higher. 30 years which is typically the maximum. Well higher. So if you connect the dots you get this. This is called the yield curve. And this is important. We'll get there later. From 3 months all the way to one year. These are the short-term maturities. From one year onwards up until 7 years. These are the medium-term maturities from 10 years to 30 years. These are the long-term maturities. And typically, the long-term maturities will be always yielding
+
+[29:09]
+higher than the short ones. But if the Fed is hiking interest rate all of a sudden, and these are the so-called overnight interest rates, well, they will affect the short end of the curve and you will likely see the short-term bonds yielding sometimes more than the long-term ones. And you'll see the so-called inverted yield curve. And whenever in history a yield curve inversion happened, you systematically every single time with an impeccable win rate, you had a recession. Cool, right?
+
+[29:39]
+Let me show you. Let's go to US Treasurycurve.com. As you can see, there's this light blue area over here. That's the federal fund rates. If I remove it, you can see it. This is the Fed funds target rates. The Federal Reserve setting the interest rate at 3.5 and 375. And as you can see, the one month bond is yielding 3.72. The more you go up, the higher the yield. 10 years is yielding 4.5. 20 years 5%. This is now in 2026. But let's see what happened in 2023 instead. Well, look at
+
+[30:10]
+that. The Fed, let's add the Fed funds. Well, in 2022, 2023, the Federal Reserve started hiking interest rates. And as you can see, a 3 months bond was yielding 5.3%. a 30-year bond was yielding 3.9. Like, I'm getting paid more for a three months bond. Well, that happens because the Fed fund rates affect the short end of the curve way more because these are short-term overnight interest rates. And instead of the yield curve, we can use a so-called
+
+[30:41]
+spread. So, we can take the US 30-year yields, which is this one, US, United States 30th government bond yields, and put minus and subtract the 3 months yield, US03M yield. Enter. And you get this chart. This is what we called a spread. A spread is basically the yield of bond one minus the yield of bond two. Let's put this as a baseline. So typically the yield of a 30-year bond will be more than a 3 months bond, right? So you will
+
+[31:13]
+see most of the time it's above zero because the first one is higher than the second one. But sometimes when the Fed hikes rates, you see this happening. The yield curve inverts and the 3 months pays more than the 30-year. Let's add the Fed funds rate. And we can see that this happens whenever the Federal Reserve hike rates. New hike, yield curve goes down. New hike, yield curve down. New hike, yield curve slightly down. new hike, yield curve a lot down. And if you go on the Federal Reserve website in the 10year to twoyear spread, which is basically the same thing, these
+
+[31:44]
+dark areas represent recessions. And as you can see, every time we went below and the curve inverted and started steepening, we had a recession. Went down, started steepening up, we had a recession. Went down, started steepening up, we had a recession. Went down, started steepening up, we had a recession. Went down, started steepening up, and we had a recession. every single time because when the Fed hikes interest rates, the economy will suffer. And most of the time when there was a hike in
+
+[32:14]
+interest rates, the economy crashed, the stock market crashed and we can predict when that's going to happen. But in order to understand how to time this, we need to really understand interest rates, the Federal Reserve monetary policy. Maybe no one told you this, but the central bank holds the joystick that directs where financial markets are going. And they decide if it's going to go up or down based on only two very important factors. two factors that a lot of traders either ignore or they
+
+[32:45]
+often try to trade whenever these data come out like NFP and CPI and they fullport their account burning their profit challenges burning their money betting on these high volatility events but I know you want to be a professional and not do like this band of baboons because while retail traders just gamble on these data coming out these data actually build the picture and the predictive models that banks and hedge funds use to then decide to click the button that will
+
+[33:16]
+start the flow of money that we will follow. So without further ado, let's learn monetary policies. So let's take for example the Federal Reserve, the US central bank, but this works for pretty much every central bank in the world. Every central bank in the world, including the Fed, has two mandates. Have you ever heard Jerome Powell saying, "My colleagues and I remain squarely focused in achieving our dual mandate of maximum employment and stable prices for the American people." So the two mandates they have is to keep stable prices and promote maximum employment.
+
+[33:48]
+That's why they exist. That's what they do. And by keep prices stable, it means that the PCE inflation rate, slightly different from the CPI, needs to stay below 2%. Because a lot of economic theories and a lot of practice we've done as a humanity species in the past tells us that anything above 2% is bad for people because if prices rise too fast the wages of people don't adapt that fast and they cannot keep up. So
+
+[34:18]
+people become poorer and theoretically we don't want people to get poor because a lot of economists agree with the theory of a guy called John Minard Kane one of the most brilliant economists of the last century that basically said poor people spend all of their money. The middle class the consumers are the most important thing because rich people they keep all the money for themselves. They don't spend it. So there's like a huge amount of money sitting there that isn't productive. So we should promote the fact that people, normal people have money, that their wages are enough and that they have a job. So maximum
+
+[34:49]
+employment. So they want the majority of people to have a job because it's good for the economy. It's good for everybody. We don't have a target here, but we want low unemployment rate. These are the only two things that the Federal Reserve or any central bank typically cares about. And to achieve these goals, they have two tools. The first one being interest rates. The second one being open market operations. We'll get there in a second. But this is what then consists in, for example, quantitative easing and quantitative tightening. The first one, interest rates. As we said
+
+[35:21]
+before, this rate over here dictates the money you pay for your student loans, for your credit card debt, for your housing debt, for your house mortgage, and pretty much any loan in the economy. So if the interest rate is high, you're not so incentivized to go for a loan. If the interest rate is low, you might go for a loan, right? So interest rate decisions will have an effect on the economy because it's going to either incentivize or disincentivize access to credit or the appetite to get on new
+
+[35:53]
+debt, which will create more money into the economy. So back to our macroeconomic cycle chart. When interest rates are low, people will borrow more money and the economy will grow. Not only people but also the government will be able to issue more bonds to borrow more money at a low cost. This will create more money into the economy literally. And so people will be able to spend more to invest more. All the companies will earn more money. They will be able to hire new people. So we have maximum employment. Really good. Well, wait for it. Because if people
+
+[36:24]
+start spending too fast and new money is being created at a very fast pace, there will be a lot of people spending right there will be a lot of demand for goods and services. So the so-called aggregated demand will rise cuz everyone will spend more. Everyone will want to buy more more demand. But the aggregated supply might not have caught up yet. And if there's more demand that the supply can provide, prices of goods and services will rise way faster, possibly faster than 2%. And that's bad. Bad for
+
+[36:55]
+the economy. It's bad for the people. So in this phase of the cycle, the low unemployment isn't a problem. Everyone has a job. We're all fine. We're all spending money. Now the problem is inflation. So the bank will hike interest rates. They will raise interest rates so that people will not want to borrow. They will slowly have to pay off their debt. And if for example they have a mortgage on a house with a variable interest rate, not a fixed interest rate, it means that that rate goes up and down depending on what the Federal Reserve decides. So a lot of people will have to pay even more debt in interest
+
+[37:26]
+rates. So a lot of people including the government might have to pay a lot more for interest rates. So the economy eventually could crash because people will have to pay off their debt. The cost of borrowing money is higher. People will spend less. the aggregated demand of goods and services will be lower than the supply and this will bring inflation down. But together with the inflation down, you're bringing the economy down. So you could end up with high unemployment because if people don't buy, companies fire. And if
+
+[37:57]
+companies fire, people don't have jobs. And if they don't have jobs, they spend even less. And if they spend even less, companies earn even less. And if companies are losing money, the government cannot tax a lot. So the government will start stressing out because they cannot pay the debt through the taxes that they're cashing in. And the risk is that the inflation goes even below zero which is the so-called deflation which is really bad. And so when the unemployment start kicking up because there's a recession then the Federal Reserve will again lower
+
+[38:29]
+interest rates. So they will lower interest rates so they can incentivize access to credit and the economy will recover. So to recap, at the top of the cycle, the problem is typically inflation. At the bottom of the cycle, the problem is typically unemployment. Inflation will lead to a hiking cycle. High unemployment will lead to a cutting cycle, also known as restrictive monetary policy or expansive monetary policies. This is the chart of the Fed
+
+[39:01]
+funds rates or the interest rates. And as you can see, they have these cycles. They go up. They go down. Hiking cycle. Cutting cycle. Hiking cycle. Cutting. Hiking. Cutting. Hiking. Cutting. Hiking. Cutting. You got the point. Now, let's see if what I said is true. Let's add the United States inflation rate year-over-year. New price scale. So, our yellow line will be inflation. With a blink of an eye, you can already see they have some form of correlation,
+
+[39:31]
+right? Inflation goes up, the Fed hike rates. Inflation goes down, Fed cuts rates. Inflation goes up, Fed hikes rates. Fed cuts rates, inflation goes down, and so on and so forth. But the second important data point, as we've said, is the unemployment rate. So unemployment rate, there you go. New price scale. Let's have it as a red line. And now we can have the entire picture because when unemployment goes up, people don't spend, inflation goes down, and the Federal Reserve cuts rates. When the unemployment rate is not
+
+[40:02]
+a problem anymore, the Fed will hike rates. That will lead to a new phase of growth in the economy. If the unemployment goes up again, the Fed will lower interest rates to stimulate the economy. Then, when the unemployment rate isn't a problem, but the inflation starts picking up again, and now it's at like 4% inflation. Well, the Fed will hike rates to to suppress inflation up to the point where something will break. And and as we can see, a recession starts. People start losing their job. they don't spend anymore. So you see
+
+[40:32]
+inflation dropping down and now that the problem isn't inflation but it's employment. The Fed cuts rates and just like that in every single cycle hiking rates because of inflation but when unemployment becomes a problem the Fed cuts and so on and so forth. You can go and check it out yourself. This is what happens every single time. This is what happened right after COVID and this is what happening today. During the COVID crisis, we've recorded the highest unemployment rate in history. So, let's
+
+[41:04]
+zoom in and see how fast the Fed had to cut rates to stimulate the economy. And they kept rates at zero for a very long time. People started borrowing. People started spending. Some war happened between the Ukraine and Russia that made oil prices skyrocket. And just like that, boom, huge inflation spike. 9% inflation rate. We're way above the 2% target. So, as unemployment was not a problem anymore, we got out of the crisis. The government started printing money all over the place. Everyone is
+
+[41:34]
+fine. The Fed started a new hiking cycle. They hiked interest rates and they stopped as soon as they saw that inflation was reliably below or that at least it was getting lower. And then they started seeing the the unemployment rate started kind of picking up and inflation was not so much of a problem. We're around the target 2.5. So they started their cutting cycle. And now that inflation is picking up, they're talking about hiking. We'll see how that goes. And we'll also see how to
+
+[42:06]
+potentially trade it. But this is the most important thing you need to understand. The drivers of the Federal Reserve's decisions are inflation and unemployment. So when you see inflation data coming out in the form of CPI, the consumer price index or PCE, the personal consumption expenditures, or the PPI, the producer price index, based on the data that comes out, we can predict what the Fed is likely to be
+
+[42:36]
+doing. Same thing when unemployment data comes up, when NFP comes out, when unemployment rate comes out, when the ADP report comes out, when the JOLT comes out with the job openings, when the jobless claims come out every single week, every single one of these data points will affect what the Fed will do. And we know that when the Fed cuts rates, so in the cutting cycles, the economy kind of goes well and the stock market kind of goes well. And when the
+
+[43:06]
+Fed cuts interest rate, we know that the bond yields goes down. So bonds are a safe asset, but they don't yield that much anymore. So you'll see gold going up instead. And as the bonds are not yielding much, banks will not like to keep their liquidity in dollars in in dollar bonds because they don't yield much. Maybe they'll go for another forex currency that will yield more. So you'll see the dollar going down. Not when the Fed cuts but when the markets expect the
+
+[43:38]
+Fed to announce cuts in the next FOMC meeting. That will be months from now. F FOMC meeting. So the market will create these trends based on where these inflation prices and the unemployment prices are aiming towards. If the inflation is going extremely up and the unemployment is very low, it's likely that the Fed will hike rates at some point. So, if we're expecting a hike, well, the interest rates of bonds will start to go up. And if bonds are having a good yield, gold will tend to not be
+
+[44:11]
+so liked as a safe haven because banks will prefer to lend money risk-f free with a good interest rates in dollars. So, the US dollar will be strong and in case the new hiking cycles causes a recession, the stock market will go down. Easy as that. Let's make an example right now. We all know oil prices have gone way up and that typically brings inflation higher. The unemployment rate isn't really going anywhere too much. You know, 4% it's acceptable and there's no recession right now. There's no danger of this
+
+[44:43]
+unemployment going up really fast all of a sudden. So, what is most likely that the Fed will do? Well, there's always three options. They could either keep cutting rates, not so probable in the next meeting. They could live rates exactly where they are, possible, or they could hike rates instead. Also possible. So based on the fact that a hike is possible because the inflation rate is picking up, we should probably see gold going down, yields going up, US dollar being very strong, and the stock market typically just [ __ ] rises
+
+[45:14]
+unless a real recession unfolds. But this is likely not going to happen anytime soon. Well, let's see if this is true. Well, will you look at that? Gold has been going down. Let's look at the dollar index. Well, look at that. The dollar is slowly going up. And let's look at the yields. Well, look at that. They're going up. Mathematical. This is maths, guys. Do you get the point? To summarize, data comes out. It's quantitative. It's numbers. Hence, the Fed will be likely to do something in the future. So, the money moves already
+
+[45:46]
+before the Fed does it accordingly with that plan. So we use data to understand where we're going in the market cycle. We look if the markets are going into that direction as well and which bet the money is taking and we follow that bet. My friends, now let's see exactly what type of bets make sense in these different markets in the gold market in the stock market and in the forex market by understanding the drivers of these. Let's start from forex. The forex or foreign exchange market is the market of
+
+[46:17]
+currencies and it's probably how a lot of you people started trading because you saw these forex traders seem to be making some money day trading that [ __ ] and you ended up understanding it was probably a scam. So forex is kind of what everyone starts with but at the same time it's the most misunderstood market by retails. So you probably know forex you know like for example USD JPY right? uh the exchange rate between these two is for example 159 which means that $1 US will buy you 159 yen. So of
+
+[46:51]
+course if the dollar is stronger $1 will be able to make you buy 165 yen. Same thing if the Japanese yen is weaker the exchange rate will go up. If instead the dollar is weak, $1 will be able to afford you less yen. So for example, 155. Same thing if the yen is really strong, $1 will not be able to buy you 165 yen, maybe a little less, 150. Right? So with Forex, you're always
+
+[47:23]
+comparing one currency against another one. And a lot of people trade this with support and resistance and trend lines and moving averages whatever. So they try to maybe follow the trend or whatever based on technicals. But what is driving dollars and yen either up or down and creating the trend causing the trend? We don't want to look just at price. Price is the consequence. We want to know the why, the cause, the drivers.
+
+[47:53]
+Well, let's think about it in terms like if you were a bank and you have the US Treasury bonds that yield 5% per year and you have the Japanese bonds that are yielding 1% per year. Well, where would you like to park safely your money? Dollars or yen? Well, clearly dollars because here I just make more money than here. Easy as that. So, the main driver of forex is actually the bond market, specifically bond yields. That's it. This is 90% of what you need to know to
+
+[48:25]
+understand the forex market. And yes, sometimes some things like the Brexit might happen, which is not something directly correlated with bond yields or monetary policies or you know sometimes like in the Swiss Frank there was a peg with the euro that was removed by the Swiss National Bank and you saw a huge drop in the exchange rate. So some other fundamentals drivers might be there every once in a while, but they're not reliably creating trends every single year, but bond yields that are directly
+
+[48:56]
+correlated with central bank monetary policies, this will be the main driver most of the time. So for example, if we're in a hiking cycle, inflation is going up, the Fed is hiking rates, the yield of US bonds will be having a better return than for example the yen where for the last 30 years basically the Bank of Japan kept interest rates at 0%. So you've seen a consistent trend in US JPY and even more a lot of banks what they did was borrowing money borrowing
+
+[49:27]
+yen at a low cost and buying US Treasury bonds that yielded 5%. So they were paying like zero close to 0% to borrow yens and they used those yens to buy US treasury bonds that yielded 5% and they didn't even own that money. They just borrowed it. This is called the carry trade and this exacerbated the strength of the dollar versus the weakness of the yen. So how can we find a trading idea here? So if for a while US bonds had a good yield and the Japanese yen had a
+
+[49:59]
+very low yield and so you had an uptrend. What happens if for example something changes in the economy? Maybe the US has a low inflation. So inflation is going down. So inflation is going down and the unemployment rate instead is going up and they're starting to suffer and it's very likely that at some point in the near future the central banks the Federal Reserve will cut rates and at the same time you see a trend in the Japanese inflation rate that start going higher and their unemployment rate is reliably low. Well, it's likely that the US bonds will start yielding less
+
+[50:31]
+and the Japanese yen bonds will start yielding more. This would mean that the trend that was up until now is likely to be shifting. So as soon as we see inflation data and unemployment rate data shifting their direction and we see with participation analysis and volume analysis, which we'll learn shortly, that this trend is about to start. That's our short idea. Let's make another example. Let's say the Australian dollars versus the Canadian dollars. This has happened recently, by the way. You had the inflation rate
+
+[51:02]
+higher in Australia, lower in Canada. So what the central banks did is they hiked rates aggressively in Australia while in Canada they kept it where they are. And well, what you've seen is this pair unequivocably going up for this entire time. Not for one day, not just for when the news came out, but a persistent trend. And you can capitalize on this very trend with the exact same approach and strategies that we've also seen here on the channel, the auction market theory models that we will learn in a
+
+[51:32]
+few minutes. But let's go now to another very predictable trend, the gold trend. Let's talk about gold. A lot of people like to scalp gold. They like to day trade gold. It's shining. It looks cool. So, a lot of people like to day trade it. And a lot of people lose a lot of money trading gold. But it's kind of, you know, the cool guy between the asset classes for retail trader for some reason. But what typically retail traders don't know is that it's even cooler if you traded macro. You've seen the trade we took and I've called four years ago or three years ago. So let me explain that to you. The main purpose of gold, the main drivers of it and why
+
+[52:05]
+people tend to invest and and big market participants tend to buy gold is because it is a safe haven. So in the mainstream culture whenever there's, you know, periods of uncertainty economically or geopolitically, gold typically performs well. But as you've seen now, there was just a war that started in Iran and gold went down. So how does that work? Well, because safe haven is not the only one. The main one actually is inflation hedging. It's one of the ultimate inflation hedges. A hedge against the
+
+[52:38]
+devaluation of the currency. If money constantly loses value, prices of everything will go up. Gold is one of them. So they so it's always been a very appreciated asset by investors as an inflation hedge. But here's the catch. What's the other big inflation hedge asset that is also a safe haven as we've discussed? Well, US bonds. Remember guys, US bonds are the favorite asset by smart money because it's so liquid. It's such a liquid market. It's way easier to
+
+[53:08]
+get rid of bonds than it is to get rid of gold. Plus, banks need to have a percentage of their holdings in US Treasury bonds. So, there is also some laws that make them prefer bonds instead of gold. So, if I'm a bank or an asset manager, where do I put my money? In gold or in bonds? Because they're both very safe historically, and they're both used as a hedge against inflation. Well, I'll put my money wherever I have a better yield. So, the discrimination happens based on the real bond yield.
+
+[53:40]
+And by real in finance, in the economy, we mean net of inflation. So if the bond yields 5%, but inflation is persistently 2% and I expect it to be 2%, the real yield actually is 3%. So we only look at real yields. So if the real yield is good, I'll invest my money into bonds. If the real deal is kind of getting lower, I'll put my money into gold. So there is a very powerful correlation. When real yields go high, gold
+
+[54:12]
+mathematically either goes down or stays around the same. And if real yields goes down instead, that's when gold pumps. And I mean pumps, bro. And we're going to see some example of how that works in a minute. But the question here is, well, uh, how do we know when real bond yields will go high or low? As real bond yields are net of inflation. If we consider the bond yields without considering inflation in the in the picture what's left risk premium
+
+[54:42]
+remember term premium term premium is you know pretty much uniform. So the last thing remaining unless you know there's a huge risk that the government will default is interest rates again. So when markets expect the Federal Reserve to start a new hiking cycle, real bond yields will follow. And guess what happens to gold? What we've seen in the last few weeks after the hiking cycle is over or the expectations around the the hiking cycle are being have been completely priced in that's when real
+
+[55:12]
+yields will tend to stagnate and where gold will start pumping. Okay. So just like into forex also in gold the Federal Reserve interest rates determine the flow of capital. This is the chart of the prices of gold. And as you can see they kind of go up and if you put a line chart on a monthly chart you will see that for a while there was like a fixed exchange rate between gold and dollars during the gold standard. Then 1933 happened as I said before and then
+
+[55:45]
+ultimately 1971 happened where the peg was officially removed and since then gold has only gone in one very specific direction for most of its time which is up but not always up. As you can see, there has been times where prices stay kind of low or they didn't have a really good return and then huge upward cycles and then again a lot of consolidation, then upper cycles, consolidation, upper cycle. This is the cycle of gold. Now,
+
+[56:16]
+as we said, the main competitor of gold is real yields. How do you calculate real yields? Well, you take US05 yields and you subtract inflation expectation which is T5 E. This is the chart of real yields. Let's plot the Fed funds rates, the Federal Reserve, and we will see that they kind of move in a very similar fashion. Not always, but very often. And and now let's add the price of gold. And you can clearly see
+
+[56:47]
+that during the downtrends where the Fed is cutting rates, well, gold is running guys up until the point where they consolidate and gold also kind of stays around the same place. And in this period, interest rates are at zero, which means the economy must be booming. So yields are flat, gold is flat, but in the background, the money is going in the stock market. But then at some point inflation hikes and the Fed has to hike rates and this brings the real yields up
+
+[57:21]
+and gold crashes. When real yield kind of breathe a little bit down, gold goes up. When the real deal hikes again, gold suffers. And here at the end of the cycle where all of the hiking is over and real yields can start to go lower, look at what happens to gold. the one of the biggest rally this market has ever seen. And now what's happening? Well, the real yields are going up because market is expecting a harder stance of monetary policy because of inflation.
+
+[57:51]
+And look at what happened to gold crashes. That's how predictable this [ __ ] is. And I'm not just saying it. We did it with our Italian community. As soon as we saw oil going up, we knew that inflation was going to rise and that the Fed will have to hike interest rates. So, we sold gold. And when other news came out about deescalation and oil prices maybe going lower, we bought it again and did another 1 to5. We knew that this was the top of the cycle and we could consolidate. So we took a technical trade that didn't go as well and prices now are still going in the
+
+[58:23]
+direction of the long-term cycle. Very shortly we will see how exactly we use volume profiles and auction market theory to follow the money together with the coot report to understand exactly how to time these entries. But before we go into the technicals, we need to meet the last and probably even more predictable markets of all, the stock market. Now, a quick ad break. I'd like to thanks the sponsor of this video, myself. Yeah, there's no sponsor. All this knowledge is for free. So, you might want to subscribe, okay? And leave
+
+[58:54]
+a like for the algorithm and all that good stuff. Now let's meet the most sentimental market, the most romantic market of them all, the stock market. A lot of people know NQ, they trade the futures of the stock market, right? The stock index, but they don't even know what the stock is, how it works. So let's first understand how it works. Well, if you don't know what a stock is, is basically a piece of a company. So let's say this is the company and this
+
+[59:25]
+company is owned by three business partner A, B and C. A owns 50%, B owns 20, C owns 30% of the capital of the company. So for example, if the manufacturing facility, all the machinery they have, the computers, the softwares, the money, all of the value of the company, maybe even intellectual property, all that stuff is worth $1 million. This $1 million will be divided
+
+[59:56]
+into shares. For example, a 100 shares worth $10,000 each. So this guy will have 50 shares for half a million dollar. This guy will have 20 shares, this will have 30 share. All contributing to the capital of the company. Some shares will have voting powers, some will not. So they can decide who decides the direction of the company. So this is A, this is B and this is C. And at the end of each year, this company makes some revenue, which is just what they cash in, the income
+
+[60:28]
+from sales and stuff like that. The money they get that they earn from selling whatever they're selling. Let's say they made $1 million. But to get that million dollar, they're probably going to have some costs. Maybe they have they've spent in marketing, human resources, you name it. They've spent $200,000. So their so-called IBIDA, which is earning before interest, taxes, depreciation, and amortizations, or their net operative margin, is $800K. Then they pay taxes, interest, and all that good stuff. Let's say they pay
+
+[60:58]
+300K, and they're left with earnings. Their earnings are half a million dollars. they decide to reinvest 100k back into the company and 400 they're going to pay out to the owners. So they will divide the final profit 200K to A 120 something to C 80 to B. So they will divide the profit and they will pay out dividends. But for now this is just a private company owned by A, B and C. And at some point it might grow big enough
+
+[61:29]
+that the partner will decide to go public and let other investors invest money in the company to be part of this growth. Be careful. It's not people lending money to the company. It's people taking a risk to invest in the company. Very different psychology, very different money approach, very different drivers. So, for example, if they have 100 shares, or to make it easier, they have 10,000 shares worth $100 each. Well, they could decide to issue new
+
+[62:01]
+shares, and maybe they will issue a,000 more shares. And whoever's going to buy them is going to pay $100, for example, and basically add money into the company that they will use to invest in infrastructure, technology, human resources, research and development, whatever. Well, they can either find a private investor in the so-called private equity market or as we said, they can go public and set an amount of floating shares that will be traded in the stock market. So, they will do a so-called IPO, the initial public
+
+[62:31]
+offering. So the first time they quote their shares into the NASDAQ or the New York Stock Exchange, whatever that is, so that people like you and I or the government or the banks or some hedge funds or investment funds or your mom's pension fund can invest in the capital of the company because either they want dividends of the earnings of the profit, they want a small chunk of the profit that the company's making or because they believe that even though they
+
+[63:01]
+bought the share at 100 more people will invest in the future and the price of the share of the stock will go up and they will earn money from the growth of the company of the capitalization of the company that more people will invest into it. So the driver of the stock market is risk appetite because people either want growth of the company. They're betting on the growth or they want to get paid dividends which is a little share of the profits or earnings.
+
+[63:33]
+And we've already seen in a previous video a strategy based on earnings and how positive earnings typically drive stock prices up with a slow but predictable drift. Well, now you understand why that happens. Even though it doesn't take a genius or a PhD in finance to understand this. But if we think of stocks not just in terms you know of the single company shares for example Apple or Tesla or Alphabet, Google or Nvidia or Facebook MA or Amazon or Microsoft. So the single
+
+[64:04]
+companies and these seven companies by the way are the biggest also known as the magnificent 7 mag 7. So instead of buying a single stock and having all of my capital risked on one single stock, I can either select a basket of stocks, also known as stock picking, or I can invest in a stock market index or an index fund. For example, the S&P 500 ETF, the SPY, that basically takes the top 500 companies by market cap, so by
+
+[64:34]
+market capitalization, by how much money they're worth, takes the top 500 of the entire American stock markets and makes a weighted average of it. or for example the NASDAQ 100 that it's mostly tech stocks or the Dow Jones Industrial Average that is taking 30 or 40 of the best stocks in the industrial sector not just technology or the Russell 2000 that takes small cap stocks. I can invest in a basket of stocks. But regardless if it's one stock or if it's an entire
+
+[65:04]
+index, the reason, the drivers, what drives me to put money into a stock or the stock market as a whole is because I believe that these companies will make money and pay me dividends or that the value of the stock will grow. Either one of these two. And they will grow on the long term only if they at some point make money. Maybe they don't need to make money now. They don't need to pay out dividends and earnings. Maybe it's a pre-earnings company. Maybe they're even losing money. Look at Tesla. They lost money for a long time, but the price kept going up. Why? Because they believe
+
+[65:36]
+in the future at some point it will. So they buy now before everyone else. And that's also the difference between you value investing versus growth investing. Value investing is more looking like a dividends. You know, does the company has value? Do they have a reliable business model? This is your Warren Buffett, right? But some investors are more into growth. They want to speculate more on the future. They want to bet on the fact that they can get in before anyone else. That's more of a speculative approach. That's for example your ARC Innovation Fund by Kathy Woods,
+
+[66:09]
+which we all saw how that went, but now it's kind of picking up. Anyway, value or growth is one of the main distinctions, but it's not the only one because yes, you have value stocks or you have growth stocks, but investors also like to define different themes and sectors of stocks. For example, the main sectors of the stock market are technology stocks, financial stocks, communication services stocks, consumer staples, your Walmart, you know, those companies that they sell even during recessions, you know, versus consumer
+
+[66:39]
+discretionary for example, B2C company based on the consumers, for example, Amazon, but not consumer staples, you know, not the grocery store that I have to buy every single month anyways, but you know, the new pair of shoes, the new iPhone, whatever that maybe during recessions, you know, they typically don't perform that well. Then you have the healthc care sector also evergreen. You have the energy sector. So company compan companies involved in refining oil whatever and so many more. And well, if there is a stock market crash and money goes out of the stock market, it
+
+[67:10]
+doesn't go out uniformly because when a recession comes, yeah, people will not buy the next iPhone. People will not take on loans. So, bank stocks will not perform so well, but consumer discretionary will also tend to fall really hard. But communication services, consumer staples, healthc care, like these are the things where people will still spend their money on. And those are the companies that can make money and pay dividends even during recessions. So you might see that tech stocks are falling like 20%
+
+[67:43]
+but a consumer staple or healthcare companies sector ETF might just be dropping 5 to 10%. So based on where I am in the cycle, they're going to be some sectors that perform better or worse than others. And there's a whole theory behind this. There are some models that have been modeled out by also Mary Lynch, very famous, that based on which point you are in the cycle, you want to invest in a different sector of the market, a different sector of the stock market and kind of optimize the
+
+[68:14]
+allocation of your stock based on your expectation on the macroeconomic cycle. In the stock market, you can have multiple approaches. You can have either a single stock and you can trade based on the fundamental of that stock and the fundamentals is the numbers behind the company. So, so you analyze the company structure, who's their CEO, how's their governance, how's their sector looking, what is their business model, are they likely to make money, do they invest in research, blah blah blah, and do they have good earnings? Well, if a stock is
+
+[68:44]
+going good, it has good earnings and overall the economy is flourishing, it's likely that that stock will go up. And the stock market index as a whole doesn't just rely on one stock's business model. It's kind of represents the entirety of the economy. For example, the S&P 500 is kind of a barometer of the sentiment around the American economy. So, if we expect a recession to hit tomorrow, well, it's likely that the companies will not earn a lot of money. So their earnings will lower, they will pay less dividends,
+
+[69:16]
+their stock price will go down. So maybe I don't want to be invested in that stock market. So the stock market as a whole is all about risk appetite and expectations on the economy cuz yeah, maybe one stock will not perform at some point. But if the overall economy is going, the rest of the 500 company of this index can still perform. So macroeconomically speaking, an index is more predictable than one single stock. And so on our macroeconomic cycle during expansions where the Federal Reserve is keeping interest rates low and maybe
+
+[69:48]
+they're even printing money. We'll get to there in a minute. And the government, for example, is lowering taxes and increasing spending. All of this will bring benefit to the stock market and to the economy in general, at least in the short term. So when the financial and monetary conditions of the system are well lubricating the economy, the stock market is just going to go up. It goes up always. They keep printing money, all the money goes into stocks. So you know, stock market just go up and unless financial arm didn't happen. But most of the time they will go up. That's
+
+[70:19]
+it. Like it's it's already really good, you know. But if then the Federal Reserve starts hiking interest rates and the government has to hike taxes and lower spending because they have to pay off the debt that now costs even more. It's likely that the entire economy will suffer. Then maybe the stock market will start pricing in what will come later in the cycle which is a recession and you'll see the stock market going down. So even here cutting cycles, increased government spending, money printing,
+
+[70:51]
+economy booming, stock are a buy. It seems like there's going to be a crisis or the Federal Reserve is hiking rates aggressively. Something breaks into the economy. Unemployment rates maybe goes up, stocks down. Easy as that. Okay, but the cool thing here for swing traders is still it's going to tend to go up. Let's see some examples. This is the chart of the S&P 500. And as you can see, it kind of tend to go up and up and up and up. So we have a skew in the probabilities. We have a skew that it will likely keep
+
+[71:21]
+rising. And as a swing trader is way easier to buy the stock market during the dips. Selling and shorting the stock market is not as easy. But for example, with options, it's a possible idea. But to predict when it's going to crash, it's a little bit harder because it's not a crash that happens all at once. It is, as we said, a drift. And even when the stock market is crashing, you'll still see there's a lot of ups and downs, right? Very rare that it will do this type of crash. Well, it crashes and it keeps crashing. So, as we have seen
+
+[71:51]
+before, if you plot the GDP, we understand that during recessions, the stock market will tend to fall and at the first signs of recovery and pumping and pumping and pumping pumpkin of course and it will keep rising and always with this sort of behavior of reverting back to the mean. So if the economy is rising, if the interest rates are low and maybe we add another point in the picture which is WCL which is the balance sheet of the Federal Reserve aka
+
+[72:22]
+how much money quote unquote the Federal Reserve is printing. Well, if they start printing money aggressively to basically buy bonds from the open markets so that the banks will be able to lend money comfortably to the government, well the stock market will pump and and we can comfortably buy all the dips. It's a pretty easy strategy, guys. Sometimes it will fail. Sometimes you get stopped out, but then every dip just gets [ __ ] bought every single time. And then the Fed will start hiking rates. It's a new hiking cycle. So, you're going to see some crashes here and there. Maybe the economy starts slowing
+
+[72:53]
+down. So, you want to be careful. But still, we're going up. We're going up. We're going up. Then again, market crashes because of a [ __ ] Armageddon. COVID lockdown. Companies aren't earning any money at all. Financial crisis. What happens? Look at this line over here. Federal Reserves prints an absurd amount of money. The government also will start spending a lot of money. They will increase their deficit spending and the stock market just pumps for the entire year until inflation starts becoming a problem. And the market here starts
+
+[73:26]
+expecting that the Fed will hike rates and maybe a recession will come and the market goes down. But as soon as this is over, no recession. All right, we start buying every single dip once again. Trump comes out with a genius idea and then it was all a fake. Well, okay, we buy the dip once more. Trump comes with another great idea of starting a war, but then it was all a fake, so we pump every single time. So, even though a lot of traders try to time the intraday movement of stocks, the long-term price movements of stocks are probably even more reliable. And another strategy that
+
+[73:56]
+I like to use in stocks, for example, is with something called the VIX. And what the VIX is, as you can see, it's the CBOE volatility index of the S&P 500. And it looks like this. It's also known as the fear index, but it's much more than that. The VIX is a number that tells us how much implied volatility there is in the option market. Quick thing, if you don't know what it is, options are basically a derivative of stocks. One of the next videos, we're going to make a full course about how
+
+[74:27]
+these options work. And if this bubble here is the volume of the overall stock market, this is the bubble of the futures on the stock market. This is the bubble of the ETFs. Well, if these are the bubbles and they move alt markets would look something like this in terms of daily notional volume. It moves trillions. Okay, so the VIX is a very important barometer of the sentiment of stock market investors and
+
+[74:58]
+you should basically see options as these sort of insurance contracts and the VIX is like the overall price of these insuranceances and you could see the VIX as somehow a part of the price of these insuranceances. So when the VIX goes up, the implied volatility goes up is because people are afraid there will be a lot of volatility. So these insuranceances on stocks will cost more. And as you can see, it tends to have these spikes that gets reabsorbed. Spike reabsorbed, spike, reabsorbed, spike, reabsorbed, and so on and so forth. And it tends to revert back to the mean
+
+[75:29]
+always. There's not a single time in history where it hasn't reversed at some point. And this is a very predictable behavior. And we can capitalize from it. Let's add the S&P 500 so you can understand. Well, you're going to see that's pretty obvious, right? When the stock market crashes, the VIX goes up. When there's a dip, the VIX go up. When there is a bare market, the VIX has a lot of spikes. When there's a dip, VIX goes up and then reverts back to the mean. Okay? So, instead of trying to time when the stock market is going to top with the risk that it could keep
+
+[76:00]
+going higher forever, we can do the opposite thing. We can buy the VIX because the VIX cannot go a lot lower than this. It almost never goes below 10. So we can have a sort of a short position on the stock market without risking that the stock market will rise indefinitely. We can buy for example a VIX future when the price of the VIX is low enough. And this is for example what we did in our community before all of this war started happening. We didn't sell the stock market. We bought the
+
+[76:31]
+VIX. So this is the VIX futures and we bought it when it was at a really really low price. It was at 16 and it's a very easy buy because there's not a lot of room to go any lower and it went up. We took target at 23 and when it was really really high, we tried to trade the mean reversion of it instead of trying to time the low of the stock market. We did it on the VIX because it has a more predictable mean reverting behavior. Now, as you can see, the background has changed. It's night. It's taking my
+
+[77:03]
+whole [ __ ] day to record this video. So, if you didn't leave a like, I genuinely hate you. So, leave a like, subscribe, and also join the Telegram channel that is completely for free in the description below cuz I will send you some trade ideas based on what we've seen today. Not financial advice, huh? Just for educational and entertainment purposes only. Okay. So, let's have a big summary of all the drivers of each market we've learned until now. And how to act based on what can we expect most probably to happen in the marketplace.
+
+[77:33]
+So as we said everything starts with bonds. Then we have all the world of forex. Let's start for example with the USD but it could be any other currency and gold and the stock market. The main drivers in bonds bonds are a safe haven and an inflation hedge. Dollars or any forex currency its main drivers are bond yields. Gold is also a safe haven, a
+
+[78:05]
+hedge for inflation, and it's the biggest competitor of bonds. So, there's a correlation with real yields. The stock market is the risk market together by the way with the crypto market which we haven't talked but macroeconomically speaking it responds to similar um to similar dynamics as the stock market specifically also liquidity
+
+[78:36]
+which we haven't talked about because it requires a whole other video. This video is long enough. So, so of course for crypto risk aversion and appetite, but also everything that relates to onchain analysis, which Fabio will probably very soon cover in one of his video. Go to his channel and check it out. So for example in a situation of expansion of the economy and expansive monetary policies where for example interest rates are low the government and the Federal Reserve are printing a lot of
+
+[79:08]
+money with government spending with lowering taxes with quantitative easing and blah blah blah. When there's a lot of money being printed, you'll typically see bond yields low, hence the dollar kind of weak and gold trending very strong. The stock market will roar and typically the crypto market as well. If that's what we expect the next 6 to9 months to be like, if we are at the peak, at the beginning, if we expect that we are the peak and we expect the
+
+[79:41]
+Federal Reserve to hike interest rates and to stop printing all of this money and that the government will stop spending money very soon, and maybe we we could expect some form of recession even, but later on we will have the bond yields going up and the dollar being typically very strong because banks and institution will prefer a higher yield on their short-term deposits or short-term bonds. And if the real yields go up, gold will either stay flat or bearish. The stock market could still
+
+[80:13]
+potentially go up for a little bit, but maybe with some retracements here and there, but as soon as the recession comes, then it will start dropping. But maybe it's not time to short the stock market again. Maybe here it's time to buy VIX instead. Cryptos will typically follow the same path. If we expect a recession to start, yes, probably the Federal Reserve will lower interest rate at some point, but not anytime soon. Maybe maybe they will just talk about it and start talking about it and they will start maybe printing a little bit of
+
+[80:44]
+money. Um, but if it's a recession we're talking about, you're probably going to see the stock market being bearish together with the crypto market. And all of this money flowing out of the stock market typically goes straight into the bond market. And that actually brings some short-term bullishness into the dollar and in the early stages also some bearishness in gold. This is the beginning of the crash where everything crashes and typically you'll see the
+
+[81:14]
+prices of bond spiking up and the real yields may be going down in the short term but in the long term but a few months later after markets have priced in and we think that the Federal Reserve will keep rates at zero. They're printing a lot of money. the government start printing a lot of money and we could start going to the recovery phase with interest rates still down, a lot of dollars being printed, then the bond yields will probably stay very low. The US dollar will reverse and start being
+
+[81:46]
+bearish instead. Gold will start pumping really high and the stock market will bottom will also start pumping. Same thing with the crypto market. This is the blueprint, my friends. This is how we decide what's the directional bias. So we look at inflation rate, we look at unemployment rate, we look at the GDP, we look at consumer sentiment, we look at business sentiment data like the ISM, PMI, the purchasing managers
+
+[82:19]
+index. These are the macro data points. These are the points that if this is the economic cycle will tell us if we'll go higher in the economic cycle or it's likely that we'll go to the other side. But this is just step one. Step one is understanding the possible macro macroeconomic direction. The next step which is probably even more important is is to see what the biggest market
+
+[82:50]
+participants in the world this bank these hedge funds and blah blah blah are actually betting their money on. So welcome to step two following the money. So the first step as we said is we want our macro scenario and in every macro scenario you typically have three options. Either the current state of the current trend will continue, possibly even stronger. We'll give it a plus sign. Or it would stay around the same.
+
+[83:22]
+We we'll give this a plus minus. Or it could get slightly worse. We'll give this a minus plus. Or it could go way worse. Armageddon. So the trend will reverse. We'll give this a minus. So we look at macroeconomic data and we decide which are the most probable options. Step two of course is following the money and for this the first thing we use is the CO report. The COT report is
+
+[83:54]
+a report from the CFTC where all of the banks all the big participants in the future market they have to report their position to the CFTC the regulatory authority of the future commodities market. And the coot report will tell you what the position are and the changes of the position of three main types of market participants. Commercials and these are you know your big companies, producers of commodities and commercial operators. And then you have
+
+[84:26]
+non-commercials or large speculators. And this is your smart money, right? Your banks, your hedge funds, blah. And then you have the non-reportables, the retails. you could say. So, we want to look at the at the commitment of traders report and look at what the non-commercials are doing cuz this is the smart money and you will see week by week, you know, for your dollar, for your gold, for any of your forex pairs, for the stock market, even though it's a
+
+[84:57]
+little bit less important in the COT report. If in the long term, in the short term, they're buying or they're selling. if they're buying and if they're selling. And this information comes out once a week. Okay. The second thing we're going to look at is volume and price. And in the stock market also the volatility, the VIX. And we're going to analyze volume and price with a very specific technical structure that is based on the reality of the market,
+
+[85:28]
+which is the so-called auction market theory. It's not your classic higher high, higher low or trend line or support and resistance. It's technical analysis as it's supposed to be. And these will be the actual entry models. So stay tuned. Let's see how they work. Ladies and gentlemen, introducing the auction market theory. The auction market theory model basically tries to model how prices in financial markets
+
+[85:59]
+typically move based on the fact that of course prices in financial markets work like an auction an auction of buy and sell orders. I've explained in this channel many times how it works at the technical level and all the market micro mechanics but basically prices will tend to have two phases. a phase where the selling pressure and the buying pressure the forces of the market will be in a situation of balance and they will agree that you know this is a fair price. So
+
+[86:31]
+they will stay a lot of time here they will spend a lot of time and they will transact a lot and generate a lot of trading activity or trading volume. So if we draw the volume profile, this is where you have a lot of volume being traded. You'll see a big chunk of volume. That's why we call the area where most volume was traded or where most price happened the fair value area. But then something might happen. A new information might come out, your CPI,
+
+[87:02]
+your NFP or there will simply be an imbalanced created in this flow of buy and sell order because of the concept of drift that we said before. So the net order flow is bullish and this will lead to a shift in the current regime of the market and we get into a phase of price discovery where price isn't anymore in a situation of balance but it's in a situation of imbalance. There's an imbalance in the order flow, in the pressure. And this is purely liquidity
+
+[87:35]
+seeking behavior because all of these buyers that are pushing price up, they wish there was a big seller here absorbing all of their demand and they could buy at a discounted price, but they're so aggressive that they're okay to pay a spread and keep buying at worse and worse prices as long as that they can get their hands on this asset. That's why it's it's like an auction principle because in an auction the price of a painting of a Mona Lisa, whatever that is, starts always at, for
+
+[88:07]
+example, 100K and then buyers bid higher and higher prices, right? They're ready to pay more and more and more for the same to get their hands on the painting and they will push the price up to 1 million. And you don't know what the price is ultimately going to be like. That's why we call this price discovery or an initiative auction. But because unlike in a normal auction where you only have buyers, here you also have sellers because it's a double auction. At some point sellers will also start
+
+[88:38]
+thinking, hey, this is you know a fair price to start being aggressively selling again. And so price will start agreeing on what's the new fair price, the new fair valuation of the underlying asset. This is the basic model. So we do not assess trend based on higher highs and higher lows as peaks and lows in price levels like a visual reference point. We don't want just to look at
+
+[89:09]
+where price is going. We want to look at where the money is going. And the money how much trading is happening is explained by the volume profile. And you'll see that for example all over here there was not a lot of volume. And then when there's fair value again, then we build up more volume. And this is the new value area up here where more volume is happening. So you could see it as money was here and then it shifted here. So by following areas of consolidation,
+
+[89:40]
+areas of fair valuation, we're not just following price, we're following where the money is going. So let's say we have a buying idea. So to assess if a trend is bullish, we want to see volume profiles, the bellies, the value areas going up. So number one, shift in the daily volume profile, which will typically seem something like this in price, a shift in where the money is, a shift in fair value. And if we want to buy, for example, we have two options.
+
+[90:11]
+Let's say this is the situation. We had an area of fair value here. Now it's shifted and we want to keep buying. Okay, because let's say this is the stock market. We expect the stock to go up or whatever that is and we saw the coot report. Institutional traders are buying. Well, the best trading idea here is to wait until prices does this thing. It tests if this is still the fair value. sellers are attempting a new initiative, a new phase of price discovery, and price is reaching lower
+
+[90:43]
+levels than the most recent standard deviation of volume, which is the value area. And we're getting into buyers territory cuz remember that here buyers were ready to pay a very increasingly higher prices. So if prices drop at the same level where they were buying very aggressively before, it's likely that they will keep doing so because of orderflow autocorrelation. And so what you will often see is price reverting back to the mean kind of and going back inside of this area of value. As soon as we see a daily candle or a 4hour candle
+
+[91:13]
+closing inside of this fair value area, that's our signal to enter longs all the way up at least until the other side of the value area, the top of the range. This is the first entry model. The second entry model is after the breakout. We wait for a test on the top of the value area and we expect the drift to continue higher and higher. And so that's our second buy signal. So this is the model one, the break in. This is
+
+[91:46]
+model two, the break out. And this is beautiful in a situation of trend following scenario. But you might also as well be, if you look at your chart, in a situation that for a long time price kind of stayed in the same range. This happens a lot with Forex, for example. A lot of Forex bears, they'll stay around the same ranges protected by central banks. And you're going to see this like this huge value area, huge, huge, huge, huge. Well, in these cases,
+
+[92:17]
+you might also instead of having a trend following approach, you could have a mean reversion approach. So, you would wait for price to try to expand below the long-term value area and then revert back inside and you could try for this type of trade without necessarily going for the breakout later, but just going back to the other side of the area of value. So these are the main models. Now this model needs to be adapted because
+
+[92:50]
+the forex market will more rarely have persistent trends. The only times where in the forex market you're going to have long-term trends that last like a year or something is when there is a huge shift in monetary policies which happens every 5 to seven years and the train is gone. The co has passed and co was such a great time for informed traders because what typically happens in 5 to 10 years happened in a span of like two years. You had a cutting cycle and a
+
+[93:20]
+hiking cycle in like a matter of a couple years. But that doesn't happen all the time. So in the forex market volatility so in the so in the forex market you don't have always a huge amount of volatility but in a in a historical period like this one with the Iran war and possibly a big round of inflation starting again we could see that in so in the forex market we can trade the rangebound version mean reversion or if we have a very strong trend we could use the trend following model and typically buy on these
+
+[93:52]
+so-called failed auctions for gold we kind of do the same thing. When interest rates are low and they're printing a lot of money, we can easily use this thing over here, the trend following model. If instead it's that kind of period where gold is likely to maybe stay flat or you know kind of reverse, we also opt for a mean reverting approach only from the highs of the top value areas in the stock market. Instead, as you know, it
+
+[94:22]
+makes more sense to typically go long only on like S&P and the stock market or the NASDAQ, whatever that is, by still either following this type of market behavior, waiting to buy the dip when the market maybe drops at least by two 3% and the VIX maybe spikes to 20. That's your buy signals and the kind of scenario where you kind of keep buying, right? And here you could potentially
+
+[94:53]
+also buy the breakout, right? Both trend following models work, but it's statistically better only long. If the VIX instead, which we know goes like this and then reverts and then goes like this at some point and then reverses. When the waters are too chill, we typically buy the VIX so that if there is a short uh you know bare market, we can still capitalize on that and when it bounces back up if provided that the
+
+[95:25]
+macro the macros are good, we could potentially short the VIX but you know it's a little bit riskier. But these are the models. So to recap, step one, understanding the macro scenario. Step two, selecting the best markets and seeing how the markets are behaving. Step three, analyze participation with the COT report and with volume. And number four, technically timing the entry with either a mean reversion model
+
+[95:56]
+or a trend following one. Let's see some examples. Now, let's see some example of actual trades. This is for example some trades that we've been calling out on US oil where the logic is pretty much the same. And when I'm trading macro, I always like to think in terms of how much asymmetry there is in a setup. So, for example, in this case, the asymmetry was that at some point the war might stop. And so, whenever we reached the top of the value area high, I bought at the money or slightly out of the money put option on crude oil to basically bet on price going lower. And in both of
+
+[96:28]
+these cases, this was a very profitable trade, a bull call spread because I was confident there was going to be a bounce on the value area low. And you know, some tweets might happen. Trump might get pissed about something. So instead, I bought a spread which doesn't need price to go all the way up, but simply earns money if it stays anywhere above the entry level. But at the same time, since the price of oil was staying consistently in this range of fair valuation with an average of $96 per
+
+[97:00]
+barrel, this would inevitably bring inflation up. Because again, if you add United States inflation rate year-over-year, that's what historically tends to happen, right? This is inflation and this is the price of oil. So, I was expecting this and I'm expecting it to keep rising a little bit. And when this hap and when this happens, the Fed will have to hike rates. So, the next few trades were betting on that side of things. Some of them, as we've seen already, were around gold where we've been calling the top of
+
+[97:31]
+the range. basically as soon as the war started in March or April and we took the first trade. We took also a couple of bounces. This one went to stop-loss, but the final vision was to get all the way at least to 4,000 and probably even more. Now, what I'm I'm waiting for is whenever inflation starts going a little bit lower and the Federal Reserve takes that into account and start cutting rates and get back to the cutting cycle, that's when I'm going to buy gold. But the driver is going to be mostly fundamental. I'm going to wait as always for an area of fair value to show up
+
+[98:02]
+first and then I'm going to execute only after a failed auction closes back inside of the bullish range and boom. But the macro driver has to happen first. The money needs to flow second and then I time the entry. Another trade we took just based on monetary policies was a short on the Swiss Frank because the Swiss Frank even though it had low interest rate even though it had a super low interest rate was one of the strongest currencies. So in case this shift might happen where the dollar for example starts being strong again the
+
+[98:33]
+Swiss Frank would be one of the first currencies to kind of drop a little bit higher because the short on the Swiss Frank was not as crowded. So again same principle this is the range. We had a spike out of this range. We broke back in tested here and as soon as we seen the money dropping back inside this was an easy trade either with a stop loss above here or with buying put options on Swiss Frank which are not so liquid. So it's it still bears some risk but it's basically the same principle. There is an asymmetry because the frank the frank was super strong but the monetary
+
+[99:05]
+policies was very very dovish. Another one of the another one of the trade was uh longing the Aussie versus the Canadian dollar because the monetary policies of the Australian central bank was very hawkish and the Canadian dollar instead is keeping rate exactly where they are and it's one of the weakest currencies. So this was another pretty easy trade. We waited for fair value to build price to break out build fair value outside test the previous area of fair value and then boom 1 to2 pretty easy for something like the stock market
+
+[99:36]
+as I have explained it's not so easy to time the top if you want to short the stock if you want to short the stock market because bond yields are going up so money will flow into bonds and get out of riskier assets well it's kind of hard to time because you're trying to stop basically a rocket from going up. So you either buy put options so you don't have to worry about a stop-loss or a setup with a strong asymmetry in this case was to buy VIX futures where we also bought them slightly before the war
+
+[100:07]
+got a huge profit and then at this point as the VIX has this min reversion type of behavior where every spike gets reabsorbed at some point we started building a short position as well mediating this short up until here with an average price around here stop loss above the spikes and we took took also the reabsorption of the VIX and we had a buying area at 17 and since this asset goes up when the US stock market goes
+
+[100:37]
+down instead of trying to time perfectly the high on the stock market it's way easier to time the low on the VIX instead because it has a floor where price never went down since October 20 where price never really went down since August 2018. 2018 and worst case scenario never historically has gone below 10. So it's much easier to take a bounce here and here I'm basically buying cheap protections on the stock market. So we gradually entered bit by
+
+[101:08]
+bit on the low of the value area of course where there's a higher chance that price will start rising and with the first target exactly at the top of the value area where we had most of the rejections instead. And at this point, I can either considering buying the dip on the stock market or I can wait for this to happen and do the exact same thing because probably they're going to build value here for some time and at some point break it if the economy is, you know, still very resilient as it is now.
+
+[101:39]
+Another example was Euro versus CHF, which is of course strongly correlated with the same setup we've seen short on the Frank. It's basically the same trade. One against the dollar, one against another strong currency, the euro. This one was also to profit. But see, when I opened with Forex, I had to place a stop-loss. That stop loss was triggered first. I re-entered once they broke back inside of the fair value area, and we almost reached the target. But in this case, the risk split cuz I'm doing the same trade twice. And if they're too correlated, is always smart to not overexpose yourself to one
+
+[102:11]
+scenario and try to manage different ones in different markets. That's the cool thing about global macro is that if you dig well enough, you can find uncorrelated trades that can both have an asymmetry in risk-to-reward and win rate. Another similar one was the uh euro versus Canadian dollar where we expected to reach 163 at some point. Uh this could be already a trade that goes to break even. We bought uh the UAE with a similar um idea where this was the main area of value right after the war. We dropped below it and then closed
+
+[102:42]
+inside. So, we took the long from 18 to 20 and the second potential target was all-time highs, but more uncertainty around that area just brought price back down once more. So, the final target may not be reached. This trade is at break even anyways. So, in case another failed auction happens, we might time another entry on the long side only if both the condition in the Middle East kind of calm down and the volume the money tells us that the money is going that way. Same thing. Uh we took some long on Nvidia based on a very similar idea.
+
+[103:13]
+Failed auction below the main value area since August 2025 where Nvidia has stayed for months even a year. And after this whole worry about about the bare market was over, instead of buying the dip on the stock market on the American stock market, we just bought it on the stock that had the most potential for an upward momentum where we had a skew in these probabilities and bought first until this value high and then until all-time highs. We also took the test for another one to four, one to five and
+
+[103:44]
+close right before the recent earnings because when earnings come, you never really know what's going to happen. even though you you can buy the the post earnings announcement drift, but these are some basic ideas of how to turn what we've talked about into some actionable trade ideas. Some trade ideas I can be evaluating with everything you've learned in this video. We're going to see and comment some of these trades in my Telegram channel and maybe at some point doing some live sessions, maybe once every month, maybe once every week if you guys are interested. So, let me
+
+[104:14]
+know in the comments. That is it for this video. I hope you enjoyed this massive value bomb. I hope you're going to try this strategy and let me know in the comments if you liked it.

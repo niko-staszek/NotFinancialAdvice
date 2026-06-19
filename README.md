@@ -15,6 +15,7 @@ Trading strategy research, backtesting, and automation across forex, crypto, ind
 | [CBS](CBS/strategy.md) | **"Can't Be Simpler"** — Target-driven strategy using H+L-O pivot with Fibonacci clusters, three sub-strategies (Reaction, Coming, Averaging) | Forex majors, XAUUSD, XTIUSD, BTCUSD, ETHUSD | H1 (exec), H4 (trend) |
 | [MF](MF/strategy.md) | **Money Flow** — Swing strategy aligning entries with COT large-speculator positioning, the Money Flow indicator, and technical confluence (EMA/SMA cross, Fibonacci, POC) | Minor crosses (primary), majors, XAUUSD, USOIL, indices | H4 / H1 |
 | [DMC](DMC/strategy.md) | **Dumb Money Concepts** — Level-reaction system; a "failure-to-break" at an untested HTF level reverses to the move's origin. Two variants: HTF level swing + Nasdaq market-open scalp. *Spec only — unvalidated.* | US100/NQ, FX, BTCUSD | D/W/M levels, H1/H4 exec |
+| [GMF](GMF/strategy.md) | **Global Macro Flow** — Intermarket capital-flow swing: macro regime → per-asset bias (yields/USD/gold/stocks/VIX) → COT (non-commercials) → auction-market-theory (volume-profile) entry. *Spec only — unvalidated; discretionary, one testable kernel.* | FX, XAUUSD, SPX/NDX, VIX, single stocks | Macro/weekly bias, D/H4 exec |
 
 ## How Strategies Connect
 
@@ -40,6 +41,7 @@ Each strategy folder may contain a `links.md` with video references:
 - [CBS reference videos](CBS/links.md) — PSND series (6 parts)
 - [MF reference videos](MF/links.md) — Money Flow series (3 parts)
 - [DMC reference videos](DMC/links.md) — Dumb Money Concepts (2 videos)
+- [GMF reference videos](GMF/links.md) — Global Macro Flow (Andrea Cimi, 1 video)
 
 ## Repo Structure
 
@@ -51,6 +53,8 @@ NotFinancialAdvice/
   MMD/          Magic Moving Averages (clouds, diamonds, ribbons, schemas)
   CBS/          "Can't Be Simpler" (target-driven, 3 sub-strategies)
   MF/           Money Flow (COT + flow-based swing)
+  DMC/          Dumb Money Concepts (HTF level-reaction)
+  GMF/          Global Macro Flow (intermarket + COT + auction-market-theory)
   docs/         Cross-cutting rules & specs (see strategy-validation.md)
   research/     General research & notes
 ```
