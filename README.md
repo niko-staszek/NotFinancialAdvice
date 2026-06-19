@@ -25,6 +25,11 @@ MMD Clouds (trend / regime filter)
  +-- API uses MMD for consolidation regime filter
 ```
 
+## Validation & Research
+
+- [**Strategy validation rules**](docs/strategy-validation.md) — standing rulebook for building/backtesting/judging any strategy here (walk-forward, auto-reject gate, red flags, pre-claim checklist). Enforced for AI sessions via [CLAUDE.md](CLAUDE.md).
+- [Backtest survival study](research/backtest-survival-study.md) — knowhow from a 131,441-run meta-study on what survives rigorous testing (mean reversion dominates; real edge ≈ OOS Sharpe 0.5–1.5).
+
 ## Reference Links
 
 Each strategy folder may contain a `links.md` with video references:
@@ -44,5 +49,6 @@ NotFinancialAdvice/
   MMD/          Magic Moving Averages (clouds, diamonds, ribbons, schemas)
   CBS/          "Can't Be Simpler" (target-driven, 3 sub-strategies)
   MF/           Money Flow (COT + flow-based swing)
+  docs/         Cross-cutting rules & specs (see strategy-validation.md)
   research/     General research & notes
 ```
