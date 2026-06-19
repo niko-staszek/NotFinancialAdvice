@@ -1,7 +1,7 @@
 # PAC Strategy Review — Expert Assessment
 
 *Review date: July 2025*
-*Reviewer context: Full repo analysis including MMD spec, fxalexg TAE comparison, API backtest failure, and all sibling strategies (MRD, ORB, CBS).*
+*Reviewer context: Full repo analysis including MMD spec, fxalexg TAE comparison, API backtest failure, and all sibling strategies (MRD, CBS).*
 
 ---
 
@@ -394,7 +394,7 @@ The instruments section mentions "track macro events" and the note about gold/BT
 - The checklist has no news filter item
 - No rule for avoiding entries within X minutes of high-impact events
 - No specific calendar source (Forex Factory, Investing.com) is mandated
-- ORB (sibling strategy) says "imminent news = don't trade." PAC should adopt the same rule.
+- Imminent high-impact news = don't trade. PAC should adopt this rule.
 
 ### Backtesting Guidance
 

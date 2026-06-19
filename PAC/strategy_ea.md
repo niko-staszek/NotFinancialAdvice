@@ -151,7 +151,7 @@ The following items are explicitly deferred from v1. Each represents a decision 
 
 This section defines the seven mandatory risk controls for the PAC EA. All rules are active by default. Where a rule can be disabled or relaxed via an EA input, the input name is given; where no override is permitted, the rule is enforced unconditionally.
 
-The structure below follows the gap-filling framework from review.md §Risk Management, which identified the absence of a formal risk layer as the primary shortcoming of `strategy.md` as a self-contained trading specification. Every default value either mirrors a sibling NFA strategy (MRD, ORB) for consistency or is drawn from industry practice for retail MT5-based forex/CFD trading.
+The structure below follows the gap-filling framework from review.md §Risk Management, which identified the absence of a formal risk layer as the primary shortcoming of `strategy.md` as a self-contained trading specification. Every default value either mirrors a sibling NFA strategy (MRD) for consistency or is drawn from industry practice for retail MT5-based forex/CFD trading.
 
 ---
 
@@ -160,7 +160,7 @@ The structure below follows the gap-filling framework from review.md §Risk Mana
 **Default:** `1.0%` of current account equity per trade.  
 **Configurable via:** `RiskPercent` EA input (numeric, range 0.1–5.0, step 0.1).  
 **Override conditions:** None. `RiskPercent` is applied to every entry without exception. No other rule in this spec adjusts position size above or below the user-configured value.  
-**Rationale:** The 1% per-trade equity risk is the de facto industry standard for retail forex accounts and is the figure consistently recommended in institutional risk-management literature for accounts below $500k. It balances longevity (a 100-trade losing streak would reduce the account to ~36.6% of starting equity under fixed-percent compounding, which is recoverable) against meaningful compounding when in drawdown. The PAC EA uses this default to remain consistent with sibling NFA strategies: the MRD EA uses 1% and the ORB EA uses 1%. Deviating from this default without a well-understood reason materially changes the risk profile of all three strategies when run simultaneously on the same account. See review.md §Risk Management for the gap-filling context.
+**Rationale:** The 1% per-trade equity risk is the de facto industry standard for retail forex accounts and is the figure consistently recommended in institutional risk-management literature for accounts below $500k. It balances longevity (a 100-trade losing streak would reduce the account to ~36.6% of starting equity under fixed-percent compounding, which is recoverable) against meaningful compounding when in drawdown. The PAC EA uses this default to remain consistent with the sibling NFA MRD strategy, which also uses 1%. Deviating from this default without a well-understood reason materially changes the risk profile of both strategies when run simultaneously on the same account. See review.md §Risk Management for the gap-filling context.
 
 Position size in lots is computed as:
 
@@ -195,7 +195,7 @@ The result is rounded down to the nearest broker-permitted lot step (`SYMBOL_VOL
 **Default:** `-3.0%` of account equity in a rolling 24-hour window.  
 **Configurable via:** `DailyDDStop` EA input (numeric, range -0.5 to -10.0, step 0.1; stored as a negative value).  
 **Override conditions:** None. When the rolling 24-hour realised-and-open P&L falls to or below `DailyDDStop`, the EA immediately cancels all pending orders on managed symbols, closes no open positions (to avoid locking in a loss at a bad price unless separately configured), and halts new entry signals until the next calendar-day session reset. The halt is logged with the timestamp and exact P&L figure that triggered it.  
-**Rationale:** A -3% daily circuit-breaker is the industry standard for retail prop-challenge accounts and is the figure used in MRD and ORB sibling strategies for consistency. FTMO's standard challenge rules set a 5% *daily* hard limit and a 10% *total* soft limit; using -3% as the EA's internal daily stop leaves a 2% buffer before a prop-firm account is disqualified, which gives the human operator a chance to intervene manually if the EA's halt is triggered. For non-prop accounts, -3% remains a sensible default that prevents a single bad session from doing lasting damage to the equity curve. The "24-hour rolling" framing — rather than "within today's calendar day" — prevents the edge case where losses straddle midnight and partially reset the counter.
+**Rationale:** A -3% daily circuit-breaker is the industry standard for retail prop-challenge accounts and is the figure used in the MRD sibling strategy for consistency. FTMO's standard challenge rules set a 5% *daily* hard limit and a 10% *total* soft limit; using -3% as the EA's internal daily stop leaves a 2% buffer before a prop-firm account is disqualified, which gives the human operator a chance to intervene manually if the EA's halt is triggered. For non-prop accounts, -3% remains a sensible default that prevents a single bad session from doing lasting damage to the equity curve. The "24-hour rolling" framing — rather than "within today's calendar day" — prevents the edge case where losses straddle midnight and partially reset the counter.
 
 ---
 
@@ -227,7 +227,7 @@ The result is rounded down to the nearest broker-permitted lot step (`SYMBOL_VOL
 **Default:** OFF (`NewsFilter_Enabled = false`).  
 **Configurable via:** `NewsFilter_Enabled` (boolean), `NewsBlackoutMinsBefore` (integer, default 15), `NewsBlackoutMinsAfter` (integer, default 15), `NewsImpactLevel` (enum: HIGH / MEDIUM / HIGH_ONLY, default HIGH_ONLY).  
 **Override conditions:** None. When enabled, blocks new entry orders within `NewsBlackoutMinsBefore` minutes before and `NewsBlackoutMinsAfter` minutes after any scheduled news event of the configured impact level on the traded symbol's base or quote currency. Open positions are not closed by the news filter — it is an entry gate only. Any pending orders placed before the blackout window that have not yet triggered are cancelled at the start of the blackout window.  
-**Rationale:** High-impact news events (non-farm payrolls, central bank rate decisions, CPI releases) generate price whipsaws on M5 charts that are statistically hostile to price-action setups: the pre-news consolidation creates false breakout signals, and the post-news spike often hits stop-losses before directional resolution. The PAC curriculum (strategy.md) implicitly assumes normal price action conditions; the EA should not attempt to trade through abnormal conditions. News source TBD as an integration hook (Forex Factory CSV calendar file, Investing.com economic calendar scrape, or broker-provided economic calendar API). The filter is off by default in v1 because no news source is yet integrated; it is implemented as a hookable stub so that v2 can activate it without changing the surrounding entry logic. The sibling ORB strategy includes an identical rule and identical deferral note.
+**Rationale:** High-impact news events (non-farm payrolls, central bank rate decisions, CPI releases) generate price whipsaws on M5 charts that are statistically hostile to price-action setups: the pre-news consolidation creates false breakout signals, and the post-news spike often hits stop-losses before directional resolution. The PAC curriculum (strategy.md) implicitly assumes normal price action conditions; the EA should not attempt to trade through abnormal conditions. News source TBD as an integration hook (Forex Factory CSV calendar file, Investing.com economic calendar scrape, or broker-provided economic calendar API). The filter is off by default in v1 because no news source is yet integrated; it is implemented as a hookable stub so that v2 can activate it without changing the surrounding entry logic.
 
 ---
 
@@ -1156,13 +1156,13 @@ These thresholds are taken directly from `strategy.md` and reflect Paweł Krynic
 
 The §1 Risk Management rules have NO source in `strategy.md` (which famously omits risk management — this is the gap `review.md` flagged). `review.md` provided directional guidance ("need min R:R", "need DD limits") but not specific numeric defaults. This category contains the numeric defaults aligned with sibling-strategy norms in the NFA repo and standard prop-firm rules.
 
-- Position size 1.0% per trade (§1.1) — industry-standard retail-FX risk-per-trade; matches sibling NFA MRD and ORB defaults
+- Position size 1.0% per trade (§1.1) — industry-standard retail-FX risk-per-trade; matches sibling NFA MRD default
 - Min R:R 1:1.5 (§1.2) — permissive enough for most PAC setups; tightens later if backtest shows acceptable trade volume
 - Max trades per session 3 (§1.3) — one per Asia/London/America window; matches `review.md` "max 3" recommendation
 - Daily DD circuit-breaker -3% (§1.4) — leaves headroom inside FTMO-style 5% hard limit
 - Weekly DD circuit-breaker -5% (§1.5) — gives ~half the monthly budget per week
 - Correlated-pair groups {XAUUSD,US500}, {US500,US30,USTECH}, {USOIL,US500} (§1.6) — risk-off and US-index clustering conventions
-- News blackout 15 min before/after (§1.7, default off) — sibling ORB strategy convention
+- News blackout 15 min before/after (§1.7, default off) — standard retail-FX news-blackout convention
 - Max slippage 3 pips (§7.2) — typical retail-broker market-order slippage tolerance
 - Partials trigger 1R, close fraction 50% (§7.3, default off) — standard FX retail practice
 - Trailing activation 1.5R, distance 1×ATR(20) (§7.4, default off) — standard FX retail practice
