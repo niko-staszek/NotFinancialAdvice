@@ -1,0 +1,310 @@
+//@version=6
+// =============================================================================
+// RECOVERED: "Scalper Pro v4.1 [ZynAlgo]"  (reconstruction — NOT original source)
+// -----------------------------------------------------------------------------
+// Reproduces the OBSERVABLE plotted behavior of the protected ZynAlgo indicator
+// using standard Pine primitives. Input names/sections mirror the settings dialog.
+// Confirmed vs guessed mapping + evidence in SPZ/NOTES.md.
+//
+// v3 trade model (inferred from the original's label ledger — durations up to 272
+// bars to TP3 rule out a tight breakeven/TP1 lock):
+//   * enter on signal; SL fixed at -1R, target TP3 at +3R.
+//   * hard exits: TP3 -> "WIN 3R" (+3R) ; initial SL -> "SL -1R" (-1R).
+//   * opposite signal while in a trade -> REVERSE: close at market and flip;
+//     realized profit -> "TP +1R", realized loss -> "SL -1R".
+//   * TP1/TP2 are milestones (study-value plots), not exits. PF/Expectancy live.
+// =============================================================================
+indicator("Recovered Scalper Pro v4.1 [ZynAlgo]", shorttitle="RSP v4.1", overlay=true, max_boxes_count=500, max_labels_count=500, max_lines_count=500)
+
+// ============================== INPUTS ======================================
+gScore        = "Score / Signal Filter"
+minScore      = input.int(60,  "Minimum Score (0-100)", minval=0, maxval=100, group=gScore)
+hqThreshold   = input.int(80,  "HIGH QUALITY Threshold", minval=0, maxval=100, group=gScore)
+cooldownBars  = input.int(25,  "Signal Cooldown Bars",  minval=0, group=gScore)
+stabilityMode = input.bool(true, "Stability Mode",       group=gScore)
+smartFilter   = input.bool(true, "Smart Signal Filter",  group=gScore)
+tradingStyle  = input.string("Swing", "Trading Style", options=["Scalp","Intraday","Swing"], group=gScore)
+antiFlip      = input.bool(true, "Anti Flip Score Filter", group=gScore)
+
+gSess      = "Session"
+useSession = input.bool(true, "Use Session Filter", group=gSess)
+sessTime   = input.session("0700-1800", "Time (server time)", group=gSess)
+
+gTPSL      = "ZynAlgo Entry / SL / TP"
+enableTPSL = input.bool(true,  "Enable TP/SL Logic", group=gTPSL)
+slDistance = input.float(2.8,  "Distance", minval=0.1, step=0.1, group=gTPSL, tooltip="SL distance = Distance x ATR")
+enableTP1  = input.bool(true,  "Enable TP1", group=gTPSL)
+rrTP1      = input.float(1.0,  "R:R Ratio TP1", step=0.1, group=gTPSL)
+enableTP2  = input.bool(true,  "Enable TP2", group=gTPSL)
+rrTP2      = input.float(2.0,  "R:R Ratio TP2", step=0.1, group=gTPSL)
+enableTP3  = input.bool(true,  "Enable TP3", group=gTPSL)
+rrTP3      = input.float(3.0,  "R:R Ratio TP3", step=0.1, group=gTPSL)
+showBox    = input.bool(true,  "Show TP/SL Box", group=gTPSL)
+boxWidth   = input.int(10,     "TP/SL Box Width", minval=1, group=gTPSL)
+storedBoxes= input.int(25,     "Stored TP/SL Boxes", minval=1, group=gTPSL)
+
+gDash     = "Dashboard UI"
+showDash  = input.bool(true,   "Show Dashboard", group=gDash)
+dashX     = input.string("Right", "Dashboard X Position", options=["Left","Right"], group=gDash)
+dashY     = input.string("Top",   "Dashboard Y Position", options=["Top","Middle","Bottom"], group=gDash)
+dashScale = input.string("Normal","Dashboard Scale", options=["Small","Normal","Large"], group=gDash)
+compactMode = input.bool(true, "Compact mode", group=gDash)
+mobileDash  = input.bool(false,"Mobile Dashboard", group=gDash)
+mobileX     = input.string("Right","Mobile Dashboard X Position", options=["Left","Right"], group=gDash)
+mobileY     = input.string("Bottom","Mobile Dashboard Y Position", options=["Top","Middle","Bottom"], group=gDash)
+showLabels  = input.bool(true, "Show Signal Labels", group=gDash)
+showShapes  = input.bool(true, "Show TP/SL Result Shapes", group=gDash)
+
+gPerf      = "Performance"
+pfLookback = input.int(10000, "Profit Factor Lookback Candles", minval=1, group=gPerf)
+
+// ====================== SUB-INDICATORS (CONFIRMED by exact match) ===========
+emaFastLen = tradingStyle == "Scalp" ? 9  : tradingStyle == "Intraday" ? 13 : 21
+emaSlowLen = tradingStyle == "Scalp" ? 21 : tradingStyle == "Intraday" ? 34 : 50
+emaFast    = ta.ema(close, emaFastLen)
+emaSlow    = ta.ema(close, emaSlowLen)
+marketBull = emaFast > emaSlow
+htfTF = timeframe.in_seconds() <= 300 ? "60" : timeframe.in_seconds() <= 3600 ? "240" : timeframe.in_seconds() <= 14400 ? "D" : timeframe.in_seconds() <= 86400 ? "W" : "M"
+htfEma = request.security(syminfo.tickerid, htfTF, ta.ema(close, emaSlowLen), lookahead=barmerge.lookahead_off)
+htfUp  = close > htfEma
+[diPlus, diMinus, adxVal] = ta.dmi(14, 14)
+adxStrong = adxVal > 25
+rsiVal  = ta.rsi(close, 14)
+rsiBull = rsiVal > 50
+volMa    = ta.sma(volume, 20)
+volRatio = volume / volMa
+volHigh  = volRatio > 1.5
+atrVal = ta.atr(14)
+
+// ====================== CONFLUENCE SCORE ====================================
+// 🔶 weighting still approximate (original tags this trade "OK" 60-79; ours reads 100)
+bullVotes = (marketBull ? 1 : 0) + (htfUp ? 1 : 0) + (rsiBull ? 1 : 0)
+bearVotes = 3 - bullVotes
+dirLong   = bullVotes >= 2
+baseScore = (dirLong ? bullVotes : bearVotes) * 25
+score     = math.min(100, baseScore + (adxStrong ? 25 : 0))
+inSession = useSession ? not na(time(timeframe.period, sessTime)) : true
+
+// ====================== TRADE STATE MACHINE (v3) ============================
+var int   posDir     = 0          // 0 flat, 1 long, -1 short
+var float entryPrice = na
+var int   entryBar   = na
+var float curSL      = na
+var float tp1Price   = na
+var float tp2Price   = na
+var float tp3Price   = na
+var bool  tp1Done    = false
+var bool  tp2Done    = false
+var float risk       = na
+var int   wins       = 0
+var int   losses     = 0
+var float grossW     = 0.0        // R units
+var float grossL     = 0.0
+var int   lastSigBar = na         // bar of last entry (for cooldown / anti-flip)
+
+// per-bar event flags (mirror the original's 8 output plots; fire ONCE)
+tp1HitLong  = false
+tp2HitLong  = false
+tp3HitLong  = false
+slHitLong   = false
+tp1HitShort = false
+tp2HitShort = false
+tp3HitShort = false
+slHitShort  = false
+
+// raw directional signals (continuous while confluence holds)
+sigLong  = enableTPSL and inSession and score >= minScore and dirLong
+sigShort = enableTPSL and inSession and score >= minScore and not dirLong
+// cooldown / anti-flip: hold >= cooldownBars after entry before any new signal or reversal
+cooldownOk   = na(lastSigBar) or (bar_index - lastSigBar) >= cooldownBars
+reverseLong  = posDir == 1 and sigShort and cooldownOk
+reverseShort = posDir == -1 and sigLong and cooldownOk
+
+// exit accumulators for this bar (recorded once below)
+exited  = false
+exitDir = 0
+exitR   = 0.0
+exitTxt = ""
+
+// --- A) hard exits (TP3 / initial SL) while holding, unless reversing this bar ---
+if posDir == 1 and not reverseLong
+    if low <= curSL
+        slHitLong := true
+        exited := true
+        exitDir := 1
+        exitR := -1.0
+        exitTxt := "SL -1R"
+    else
+        if enableTP1 and not tp1Done and high >= tp1Price
+            tp1Done := true
+            tp1HitLong := true
+        if enableTP2 and not tp2Done and high >= tp2Price
+            tp2Done := true
+            tp2HitLong := true
+        if enableTP3 and high >= tp3Price
+            tp3HitLong := true
+            exited := true
+            exitDir := 1
+            exitR := 3.0
+            exitTxt := "WIN 3R"
+else if posDir == -1 and not reverseShort
+    if high >= curSL
+        slHitShort := true
+        exited := true
+        exitDir := -1
+        exitR := -1.0
+        exitTxt := "SL -1R"
+    else
+        if enableTP1 and not tp1Done and low <= tp1Price
+            tp1Done := true
+            tp1HitShort := true
+        if enableTP2 and not tp2Done and low <= tp2Price
+            tp2Done := true
+            tp2HitShort := true
+        if enableTP3 and low <= tp3Price
+            tp3HitShort := true
+            exited := true
+            exitDir := -1
+            exitR := 3.0
+            exitTxt := "WIN 3R"
+
+// --- B) reversal on opposite signal: close at market, then flip in C ---
+if reverseLong
+    rr = (close - entryPrice) / risk
+    exited := true
+    exitDir := 1
+    exitR := rr >= 0 ? 1.0 : -1.0
+    exitTxt := rr >= 0 ? "TP +1R" : "SL -1R"
+else if reverseShort
+    rr = (entryPrice - close) / risk
+    exited := true
+    exitDir := -1
+    exitR := rr >= 0 ? 1.0 : -1.0
+    exitTxt := rr >= 0 ? "TP +1R" : "SL -1R"
+
+// record the exit once: tally R, draw the result label, flatten
+if exited
+    if exitR > 0
+        wins += 1
+        grossW += exitR
+    else
+        losses += 1
+        grossL += -exitR
+    if showLabels
+        label.new(bar_index, exitDir == 1 ? high : low, exitTxt + "\n" + str.tostring(bar_index - entryBar) + " bars", yloc=yloc.price, style=exitDir == 1 ? label.style_label_down : label.style_label_up, color=color.new(exitR > 0 ? #2962ff : #ef5350, 0), textcolor=color.white, size=size.small)
+    posDir := 0
+
+// --- C) entries (flat after exit above) ---
+goLong  = sigLong  and posDir == 0 and cooldownOk
+goShort = sigShort and posDir == 0 and cooldownOk
+if goLong
+    posDir := 1
+    entryPrice := close
+    entryBar := bar_index
+    lastSigBar := bar_index
+    risk := slDistance * atrVal
+    curSL := close - risk
+    tp1Price := close + rrTP1 * risk
+    tp2Price := close + rrTP2 * risk
+    tp3Price := close + rrTP3 * risk
+    tp1Done := false
+    tp2Done := false
+    if showLabels
+        label.new(bar_index, low, "BUY", yloc=yloc.price, style=label.style_label_up, color=color.new(#26a69a, 0), textcolor=color.white, size=size.normal)
+else if goShort
+    posDir := -1
+    entryPrice := close
+    entryBar := bar_index
+    lastSigBar := bar_index
+    risk := slDistance * atrVal
+    curSL := close + risk
+    tp1Price := close - rrTP1 * risk
+    tp2Price := close - rrTP2 * risk
+    tp3Price := close - rrTP3 * risk
+    tp1Done := false
+    tp2Done := false
+    if showLabels
+        label.new(bar_index, high, "SELL", yloc=yloc.price, style=label.style_label_down, color=color.new(#ef5350, 0), textcolor=color.white, size=size.normal)
+
+totalTrades = wins + losses
+pf   = grossL > 0 ? grossW / grossL : na
+expt = totalTrades > 0 ? (grossW - grossL) / totalTrades : na
+
+// ====================== TP/SL ZONE BOX ======================================
+var box[] tpslBoxes = array.new<box>()
+if showBox and (goLong or goShort)
+    topP = goLong ? tp3Price : entryPrice
+    botP = goLong ? entryPrice : tp3Price
+    b = box.new(bar_index, math.max(topP, botP), bar_index + boxWidth, math.min(topP, botP), border_color=color.new(color.gray, 50), bgcolor=color.new(goLong ? color.green : color.red, 88))
+    array.push(tpslBoxes, b)
+    if array.size(tpslBoxes) > storedBoxes
+        box.delete(array.shift(tpslBoxes))
+
+// single-fire milestone markers (mirror original's 8 output values)
+plotshape(showShapes and tp1HitLong,  title="TP1 Hit Long",  style=shape.circle, location=location.abovebar, color=color.teal,   size=size.tiny)
+plotshape(showShapes and tp2HitLong,  title="TP2 Hit Long",  style=shape.circle, location=location.abovebar, color=color.teal,   size=size.tiny)
+plotshape(showShapes and tp3HitLong,  title="TP3 Hit Long",  style=shape.circle, location=location.abovebar, color=color.teal,   size=size.tiny)
+plotshape(showShapes and slHitLong,   title="SL Hit Long",   style=shape.xcross, location=location.belowbar, color=color.maroon, size=size.tiny)
+plotshape(showShapes and tp1HitShort, title="TP1 Hit Short", style=shape.circle, location=location.belowbar, color=color.teal,   size=size.tiny)
+plotshape(showShapes and tp2HitShort, title="TP2 Hit Short", style=shape.circle, location=location.belowbar, color=color.teal,   size=size.tiny)
+plotshape(showShapes and tp3HitShort, title="TP3 Hit Short", style=shape.circle, location=location.belowbar, color=color.teal,   size=size.tiny)
+plotshape(showShapes and slHitShort,  title="SL Hit Short",  style=shape.xcross, location=location.abovebar, color=color.maroon, size=size.tiny)
+
+// ====================== DASHBOARD TABLE =====================================
+tablePos = dashY == "Top" and dashX == "Right" ? position.top_right : dashY == "Top" and dashX == "Left" ? position.top_left : dashY == "Bottom" and dashX == "Right" ? position.bottom_right : dashY == "Bottom" and dashX == "Left" ? position.bottom_left : dashY == "Middle" and dashX == "Right" ? position.middle_right : position.middle_left
+txtSize = dashScale == "Small" ? size.small : dashScale == "Large" ? size.large : size.normal
+
+var table dash = na
+if barstate.islast and showDash
+    if not na(dash)
+        table.delete(dash)
+    dash := table.new(tablePos, 3, 14, border_width=1, frame_color=color.new(color.gray, 60), frame_width=1)
+    cBull = color.new(#26a69a, 0)
+    cBear = color.new(#ef5350, 0)
+    cHdr  = color.new(color.gray, 20)
+    cTxt  = color.new(color.white, 0)
+    dashLine = "──────"
+    sideTxt  = posDir == 0 ? "—" : posDir > 0 ? "BUY" : "SELL"
+    qualTxt  = score >= hqThreshold ? "HIGH" : score >= minScore ? "OK" : "LOW"
+    table.cell(dash, 0, 0, "Scalper Pro v4", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 0, syminfo.ticker + "  " + timeframe.period, text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 2, 0, "READY", text_color=cBull, text_size=txtSize)
+    table.cell(dash, 0, 1, "MARKET STATE", text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 1, 1, dashLine, text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 0, 2, "Market", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 2, marketBull ? "BULL" : "BEAR", text_color=marketBull ? cBull : cBear, text_size=txtSize)
+    table.cell(dash, 2, 2, htfUp ? "HTF UP" : "HTF DN", text_color=htfUp ? cBull : cBear, text_size=txtSize)
+    table.cell(dash, 0, 3, "ADX", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 3, str.tostring(adxVal, "0.0"), text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 2, 3, adxStrong ? "STRONG" : "WEAK", text_color=adxStrong ? cBull : cBear, text_size=txtSize)
+    table.cell(dash, 0, 4, "RSI", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 4, str.tostring(rsiVal, "0.0"), text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 2, 4, rsiBull ? "BULL" : "BEAR", text_color=rsiBull ? cBull : cBear, text_size=txtSize)
+    table.cell(dash, 0, 5, "Volume", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 5, str.tostring(volRatio, "0.00") + "x", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 2, 5, volHigh ? "high" : "normal", text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 0, 6, "ACTIVE POSITION", text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 1, 6, dashLine, text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 0, 7, "Position", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 7, sideTxt, text_color=posDir > 0 ? cBull : posDir < 0 ? cBear : cTxt, text_size=txtSize)
+    table.cell(dash, 2, 7, posDir == 0 ? "—" : qualTxt, text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 0, 8, "Entry", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 8, posDir == 0 ? "—" : str.tostring(entryPrice, format.mintick), text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 0, 9, "Stop Loss", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 9, posDir == 0 ? "—" : str.tostring(curSL, format.mintick), text_color=cBear, text_size=txtSize)
+    table.cell(dash, 2, 9, posDir == 0 ? "" : "active", text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 0, 10, "TP1", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 10, posDir == 0 ? "—" : str.tostring(tp1Price, format.mintick), text_color=cBull, text_size=txtSize)
+    table.cell(dash, 2, 10, posDir == 0 ? "" : "R:R " + str.tostring(rrTP1, "0.#"), text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 0, 11, "PERFORMANCE", text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 1, 11, dashLine, text_color=cHdr, text_size=txtSize)
+    table.cell(dash, 0, 12, "Prof. Factor", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 12, na(pf) ? "?" : str.tostring(pf, "0.00"), text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 2, 12, na(pf) ? "POOR" : pf >= 2 ? "GOOD" : pf >= 1 ? "OK" : "POOR", text_color=na(pf) or pf < 1 ? cBear : cBull, text_size=txtSize)
+    table.cell(dash, 0, 13, "Expectancy", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 13, na(expt) ? "?" : str.tostring(expt, "0.00") + "R", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 2, 13, "per trade", text_color=cHdr, text_size=txtSize)
+
+// ====================== ALERTS ==============================================
+alertcondition(goLong,  "Long Signal",  "Scalper Pro: LONG")
+alertcondition(goShort, "Short Signal", "Scalper Pro: SHORT")
