@@ -63,12 +63,12 @@ emaFastLen = tradingStyle == "Scalp" ? 9  : tradingStyle == "Intraday" ? 13 : 21
 emaSlowLen = tradingStyle == "Scalp" ? 21 : tradingStyle == "Intraday" ? 34 : 50
 emaFast    = ta.ema(close, emaFastLen)
 emaSlow    = ta.ema(close, emaSlowLen)
-marketBull = emaFast > emaSlow
 htfTF = timeframe.in_seconds() <= 300 ? "60" : timeframe.in_seconds() <= 3600 ? "240" : timeframe.in_seconds() <= 14400 ? "D" : timeframe.in_seconds() <= 86400 ? "W" : "M"
 htfEma = request.security(syminfo.tickerid, htfTF, ta.ema(close, emaSlowLen), lookahead=barmerge.lookahead_off)
 htfUp  = close > htfEma
 [diPlus, diMinus, adxVal] = ta.dmi(14, 14)
-adxStrong = adxVal > 25
+adxState  = adxVal >= 30 ? "STRONG" : adxVal >= 20 ? "MED" : "FLAT"   // 🔶 tier thresholds
+adxStrong = adxVal >= 20
 rsiVal  = ta.rsi(close, 14)
 rsiBull = rsiVal > 50
 volMa    = ta.sma(volume, 20)
@@ -76,13 +76,22 @@ volRatio = volume / volMa
 volHigh  = volRatio > 1.5
 atrVal = ta.atr(14)
 
+// Market regime: BULL / BEAR / SIDEWAY. "EMA Flat" => slope of the slow EMA, not the
+// fast/slow gap (EURUSD shows offset-but-horizontal EMAs => SIDEWAY).
+slopeLen    = 10
+emaSlope    = (emaSlow - emaSlow[slopeLen]) / atrVal   // slow-EMA drift over slopeLen bars (ATR units)
+flatBand    = 0.6                          // 🔶 |slope| below band => EMA-flat => SIDEWAY
+marketBull  = emaSlope >  flatBand
+marketBear  = emaSlope < -flatBand
+marketState = marketBull ? "BULL" : marketBear ? "BEAR" : "SIDEWAY"
+
 // ====================== CONFLUENCE SCORE ====================================
 // 🔶 weighting still approximate (original tags this trade "OK" 60-79; ours reads 100)
 bullVotes = (marketBull ? 1 : 0) + (htfUp ? 1 : 0) + (rsiBull ? 1 : 0)
-bearVotes = 3 - bullVotes
+bearVotes = (marketBear ? 1 : 0) + (not htfUp ? 1 : 0) + (not rsiBull ? 1 : 0)
 dirLong   = bullVotes >= 2
-baseScore = (dirLong ? bullVotes : bearVotes) * 25
-score     = math.min(100, baseScore + (adxStrong ? 25 : 0))
+dirShort  = bearVotes >= 2
+score     = math.min(100, math.max(bullVotes, bearVotes) * 25 + (adxStrong ? 25 : 0))
 inSession = useSession ? not na(time(timeframe.period, sessTime)) : true
 
 // ====================== TRADE STATE MACHINE (v3) ============================
@@ -113,8 +122,8 @@ tp3HitShort = false
 slHitShort  = false
 
 // raw directional signals (continuous while confluence holds)
-sigLong  = enableTPSL and inSession and score >= minScore and dirLong
-sigShort = enableTPSL and inSession and score >= minScore and not dirLong
+sigLong  = enableTPSL and inSession and score >= minScore and dirLong  and marketBull
+sigShort = enableTPSL and inSession and score >= minScore and dirShort and marketBear
 // cooldown / anti-flip: hold >= cooldownBars after entry before any new signal or reversal
 cooldownOk   = na(lastSigBar) or (bar_index - lastSigBar) >= cooldownBars
 reverseLong  = posDir == 1 and sigShort and cooldownOk
@@ -264,24 +273,26 @@ if barstate.islast and showDash
     cHdr  = color.new(color.gray, 20)
     cTxt  = color.new(color.white, 0)
     dashLine = "──────"
-    sideTxt  = posDir == 0 ? "—" : posDir > 0 ? "BUY" : "SELL"
-    qualTxt  = score >= hqThreshold ? "HIGH" : score >= minScore ? "OK" : "LOW"
+    sideTxt   = posDir == 0 ? "—" : posDir > 0 ? "BUY" : "SELL"
+    qualTxt   = score >= hqThreshold ? "HIGH" : score >= minScore ? "OK" : "LOW"
+    cSideway  = color.new(#787b86, 0)
+    statusTxt = marketState == "SIDEWAY" ? "SIDEWAY EMA Flat" : "READY"
     table.cell(dash, 0, 0, "Scalper Pro v4", text_color=cTxt, text_size=txtSize)
     table.cell(dash, 1, 0, syminfo.ticker + "  " + timeframe.period, text_color=cTxt, text_size=txtSize)
-    table.cell(dash, 2, 0, "READY", text_color=cBull, text_size=txtSize)
+    table.cell(dash, 2, 0, statusTxt, text_color=marketState == "SIDEWAY" ? cSideway : cBull, text_size=txtSize)
     table.cell(dash, 0, 1, "MARKET STATE", text_color=cHdr, text_size=txtSize)
     table.cell(dash, 1, 1, dashLine, text_color=cHdr, text_size=txtSize)
     table.cell(dash, 0, 2, "Market", text_color=cTxt, text_size=txtSize)
-    table.cell(dash, 1, 2, marketBull ? "BULL" : "BEAR", text_color=marketBull ? cBull : cBear, text_size=txtSize)
+    table.cell(dash, 1, 2, marketState, text_color=marketBull ? cBull : marketBear ? cBear : cSideway, text_size=txtSize)
     table.cell(dash, 2, 2, htfUp ? "HTF UP" : "HTF DN", text_color=htfUp ? cBull : cBear, text_size=txtSize)
     table.cell(dash, 0, 3, "ADX", text_color=cTxt, text_size=txtSize)
-    table.cell(dash, 1, 3, str.tostring(adxVal, "0.0"), text_color=cTxt, text_size=txtSize)
-    table.cell(dash, 2, 3, adxStrong ? "STRONG" : "WEAK", text_color=adxStrong ? cBull : cBear, text_size=txtSize)
+    table.cell(dash, 1, 3, str.tostring(adxVal, "0.#"), text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 2, 3, adxState, text_color=adxState == "FLAT" ? cBear : cBull, text_size=txtSize)
     table.cell(dash, 0, 4, "RSI", text_color=cTxt, text_size=txtSize)
-    table.cell(dash, 1, 4, str.tostring(rsiVal, "0.0"), text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 4, str.tostring(rsiVal, "0.#"), text_color=cTxt, text_size=txtSize)
     table.cell(dash, 2, 4, rsiBull ? "BULL" : "BEAR", text_color=rsiBull ? cBull : cBear, text_size=txtSize)
     table.cell(dash, 0, 5, "Volume", text_color=cTxt, text_size=txtSize)
-    table.cell(dash, 1, 5, str.tostring(volRatio, "0.00") + "x", text_color=cTxt, text_size=txtSize)
+    table.cell(dash, 1, 5, str.tostring(volRatio, "0.##") + "x", text_color=cTxt, text_size=txtSize)
     table.cell(dash, 2, 5, volHigh ? "high" : "normal", text_color=cHdr, text_size=txtSize)
     table.cell(dash, 0, 6, "ACTIVE POSITION", text_color=cHdr, text_size=txtSize)
     table.cell(dash, 1, 6, dashLine, text_color=cHdr, text_size=txtSize)

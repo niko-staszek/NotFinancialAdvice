@@ -191,14 +191,39 @@ Stability / Smart-Filter / Anti-Flip / score logic — the hard core of a black-
 | 2026-06-20 | XAUUSD H1 | v2 dashboard cosmetics + state machine | dashboard FORMAT exact; PF 2.73; churns |
 | 2026-06-20 | XAUUSD H1 | v3 hold-to-TP3/SL + reverse | live Entry/SL/TP EXACT again; PF 1.08 (whipsaw) |
 | 2026-06-20 | XAUUSD H1 | v3.1 + cooldown/anti-flip | live trade EXACT; PF 1.30 vs 6.08 — gap = entry selectivity |
+| 2026-06-21 | BTC/NQ/EUR sweep | cross-instrument compare | found 3-state Market, ADX tiers, formats, chop-filter (below) |
+| 2026-06-21 | XAUUSD H1 | v3.2 (ADX tiers + formats + chop gate) | ADX tier + formats now EXACT; SIDEWAY threshold still uncalibrated |
 
-## 5. Fidelity scorecard (v3.1)
+## 5. Fidelity scorecard (v3.2)
 | aspect | status |
 |---|---|
-| Dashboard values + format | ✅ exact |
+| Dashboard values + format (incl. ADX FLAT/MED/STRONG, trailing-zero trim) | ✅ exact |
 | Sub-indicators + lengths (RSI/ADX/Vol/EMA/HTF/ATR) | ✅ exact |
 | SL/TP geometry (2.8×ATR, R:R 1/2/3) | ✅ exact |
-| Live position (entry/SL/TP) | ✅ exact |
+| Live position (entry/SL/TP) — trending instruments | ✅ exact (XAUUSD, NQ) |
 | Label style + vocabulary (BUY/SELL, TP+1R/WIN 3R/SL−1R) | ✅ matches |
 | PF/Expectancy mechanics | ✅ compute (different trade set) |
-| Entry selectivity → PF magnitude | 🔴 1.30 vs 6.08 (score formula unknown) |
+| Market BULL/BEAR/**SIDEWAY** threshold | 🟡 3-state added; exact flat cutoff uncalibrated |
+| Entry selectivity → PF magnitude | 🔴 1.30 vs 6.08 (score + regime formula proprietary) |
+
+## 6. Cross-instrument sweep findings (2026-06-21)
+Overlaid both studies on the user's best combos. Dashboard sub-values matched everywhere;
+divergences were all structural and now mostly implemented:
+
+| symbol/TF | orig Market | orig ADX | orig position | note |
+|---|---|---|---|---|
+| BTCUSD H4 | **FLAT** | 16.1 FLAT | — (flat) | 3rd market state; original sits out |
+| NQ1! H4 | BULL | 13.7 FLAT | BUY OK | trades even with weak ADX (so ADX≠trade gate) |
+| EURUSD H1 | **SIDEWAY** (hdr "SIDEWAY EMA Flat") | 25.2 **MED** | — (flat) | original sits out chop |
+| XAUUSD H1 | BEAR | 35.2 STRONG | SELL OK | trends → trades |
+
+Discoveries:
+- **Market is 3-state** BULL / BEAR / **SIDEWAY (a.k.a. FLAT, "EMA Flat")**. The original
+  does NOT trade in SIDEWAY → this is the real selectivity filter behind PF≈6 (it skips chop).
+- **ADX label is 3-tier**: FLAT (<~20) / MED (~20–30) / STRONG (≥~30). (was STRONG/WEAK).
+- **Number format trims trailing zeros**: RSI/ADX `0.#`, Volume `0.##` (e.g. "51", "0.1x").
+- ADX strength is NOT the trade gate (NQ traded at ADX 13.7); **regime (trend vs flat) is**.
+
+Open: the exact SIDEWAY/flat cutoff (EMA-slope based, but threshold unknown) and the score
+weighting. Both are proprietary; with only ~4 reference points, fitting them precisely would
+overfit. Current chop-gate uses slow-EMA slope > 0.6 ATR / 10 bars (🔶 placeholder).
