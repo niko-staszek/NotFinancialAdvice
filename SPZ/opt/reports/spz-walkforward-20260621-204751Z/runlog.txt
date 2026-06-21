@@ -1,0 +1,10 @@
+config applied: EMA 21/50 fixed (confirmed); grid = {"flatBand": [0.3, 0.5, 0.7, 1.0, 1.5], "slopeLen": [5, 10, 20], "adxStrongTh": [20, 25], "minScore": [50, 60, 75], "cooldown": [10, 25, 50]}
+H1 bars: 8360 | range: 2025-01-07 13:00:00 -> 2026-06-09 23:00:00
+combos per fold: 270 | folds: 3
+fold 0 IS[2025-01-07..2025-05-15] -> best {flatBand:0.5, slopeLen:5, adxTh:20, minScore:50, cooldown:25} IS exp=0.917 pf=2.83 n=24 || OOS exp=0.120 pf=1.17 n=25
+fold 1 IS[2025-01-07..2025-09-22] -> best {flatBand:0.5, slopeLen:5, adxTh:20, minScore:50, cooldown:50} IS exp=0.591 pf=2.00 n=44 || OOS exp=1.700 pf=6.67 n=20
+fold 2 IS[2025-01-07..2026-01-30] -> best {flatBand:0.5, slopeLen:5, adxTh:20, minScore:50, cooldown:50} IS exp=0.905 pf=2.78 n=63 || OOS exp=0.333 pf=1.50 n=15
+STITCHED OOS: {"n": 60, "pf": 2.235294117647059, "exp": 0.7, "win_rate": 0.43333333333333335, "wins": 26, "losses": 34, "win3R": 25, "tp1R": 1, "sl": 34}
+BASELINE defaults over OOS span: {"n": 85, "pf": 1.7115384615384615, "exp": 0.43529411764705883, "win_rate": 0.38823529411764707, "wins": 33, "losses": 52, "win3R": 28, "tp1R": 5, "sl": 52}
+gold buy&hold over period: 60.9%
+run complete

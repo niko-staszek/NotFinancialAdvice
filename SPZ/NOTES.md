@@ -227,3 +227,36 @@ Discoveries:
 Open: the exact SIDEWAY/flat cutoff (EMA-slope based, but threshold unknown) and the score
 weighting. Both are proprietary; with only ~4 reference points, fitting them precisely would
 overfit. Current chop-gate uses slow-EMA slope > 0.6 ATR / 10 bars (🔶 placeholder).
+
+## 7. Walk-forward parameter search (2026-06-21)
+Disciplined search to see if tuning regime+score thresholds reproduces the original's PF.
+Harness `SPZ/opt/recon.py` (Pine v3.2 logic in Python) on real XAUUSD H1 (8360 bars,
+2025-01→2026-06, resampled from `CBS/data/XAUUSD_M5_…csv`). 3 anchored walk-forward folds:
+optimise on IS, apply BLIND to next OOS, stitch. 270-combo grid (flatBand/slopeLen/adxTh/
+minScore/cooldown), EMA 21/50 fixed. **Audit:** `SPZ/opt/reports/spz-walkforward-20260621-204751Z/`
+(raw 810-row grid CSV + 60-trade OOS CSV + config + driver + sha256 manifest).
+
+**Verified results (traced to manifest.md / stitched_oos_trades.csv):**
+| metric | blind stitched OOS | v3.2 baseline (OOS span) |
+|---|---:|---:|
+| Profit Factor | **2.24** | 1.71 |
+| Expectancy | 0.70R | 0.44R |
+| Trades | 60 | 85 |
+| Win rate | 43% | 39% |
+
+Per-fold OOS PF: **1.17 / 6.67 / 1.50** (unstable). Gold buy&hold over period **+61%**.
+
+**Auto-reject-gate read (per docs/strategy-validation):**
+- Trades: stitched OOS n=60 ≥30 ✅ significant. Concentration: max single trade +3R ≈ 7% of net ✅.
+- OOS unstable across folds and the high fold (6.67) coincides with gold's parabolic run →
+  **exposure, not edge** (Tesla-trap: buy&hold +61%). 🔴
+- **Gross of costs** — spread/slippage NOT modelled; real expectancy lower. 🔴 must caveat.
+- DD / Sharpe not computed (per-trade R series, not equity). Noted gap.
+- Optimiser picks the **loosest** params (more trades) — opposite of the original's selectivity,
+  so my parameterisation cannot reach the original's PF 6.08 by tightening.
+
+**Verdict:** tuning lifts OOS PF 1.71→2.24 but cannot reach the self-reported 6.08; the high
+numbers ride gold's 2025–26 trend and are gross of costs. The residual gap is **unmodelled
+proprietary selectivity**, and the original's 6.08 is in-sample/self-reported, not validated
+edge. Chasing it further = overfitting / curve-fitting exposure. Recommend stopping at the
+faithful structural reconstruction.
