@@ -50,4 +50,18 @@ bool ORB_AtOrAfterFlat(datetime serverTime,int srvToUtcOffsetSec,int flatEt){
   int f=(flatEt/100)*60+(flatEt%100);
   return (m>=f);
 }
+
+// EU DST: last Sunday March 01:00 UTC -> last Sunday October 01:00 UTC.
+bool ORB_IsEuDST(datetime utc){
+  MqlDateTime t; TimeToStruct(utc,t); int y=t.year;
+  datetime start=StringToTime(StringFormat("%04d.03.%02d 01:00:00",y,ORB_LastWeekday(y,3,0)));
+  datetime end  =StringToTime(StringFormat("%04d.10.%02d 01:00:00",y,ORB_LastWeekday(y,10,0)));
+  return (utc>=start && utc<end);
+}
+// FTMO server clock = EET(+2)/EEST(+3). Deterministic server->UTC offset (sec) for a server
+// timestamp — used instead of TimeGMT(), which is unreliable inside the Strategy Tester.
+int ORB_ServerToUtcOffsetSec(datetime serverTime){
+  datetime approxUtc = serverTime - 2*3600;     // assume +2 to classify DST (boundary-safe enough)
+  return ORB_IsEuDST(approxUtc) ? 3*3600 : 2*3600;
+}
 #endif

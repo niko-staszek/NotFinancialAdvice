@@ -30,6 +30,12 @@ void OnStart() {
   ASSERT_TRUE (ORB_AtOrAfterFlat(srv_open + 7*3600, 10800, 1600), "flat_after_1600");
   ASSERT_FALSE(ORB_AtOrAfterFlat(srv_open + 6*3600, 10800, 1600), "not_flat_at_1530"); // 22:30 srv = 15:30 ET
 
+  // EU DST + FTMO server->UTC offset (deterministic, tester-safe)
+  ASSERT_TRUE (ORB_IsEuDST(D'2024.07.01 12:00:00'), "eu_dst_july");
+  ASSERT_FALSE(ORB_IsEuDST(D'2024.01.02 12:00:00'), "eu_dst_january");
+  ASSERT_EQ_INT(ORB_ServerToUtcOffsetSec(D'2024.07.01 16:30:00'), 10800, "srv_off_summer");
+  ASSERT_EQ_INT(ORB_ServerToUtcOffsetSec(D'2024.01.02 15:30:00'),  7200, "srv_off_winter");
+
   Sleep(300);        // let Print() flush to the log before shutdown
   TerminalClose(0);  // headless self-terminate so the next cold-start is clean (comment out for interactive F5)
 }

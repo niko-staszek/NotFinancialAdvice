@@ -45,6 +45,7 @@ CTrade   g_trade;
 int      g_biasEmaHandle, g_trailEmaHandle, g_atrHandle;
 int      g_srvOffsetSec;
 int      g_ledger;
+int      g_diag;   // per-day decision diagnostics -> Common\Files\ORB\diag_<label>.csv
 
 enum OrbDay { WAIT, CAPTURING, ARMED, INTRADE, DONE };
 OrbDay   g_state;
@@ -82,9 +83,7 @@ int OnInit()
       g_atrHandle      == INVALID_HANDLE)
       return INIT_FAILED;
 
-   g_srvOffsetSec = (InpSrvToUtcOffsetSec != 999999)
-                    ? InpSrvToUtcOffsetSec
-                    : (int)((long)TimeCurrent() - (long)TimeGMT());
+   g_srvOffsetSec = (InpSrvToUtcOffsetSec != 999999) ? InpSrvToUtcOffsetSec : 0; // recomputed per-tick (tester-safe)
 
    g_trade.SetExpertMagicNumber((ulong)InpMagic);
 
@@ -93,6 +92,11 @@ int OnInit()
 
    string lp = StringFormat("ORB\\ledger_%s.csv", InpLedgerLabel);
    g_ledger = ORB_LedgerOpen(lp);
+
+   g_diag = FileOpen(StringFormat("ORB\\diag_%s.csv", InpLedgerLabel),
+                     FILE_WRITE|FILE_CSV|FILE_ANSI|FILE_COMMON, ",");
+   if(g_diag != INVALID_HANDLE)
+      FileWrite(g_diag,"day_et","ringN","orVol","width","rvol","priorClose","biasEma","bias","reason");
 
    g_state      = WAIT;
    g_curDayEt   = -1;
@@ -117,6 +121,7 @@ void OnDeinit(const int r)
       CloseAndLog("forced_eod");
 
    ORB_LedgerClose(g_ledger);
+   if(g_diag != INVALID_HANDLE) FileClose(g_diag);
    IndicatorRelease(g_biasEmaHandle);
    IndicatorRelease(g_trailEmaHandle);
    IndicatorRelease(g_atrHandle);
@@ -128,6 +133,8 @@ void OnDeinit(const int r)
 void OnTick()
 {
    datetime srv  = TimeCurrent();
+   // deterministic server->UTC offset per tick (handles EU DST; avoids unreliable tester TimeGMT())
+   g_srvOffsetSec = (InpSrvToUtcOffsetSec != 999999) ? InpSrvToUtcOffsetSec : ORB_ServerToUtcOffsetSec(srv);
    int      etMin = ORB_EtMinutesFromServer(srv, g_srvOffsetSec);
    MqlDateTime et;
    TimeToStruct(ORB_UtcToEt(srv - g_srvOffsetSec), et);
@@ -154,14 +161,25 @@ void OnTick()
       double lo = iLow (_Symbol, PERIOD_M1, 0);
       if(hi > g_orHigh) g_orHigh = hi;
       if(lo < g_orLow)  g_orLow  = lo;
-      long tv = iTickVolume(_Symbol, PERIOD_M1, 0);
-      g_orVolAccum += (tv > 0) ? 1.0 : 0.0;
       return;
    }
 
-   // 2) first tick AFTER OR window: decide + arm
+   // 2) first tick AFTER OR window: compute real OR participation, then decide + arm.
+   //    Sum tick volume of the M1 bars whose ET minute falls inside [09:30, 09:30+OR);
+   //    filtering by ET time (not a fixed shift) is robust to sparse/gappy opens.
    if(g_state == CAPTURING && etMin >= 570 + InpOrMinutes)
+   {
+      g_orVolAccum = 0.0;
+      for(int s = 1; s <= InpOrMinutes + 5; s++)
+      {
+         datetime bt = iTime(_Symbol, PERIOD_M1, s);
+         if(bt == 0) break;
+         int bm = ORB_EtMinutesFromServer(bt, g_srvOffsetSec);
+         if(bm >= 570 && bm < 570 + InpOrMinutes)
+            g_orVolAccum += (double)iTickVolume(_Symbol, PERIOD_M1, s);
+      }
       ArmIfQualified();
+   }
 
    // 3) entry window expiry: cancel unfilled pending
    if(g_state == ARMED && g_pendTicket > 0)
@@ -207,28 +225,31 @@ double AtrVal()
 
 void ArmIfQualified()
 {
-   int n = ArraySize(g_priorWidths);
-   if(n < InpRvolLookback){ g_state = DONE; return; }   // warm-up: need history
-
-   double width = ORB_Width(g_orHigh, g_orLow);
-   if(!ORB_RangeGuardOk(width, g_priorWidths, n, InpRangeGuardLo, InpRangeGuardHi))
-      { g_state = DONE; return; }
-
-   if(ORB_Rvol(g_orVolAccum, g_priorVols, n) < InpRvolThresh)
-      { g_state = DONE; return; }
-
+   int    n          = ArraySize(g_priorWidths);
+   double width      = ORB_Width(g_orHigh, g_orLow);
+   double rvol       = (n > 0) ? ORB_Rvol(g_orVolAccum, g_priorVols, n) : 0.0;
    double priorClose = iClose(_Symbol, InpBiasTF, 1);
-   g_bias = ORB_Bias(priorClose, EmaVal(g_biasEmaHandle, 1));
-   if(g_bias == 0){ g_state = DONE; return; }
+   double biasEma    = EmaVal(g_biasEmaHandle, 1);
+   int    bias       = ORB_Bias(priorClose, biasEma);
+   string reason     = "armed";
 
+   if(n < InpRvolLookback)                                                               reason = "warmup";
+   else if(!ORB_RangeGuardOk(width, g_priorWidths, n, InpRangeGuardLo, InpRangeGuardHi)) reason = "range_guard";
+   else if(rvol < InpRvolThresh)                                                         reason = "rvol_low";
+   else if(bias == 0)                                                                    reason = "bias_flat";
+
+   if(g_diag != INVALID_HANDLE)
+      FileWrite(g_diag, g_curDayEt, n, (long)g_orVolAccum, width, rvol, priorClose, biasEma, bias, reason);
+
+   if(reason != "armed"){ g_state = DONE; return; }
+
+   g_bias       = bias;
    double entry = ORB_EntryPrice(g_bias, g_orHigh, g_orLow, InpBufferFrac);
    double sl    = ORB_StopLoss(InpStopArm, g_bias, entry,
                                g_orHigh, g_orLow,
                                ORB_Mid(g_orHigh, g_orLow),
                                AtrVal(), InpS2AtrK);
    double R  = ORB_R(entry, sl);
-
-   // E2/E3/E4: trail-only, no hard TP
    double tp = (InpExitArm <= 1) ? ORB_Target(g_bias, entry, R, InpTargetK) : 0.0;
 
    double tickVal  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
@@ -240,14 +261,24 @@ void ArmIfQualified()
                                   SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP),
                                   SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN),
                                   InpMaxLot);
-   if(lots <= 0.0){ g_state = DONE; return; }
+   if(lots <= 0.0)
+   {
+      if(g_diag != INVALID_HANDLE)
+         FileWrite(g_diag, g_curDayEt, n, (long)g_orVolAccum, width, R, entry, sl, valPerUnit, "lots_zero");
+      g_state = DONE; return;
+   }
 
    bool ok = (g_bias > 0)
              ? g_trade.BuyStop (lots, entry, _Symbol, sl, tp, ORDER_TIME_GTC, 0, "")
              : g_trade.SellStop(lots, entry, _Symbol, sl, tp, ORDER_TIME_GTC, 0, "");
 
    if(ok){ g_pendTicket = g_trade.ResultOrder(); g_state = ARMED; }
-   else   g_state = DONE;
+   else
+   {
+      if(g_diag != INVALID_HANDLE)
+         FileWrite(g_diag, g_curDayEt, n, (long)g_orVolAccum, width, rvol, entry, sl, (double)g_trade.ResultRetcode(), "order_fail");
+      g_state = DONE;
+   }
 }
 
 void ManageTrade(datetime srv, int etMin)
