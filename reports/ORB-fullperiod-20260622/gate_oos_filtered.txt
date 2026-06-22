@@ -1,0 +1,3 @@
+full_e0      OOS-only n= 255 win%= 53.3 PF=1.144 Sharpe=+1.04 net=+1575 DD=-11.0% long=+1906 short=-331 PASS=True
+full_e3      OOS-only n= 255 win%= 55.7 PF=1.543 Sharpe=+2.14 net=+3630 DD=-6.3% long=+2940 short=+691 PASS=True
+full_e1_2r   OOS-only n= 255 win%= 44.3 PF=1.149 Sharpe=+0.99 net=+2155 DD=-9.7% long=+3044 short=-890 PASS=True

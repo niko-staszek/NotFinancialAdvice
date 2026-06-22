@@ -10,14 +10,20 @@ transcribed from a video. Informed by the documented ORB literature (Zarattini &
 *"Can Day Trading Really Be Profitable"*, 2023 — 5-min ORB on US equities, RVOL-filtered)
 and by this repo's own prior result on the same family (see §13, IVB).
 
-**Status:** TESTED — **REJECTED (no OOS edge)**, 2026-06-22. Walk-forward 2021-10→2026-06
-(SL arms S0/S1/S2 on the E0 exit, RVOL=1.0): **PF 0.97, OOS Sharpe −0.20, net −2.7%,
-195 trades, max DD −13.7%, win 49.7%** → fails the gate (Sharpe < 0.5, PF < 1). Evidence:
-`reports/ORB-sl-20260622-103849Z/` (see §13). The deterministic kernel is built and
-validated end-to-end; the *edge* is not there — consistent with the breakout-family prior
-(§13) and IVB. Do not deploy. Exit / bias-EMA / RVOL sweeps are deferred: a base with
-PF 0.97 and negative OOS Sharpe is unlikely to be rescued without overfitting (multiple
-comparisons). The remaining thresholds below are starting hypotheses, not tuned results.
+**Status:** PROVISIONAL — under re-test, 2026-06-22. **(An earlier "REJECTED, Sharpe −0.20"
+verdict was retracted — it was a harness bug, not a result.)** The per-window OOS runs in the
+walk-forward each restart the 14-day RVOL warmup, so the first ~1 month of every 3-month OOS
+window is silently trade-free (~30% dropped), and the per-window SL *selection* overfit.
+Re-run as a **continuous** backtest of the fixed spec default (S0 opposite-end SL, E0 1:1
+exit, RVOL ≥ 1.0) and filtered to the OOS span 2022-10→2026-04: **PF 1.14, Sharpe(t) +1.04,
++16%, max DD −11%, 53% win — clears the gate.** The EMA8-runner exit (E3) is stronger
+(PF 1.54, Sharpe +2.14, and its short side is also positive). **Not yet "edge":** US100 rose
+**+106%** over the period and the bias-gated design is a bidirectional trend-follower, so this
+may be trend *exposure*. Edge-vs-exposure is being settled by cross-instrument tests
+(US500 / US30 / GER40) + a risk-adjusted buy-and-hold comparison. **Do not deploy.** Evidence:
+`reports/ORB-sl-20260622-103849Z/` (the buggy selection-WF) + full-period ledgers under
+`Common\Files\ORB\` (full_e0 / full_e3 / full_e1_2r). Caveat: `sharpe()` here is a per-trade
+t-statistic, not an annualized equity Sharpe — interpret accordingly.
 
 **Goal (this phase):** research-first. Settle whether ORB has real, out-of-sample edge on
 US100 before any FTMO deployment. Success = clears the repo validation gate
