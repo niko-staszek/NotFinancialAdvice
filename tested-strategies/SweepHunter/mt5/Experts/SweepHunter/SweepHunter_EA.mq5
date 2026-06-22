@@ -43,6 +43,7 @@ CTrade   g_trade;
 int      g_atrHandle;
 int      g_srvOffsetSec;
 int      g_ledger;
+int      g_tradeSeq;
 
 enum SHState { WAIT, MARKED, ARMED, INTRADE, DONE };
 SHState  g_state;
@@ -79,7 +80,7 @@ int OnInit() {
   g_trade.SetExpertMagicNumber((ulong)InpMagic);
   string lp = StringFormat("SweepHunter\\ledger_%s.csv", InpLedgerLabel);
   g_ledger = SH_LedgerOpen(lp);
-  g_curDayEt = -1; g_lastBar = 0; g_exitReason = "";
+  g_curDayEt = -1; g_lastBar = 0; g_exitReason = ""; g_tradeSeq = 0;
   ResetDay();
   return INIT_SUCCEEDED;
 }
@@ -133,7 +134,7 @@ void OnTick() {
       g_tSL = PositionGetDouble(POSITION_SL); g_tTP = PositionGetDouble(POSITION_TP);
       g_tDir = (PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY)?+1:-1;
       g_tR = SH_R(g_tEntry, g_tSL); g_tOpen = (datetime)(long)PositionGetInteger(POSITION_TIME);
-    } else {
+    } else if (g_pendTicket == 0) {
       g_swing = SH_UpdateSwing(g_setupDir, g_swing, iHigh(_Symbol,PERIOD_M1,1), iLow(_Symbol,PERIOD_M1,1));
       TryEnter();
     }
@@ -240,7 +241,7 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
                 (g_exitReason!=""?g_exitReason:"expert");
   double rmult=(g_tR>0.0)?(((g_tDir>0)?(exitPx-g_tEntry):(g_tEntry-exitPx))/g_tR):0.0;
 
-  SH_LedgerRow(g_ledger, 0, _Symbol, g_tDir,
+  SH_LedgerRow(g_ledger, ++g_tradeSeq, _Symbol, g_tDir,
                (datetime)((long)g_tOpen-(long)g_srvOffsetSec),
                (datetime)((long)TimeCurrent()-(long)g_srvOffsetSec),
                g_tEntry, g_tSL, g_tTP, lots, reason, profit, comm, swap, profit+swap+comm, rmult,
