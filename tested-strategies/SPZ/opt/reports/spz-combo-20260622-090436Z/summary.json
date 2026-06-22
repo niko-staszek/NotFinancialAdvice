@@ -1,0 +1,11 @@
+{
+  "combined_maxdd_R": 8.0,
+  "sum_of_solo_R": 13.0,
+  "diversification_R_saved": 5.0,
+  "combined_worstday_R": 2.0,
+  "overlap_frac_both_open": 0.497,
+  "binding": "max-DD",
+  "risk_per_trade_pct": 0.625,
+  "proj_combined_maxdd_pct": 5.0,
+  "proj_combined_daily_pct": 1.2
+}

@@ -1,0 +1,14 @@
+{
+  "style": "Intraday 13/34",
+  "minScore": 75,
+  "limits": {
+    "daily": 5,
+    "max": 10
+  },
+  "buffer": 2,
+  "account": 100000.0,
+  "instruments": [
+    "XAUUSD H1",
+    "BTCUSD H4"
+  ]
+}

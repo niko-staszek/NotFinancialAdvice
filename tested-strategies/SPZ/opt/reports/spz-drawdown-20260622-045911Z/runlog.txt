@@ -1,0 +1,5 @@
+config applied: recommended = {"emaFast": 21, "emaSlow": 50, "slopeLen": 10, "flatBand": 0.6, "adxStrongTh": 20, "minScore": 60, "cooldown": 25, "slMult": 2.8, "rr3": 3.0, "rr1": 1.0, "useSession": true, "sessStart": 7, "sessEnd": 18}
+XAUUSD 1h: n=118 pf=1.89 exp=0.525R win=40.7% | MAX DD = 13.0R  (12.3% @1%/trade, 23.1% @2%/trade)  net=62.0R  B&H=60.9%
+BTCUSD 4h: n=31 pf=1.68 exp=0.419R win=38.7% | MAX DD = 5.0R  (4.9% @1%/trade, 9.6% @2%/trade)  net=13.0R  B&H=-42.1%
+EURUSD 1h: n=129 pf=1.03 exp=0.023R win=28.7% | MAX DD = 13.0R  (12.4% @1%/trade, 23.6% @2%/trade)  net=3.0R  B&H=12.9%
+run complete

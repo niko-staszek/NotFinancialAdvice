@@ -1,0 +1,5 @@
+limits: daily 5.0% / max 10.0% ; buffer x2.0 ; account $100,000
+XAUUSD 1h: maxDD=13.0R worstDay=2.0R binding=max-DD -> risk/trade 0.385%  (~0.103 lots/$100k, SL~37.4871)  => proj maxDD 5.0% / daily 0.8%
+BTCUSD 4h: maxDD=5.0R worstDay=1.0R binding=max-DD -> risk/trade 1.0%  (~0.333 lots/$100k, SL~3001.1108)  => proj maxDD 5.0% / daily 1.0%
+EURUSD 1h: maxDD=13.0R worstDay=2.0R binding=max-DD -> risk/trade 0.385%  (~1.039 lots/$100k, SL~0.0037)  => proj maxDD 5.0% / daily 0.8%
+run complete

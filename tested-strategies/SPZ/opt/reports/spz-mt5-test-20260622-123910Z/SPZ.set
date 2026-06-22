@@ -1,0 +1,4 @@
+EmaFastLen=13
+EmaSlowLen=34
+RiskPctPerTrade=0.625
+AllowLiveTrading=true

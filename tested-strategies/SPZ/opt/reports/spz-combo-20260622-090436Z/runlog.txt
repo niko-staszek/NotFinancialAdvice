@@ -1,0 +1,6 @@
+XAUUSD 1h Intraday ms75: n=155 solo maxDD=9.0R medSL=37.49
+BTCUSD 4h Intraday ms75: n=34 solo maxDD=4.0R medSL=3001.11
+COMBINED maxDD=8.0R (vs sum 13.0R -> div saves 5.0R) worstDay=2.0R overlap=50% -> risk 0.625%/trade (binding max-DD); proj combined maxDD 5.0% / daily 1.2%
+  XAUUSD: 0.167 lots/$100k (SL~37.49)
+  BTCUSD: 0.208 lots/$100k (SL~3001.11)
+run complete

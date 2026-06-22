@@ -1,0 +1,28 @@
+{
+  "settings": {
+    "emaFast": 21,
+    "emaSlow": 50,
+    "slopeLen": 10,
+    "flatBand": 0.6,
+    "adxStrongTh": 20,
+    "minScore": 60,
+    "cooldown": 25,
+    "slMult": 2.8,
+    "rr3": 3.0,
+    "rr1": 1.0,
+    "useSession": true,
+    "sessStart": 7,
+    "sessEnd": 18
+  },
+  "limits": {
+    "daily": 5.0,
+    "max": 10.0
+  },
+  "buffer": 2.0,
+  "account": 100000.0,
+  "instruments": [
+    "XAUUSD 1h",
+    "BTCUSD 4h",
+    "EURUSD 1h"
+  ]
+}

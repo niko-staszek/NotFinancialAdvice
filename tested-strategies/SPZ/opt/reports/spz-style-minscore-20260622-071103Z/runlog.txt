@@ -1,0 +1,28 @@
+XAUUSD 1h Scalp   (9/21) ms= 50: n=182 pf=1.29 exp=0.187R win=34.6% maxDD=13.0R net=34.0R
+XAUUSD 1h Scalp   (9/21) ms= 75: n=176 pf=1.3 exp=0.193R win=35.2% maxDD=12.0R net=34.0R
+XAUUSD 1h Scalp   (9/21) ms=100: n=142 pf=1.4 exp=0.254R win=35.9% maxDD=10.0R net=36.0R
+XAUUSD 1h Intraday(13/34) ms= 50: n=154 pf=1.5 exp=0.312R win=37.7% maxDD=8.0R net=48.0R
+XAUUSD 1h Intraday(13/34) ms= 75: n=155 pf=1.46 exp=0.29R win=36.8% maxDD=9.0R net=45.0R
+XAUUSD 1h Intraday(13/34) ms=100: n=126 pf=1.51 exp=0.317R win=37.3% maxDD=9.0R net=40.0R
+XAUUSD 1h Swing   (21/50) ms= 50: n=118 pf=1.93 exp=0.542R win=41.5% maxDD=13.0R net=64.0R
+XAUUSD 1h Swing   (21/50) ms= 75: n=118 pf=1.89 exp=0.525R win=40.7% maxDD=13.0R net=62.0R
+XAUUSD 1h Swing   (21/50) ms=100: n=109 pf=1.55 exp=0.358R win=34.9% maxDD=14.0R net=39.0R
+BTCUSD 4h Scalp   (9/21) ms= 50: n= 47 pf=1.5 exp=0.277R win=44.7% maxDD=8.0R net=13.0R
+BTCUSD 4h Scalp   (9/21) ms= 75: n= 44 pf=1.15 exp=0.091R win=38.6% maxDD=8.0R net=4.0R
+BTCUSD 4h Scalp   (9/21) ms=100: n= 32 pf=1.74 exp=0.438R win=40.6% maxDD=6.0R net=14.0R
+BTCUSD 4h Intraday(13/34) ms= 50: n= 34 pf=2.18 exp=0.588R win=50.0% maxDD=4.0R net=20.0R
+BTCUSD 4h Intraday(13/34) ms= 75: n= 34 pf=2.0 exp=0.529R win=47.1% maxDD=4.0R net=18.0R
+BTCUSD 4h Intraday(13/34) ms=100: n= 29 pf=2.06 exp=0.586R win=44.8% maxDD=4.0R net=17.0R
+BTCUSD 4h Swing   (21/50) ms= 50: n= 31 pf=1.68 exp=0.419R win=38.7% maxDD=5.0R net=13.0R
+BTCUSD 4h Swing   (21/50) ms= 75: n= 31 pf=1.68 exp=0.419R win=38.7% maxDD=5.0R net=13.0R
+BTCUSD 4h Swing   (21/50) ms=100: n= 25 pf=1.56 exp=0.36R win=36.0% maxDD=4.0R net=9.0R
+EURUSD 1h Scalp   (9/21) ms= 50: n=179 pf=1.01 exp=0.006R win=30.2% maxDD=18.0R net=1.0R
+EURUSD 1h Scalp   (9/21) ms= 75: n=175 pf=1.07 exp=0.051R win=30.9% maxDD=15.0R net=9.0R
+EURUSD 1h Scalp   (9/21) ms=100: n=148 pf=1.2 exp=0.135R win=33.1% maxDD=15.0R net=20.0R
+EURUSD 1h Intraday(13/34) ms= 50: n=158 pf=1.04 exp=0.025R win=29.7% maxDD=13.0R net=4.0R
+EURUSD 1h Intraday(13/34) ms= 75: n=156 pf=0.98 exp=-0.013R win=28.8% maxDD=16.0R net=-2.0R
+EURUSD 1h Intraday(13/34) ms=100: n=137 pf=1.2 exp=0.139R win=32.1% maxDD=13.0R net=19.0R
+EURUSD 1h Swing   (21/50) ms= 50: n=132 pf=1.04 exp=0.03R win=29.5% maxDD=11.0R net=4.0R
+EURUSD 1h Swing   (21/50) ms= 75: n=129 pf=1.03 exp=0.023R win=28.7% maxDD=13.0R net=3.0R
+EURUSD 1h Swing   (21/50) ms=100: n=118 pf=1.07 exp=0.051R win=28.8% maxDD=10.0R net=6.0R
+run complete

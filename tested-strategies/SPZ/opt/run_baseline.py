@@ -3,7 +3,7 @@ import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 import recon
 
-CSV = os.path.join(os.path.dirname(__file__), "..", "..", "CBS", "data", "XAUUSD_M5_2024-06-10_2026-06-10.csv")
+CSV = os.path.join(os.path.dirname(__file__), "..", "..", "..", "CBS", "data", "XAUUSD_M5_2024-06-10_2026-06-10.csv")
 
 
 def regime_counts(f):

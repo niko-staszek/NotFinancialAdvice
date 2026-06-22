@@ -1,0 +1,4 @@
+instrument,tf,trades,pf,maxdd_R,worstday_R,med_SL_px,binding,risk_per_trade_pct,lots_100k,risk_usd_100k,result_maxdd_pct,result_daily_pct
+XAUUSD,1h,118,1.89,13.0,2.0,37.4871,max-DD,0.385,0.103,385.0,5.0,0.8
+BTCUSD,4h,31,1.68,5.0,1.0,3001.1108,max-DD,1.0,0.333,1000.0,5.0,1.0
+EURUSD,1h,129,1.03,13.0,2.0,0.0037,max-DD,0.385,1.039,385.0,5.0,0.8

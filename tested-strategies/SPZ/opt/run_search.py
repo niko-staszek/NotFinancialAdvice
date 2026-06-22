@@ -9,11 +9,11 @@ gold buy-and-hold over the period (Tesla-trap check). Writes a full audit folder
 import os, sys, json, itertools, io, contextlib
 import pandas as pd
 sys.path.insert(0, os.path.dirname(__file__))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "tools"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "tools"))
 import recon
 import audit
 
-CSV = os.path.join(os.path.dirname(__file__), "..", "..", "CBS", "data", "XAUUSD_M5_2024-06-10_2026-06-10.csv")
+CSV = os.path.join(os.path.dirname(__file__), "..", "..", "..", "CBS", "data", "XAUUSD_M5_2024-06-10_2026-06-10.csv")
 
 GRID = dict(
     flatBand=[0.3, 0.5, 0.7, 1.0, 1.5],

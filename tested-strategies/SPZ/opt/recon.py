@@ -45,12 +45,14 @@ def adx(h, l, c, n=14):
 
 
 # ----------------------------- data -----------------------------
-def load_h1(csv_path):
+def load_tf(csv_path, rule="1h"):
     df = pd.read_csv(csv_path, parse_dates=["time_utc"]).set_index("time_utc").sort_index()
     agg = {"open": "first", "high": "max", "low": "min", "close": "last", "tick_volume": "sum"}
-    h1 = df.resample("1h").agg(agg).dropna()
-    h1 = h1.rename(columns={"tick_volume": "volume"})
-    return h1
+    bars = df.resample(rule).agg(agg).dropna()
+    return bars.rename(columns={"tick_volume": "volume"})
+
+def load_h1(csv_path):
+    return load_tf(csv_path, "1h")
 
 def htf_ema_on_h1(h1, span, htf="4h"):
     """H4 EMA aligned to H1 using only completed H4 bars (no lookahead)."""
@@ -67,12 +69,13 @@ def htf_ema_on_h1(h1, span, htf="4h"):
 
 
 # ----------------------------- features -----------------------------
-def build_base(h1, p):
-    """Heavy indicators that depend only on EMA lengths / session — compute ONCE per grid."""
+def build_base(h1, p, htf_rule="4h"):
+    """Heavy indicators that depend only on EMA lengths / session — compute ONCE per grid.
+    htf_rule = the higher timeframe used for the HTF trend (H1 base -> 4h; H4 base -> 1D)."""
     f = pd.DataFrame(index=h1.index)
     f["close"] = h1["close"]; f["high"] = h1["high"]; f["low"] = h1["low"]; f["volume"] = h1["volume"]
     f["emaSlow"] = ema(h1["close"], p["emaSlow"])
-    f["htfEma"] = htf_ema_on_h1(h1, p["emaSlow"])
+    f["htfEma"] = htf_ema_on_h1(h1, p["emaSlow"], htf=htf_rule)
     f["htfUp"] = f["close"] > f["htfEma"]
     f["adx"] = adx(h1["high"], h1["low"], h1["close"], 14)
     f["rsi"] = rsi(h1["close"], 14)
@@ -172,6 +175,23 @@ def stats(trades):
         "tp1R": int((trades["outcome"] == "TP").sum()),
         "sl": int((trades["outcome"] == "SL").sum()),
     }
+
+
+def equity_dd(trades, risk_pct):
+    """Max drawdown from the R-multiple trade sequence.
+    Returns max DD in R units, and max DD % under fixed-fractional sizing at risk_pct per trade."""
+    if len(trades) == 0:
+        return {"maxdd_R": float("nan"), "maxdd_pct": float("nan"), "final_R": 0.0}
+    R = trades["R"].values
+    eqR = np.cumsum(R)
+    ddR = np.maximum.accumulate(eqR) - eqR
+    maxdd_R = float(np.max(ddR)) if len(ddR) else 0.0
+    eq = 1.0; peak = 1.0; maxdd = 0.0
+    for r in R:
+        eq *= (1.0 + r * risk_pct / 100.0)
+        peak = max(peak, eq)
+        maxdd = max(maxdd, (peak - eq) / peak)
+    return {"maxdd_R": maxdd_R, "maxdd_pct": maxdd * 100.0, "final_R": float(eqR[-1])}
 
 
 DEFAULTS = dict(emaFast=21, emaSlow=50, slopeLen=10, flatBand=0.6, adxStrongTh=20,

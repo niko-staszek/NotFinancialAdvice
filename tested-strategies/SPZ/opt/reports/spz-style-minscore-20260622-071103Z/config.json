@@ -1,0 +1,53 @@
+{
+  "defaults": {
+    "emaFast": 21,
+    "emaSlow": 50,
+    "slopeLen": 10,
+    "flatBand": 0.6,
+    "adxStrongTh": 20,
+    "minScore": 60,
+    "cooldown": 25,
+    "slMult": 2.8,
+    "rr3": 3.0,
+    "rr1": 1.0,
+    "useSession": true,
+    "sessStart": 7,
+    "sessEnd": 18
+  },
+  "styles": {
+    "Scalp": [
+      9,
+      21
+    ],
+    "Intraday": [
+      13,
+      34
+    ],
+    "Swing": [
+      21,
+      50
+    ]
+  },
+  "minScores": [
+    50,
+    75,
+    100
+  ],
+  "instruments": [
+    [
+      "XAUUSD",
+      "1h",
+      "Scalp/Intraday"
+    ],
+    [
+      "BTCUSD",
+      "4h",
+      "Swing"
+    ],
+    [
+      "EURUSD",
+      "1h",
+      "Swing"
+    ]
+  ]
+}
