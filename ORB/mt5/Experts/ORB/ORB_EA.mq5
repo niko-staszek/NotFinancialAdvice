@@ -57,6 +57,11 @@ ulong    g_posTicket;
 ulong    g_pendTicket;
 bool     g_tookPartial;
 int      g_tradeSeq;
+// open-trade context (captured at arm/fill; consumed by OnTradeTransaction on the OUT deal)
+string   g_exitReason;
+int      g_tDir;
+double   g_tEntry, g_tSL, g_tTP, g_tR, g_tOrWidth, g_tRvol, g_tBiasEma;
+datetime g_tOpen;
 
 //+------------------------------------------------------------------+
 //| Forward declarations                                             |
@@ -67,7 +72,7 @@ void   ArmIfQualified();
 void   ManageTrade(datetime srv, int etMin);
 void   RollHistory();
 void   PushRing(double &arr[], double v, int cap);
-void   CloseAndLog(string reason);
+void   CloseTrade(string reason);
 
 //+------------------------------------------------------------------+
 //| OnInit                                                           |
@@ -108,6 +113,7 @@ int OnInit()
    g_orLow      =  DBL_MAX;
    g_orVolAccum = 0;
    g_bias       = 0;
+   g_exitReason = "";
 
    return INIT_SUCCEEDED;
 }
@@ -118,7 +124,7 @@ int OnInit()
 void OnDeinit(const int r)
 {
    if(g_posTicket > 0 && PositionSelectByTicket(g_posTicket))
-      CloseAndLog("forced_eod");
+      CloseTrade("forced_eod");
 
    ORB_LedgerClose(g_ledger);
    if(g_diag != INVALID_HANDLE) FileClose(g_diag);
@@ -199,6 +205,13 @@ void OnTick()
       g_posTicket  = g_pendTicket;
       g_pendTicket = 0;
       g_state      = INTRADE;
+      g_exitReason = "";
+      g_tEntry = PositionGetDouble(POSITION_PRICE_OPEN);
+      g_tSL    = PositionGetDouble(POSITION_SL);
+      g_tTP    = PositionGetDouble(POSITION_TP);
+      g_tDir   = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? +1 : -1;
+      g_tR     = ORB_R(g_tEntry, g_tSL);
+      g_tOpen  = (datetime)(long)PositionGetInteger(POSITION_TIME);
    }
 
    // 5) manage open trade
@@ -252,6 +265,10 @@ void ArmIfQualified()
    double R  = ORB_R(entry, sl);
    double tp = (InpExitArm <= 1) ? ORB_Target(g_bias, entry, R, InpTargetK) : 0.0;
 
+   // context consumed by OnTradeTransaction on the OUT deal (entry/sl refreshed at actual fill)
+   g_tOrWidth = width; g_tRvol = rvol; g_tBiasEma = biasEma;
+   g_tDir = g_bias; g_tEntry = entry; g_tSL = sl; g_tTP = tp; g_tR = R;
+
    double tickVal  = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_VALUE);
    double tickSize = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_TICK_SIZE);
    double valPerUnit = (tickSize > 0.0) ? (tickVal / tickSize) : 0.0;
@@ -291,7 +308,7 @@ void ManageTrade(datetime srv, int etMin)
 
    // EOD flat
    if(ORB_AtOrAfterFlat(srv, g_srvOffsetSec, InpFlatEt))
-      { CloseAndLog("forced_eod"); return; }
+      { CloseTrade("forced_eod"); return; }
 
    // E2/E3/E4: partial and/or EMA trail
    if(InpExitArm >= 2)
@@ -322,7 +339,7 @@ void ManageTrade(datetime srv, int etMin)
          double m15close = iClose(_Symbol, InpTrailTF, 1);
          double ema      = EmaVal(g_trailEmaHandle, 1);
          if(ORB_EmaCloseCrossExit(dir, m15close, ema))
-            CloseAndLog("ema_cross");
+            CloseTrade("ema_cross");
       }
    }
 }
@@ -342,44 +359,54 @@ void PushRing(double &arr[], double v, int cap)
 }
 
 //+------------------------------------------------------------------+
-//| CloseAndLog — capture all position values BEFORE closing         |
+//| CloseTrade — set the exit reason and close; the ledger row is     |
+//| written by OnTradeTransaction on the resulting OUT deal.          |
 //+------------------------------------------------------------------+
-void CloseAndLog(string reason)
+void CloseTrade(string reason)
 {
    if(!PositionSelectByTicket(g_posTicket)) return;
+   g_exitReason = reason;
+   g_trade.PositionClose(g_posTicket);
+   g_state = DONE;
+}
 
-   // --- capture BEFORE close ---
-   int      dir     = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY) ? +1 : -1;
-   double   entry   = PositionGetDouble(POSITION_PRICE_OPEN);
-   double   sl      = PositionGetDouble(POSITION_SL);
-   double   tp      = PositionGetDouble(POSITION_TP);
-   double   lots    = PositionGetDouble(POSITION_VOLUME);
-   double   profit  = PositionGetDouble(POSITION_PROFIT);
-   double   swap    = PositionGetDouble(POSITION_SWAP);
-   double   exitPx  = PositionGetDouble(POSITION_PRICE_CURRENT);
-   datetime topen   = (datetime)(long)PositionGetInteger(POSITION_TIME);
+//+------------------------------------------------------------------+
+//| OnTradeTransaction — single ledger source: logs every closing     |
+//| deal, incl. broker SL/TP hits AND EA-initiated EOD/EMA closes.    |
+//+------------------------------------------------------------------+
+void OnTradeTransaction(const MqlTradeTransaction &trans,
+                        const MqlTradeRequest &request,
+                        const MqlTradeResult &result)
+{
+   if(trans.type != TRADE_TRANSACTION_DEAL_ADD) return;
+   ulong deal = trans.deal;
+   if(!HistoryDealSelect(deal)) return;
+   if((long)HistoryDealGetInteger(deal, DEAL_MAGIC) != InpMagic) return;
+   if((ENUM_DEAL_ENTRY)HistoryDealGetInteger(deal, DEAL_ENTRY) != DEAL_ENTRY_OUT) return;
 
-   // compute R-multiple from captured exit price
-   double R     = ORB_R(entry, sl);
-   double rmult = (R > 0.0)
-                  ? ((dir > 0) ? (exitPx - entry) : (entry - exitPx)) / R
+   double exitPx = HistoryDealGetDouble(deal, DEAL_PRICE);
+   double profit = HistoryDealGetDouble(deal, DEAL_PROFIT);
+   double swap   = HistoryDealGetDouble(deal, DEAL_SWAP);
+   double comm   = HistoryDealGetDouble(deal, DEAL_COMMISSION);
+   double lots   = HistoryDealGetDouble(deal, DEAL_VOLUME);
+   ENUM_DEAL_REASON dr = (ENUM_DEAL_REASON)HistoryDealGetInteger(deal, DEAL_REASON);
+
+   string reason = (dr == DEAL_REASON_SL) ? "sl_hit"
+                 : (dr == DEAL_REASON_TP) ? "tp_hit"
+                 : (g_exitReason != "" ? g_exitReason : "expert");
+
+   double rmult = (g_tR > 0.0)
+                  ? ((g_tDir > 0) ? (exitPx - g_tEntry) : (g_tEntry - exitPx)) / g_tR
                   : 0.0;
 
-   // --- close ---
-   g_trade.PositionClose(g_posTicket);
-
-   // --- log with captured values only ---
-   ORB_LedgerRow(g_ledger, ++g_tradeSeq, _Symbol, dir,
-                 (datetime)((long)topen    - (long)g_srvOffsetSec),
+   ORB_LedgerRow(g_ledger, ++g_tradeSeq, _Symbol, g_tDir,
+                 (datetime)((long)g_tOpen - (long)g_srvOffsetSec),
                  (datetime)((long)TimeCurrent() - (long)g_srvOffsetSec),
-                 entry, sl, tp, lots, reason,
-                 profit, 0.0, swap, profit + swap, rmult,
-                 EmaVal(g_biasEmaHandle, 1),
-                 ORB_Rvol(g_orVolAccum, g_priorVols, ArraySize(g_priorVols)),
-                 ORB_Width(g_orHigh, g_orLow),
-                 InpStopArm, InpExitArm);
+                 g_tEntry, g_tSL, g_tTP, lots, reason,
+                 profit, comm, swap, profit + swap + comm, rmult,
+                 g_tBiasEma, g_tRvol, g_tOrWidth, InpStopArm, InpExitArm);
 
-   g_state = DONE;
+   g_exitReason = "";
 }
 
 //+------------------------------------------------------------------+
