@@ -910,9 +910,9 @@ double   g_sweptLevel;
 double   g_swing;              // running swing extreme since sweep
 ulong    g_pendTicket, g_posTicket;
 
-// open-trade context consumed by OnTradeTransaction on the OUT deal
-int      g_tDir; double g_tEntry,g_tSL,g_tTP,g_tR,g_tSwept; int g_tSide; double g_tDepth;
-datetime g_tOpen; string g_exitReason;
+// setup-level context (swept level/side/fill-depth) consumed by OnTradeTransaction;
+// entry/sl/tp/dir/open are derived from the closed position itself, not from globals.
+double   g_tSwept; int g_tSide; double g_tDepth; string g_exitReason;
 
 double AtrVal();
 void   ResetDay();
@@ -946,10 +946,24 @@ double AtrVal() {
   return b[0];
 }
 
+// Cancel any live pending order and close any live position for this magic,
+// then drop the tracked tickets. Enforces the single-live-order/position invariant
+// across day rollover and on the way to DONE.
+void Flatten() {
+  if (g_pendTicket > 0 && OrderSelect(g_pendTicket) &&
+      (long)OrderGetInteger(ORDER_MAGIC) == InpMagic)
+    g_trade.OrderDelete(g_pendTicket);
+  if (g_posTicket > 0 && PositionSelectByTicket(g_posTicket) &&
+      (long)PositionGetInteger(POSITION_MAGIC) == InpMagic) {
+    g_exitReason = "forced_eod"; g_trade.PositionClose(g_posTicket);
+  }
+  g_pendTicket = 0; g_posTicket = 0;
+}
+
 void ResetDay() {
+  Flatten();
   g_state = WAIT; g_marked = false; g_levelN = 0;
   g_setupDir = 0; g_sweptSide = 0; g_sweptLevel = 0; g_swing = 0;
-  g_pendTicket = 0; g_posTicket = 0;
 }
 
 void OnTick() {
@@ -971,18 +985,14 @@ void OnTick() {
 
   if (g_state == MARKED && SH_InWindowEt(etMin, InpHuntStartEt, InpHuntEndEt)) TryArm();
   if (g_state == ARMED) {
-    // cancel unfilled limit at hunt end
+    // cancel unfilled limit at hunt end (Flatten cancels any live pending)
     if (!SH_InWindowEt(etMin, InpHuntStartEt, InpHuntEndEt)) {
-      if (g_pendTicket > 0) g_trade.OrderDelete(g_pendTicket);
-      g_state = DONE; return;
+      Flatten(); g_state = DONE; return;
     }
-    // fill detection
+    // fill detection: limit became a position. The ledger context is derived from
+    // the position/deal itself in OnTradeTransaction, so we only track the ticket here.
     if (g_pendTicket > 0 && PositionSelectByTicket(g_pendTicket)) {
       g_posTicket = g_pendTicket; g_pendTicket = 0; g_state = INTRADE;
-      g_tEntry = PositionGetDouble(POSITION_PRICE_OPEN);
-      g_tSL = PositionGetDouble(POSITION_SL); g_tTP = PositionGetDouble(POSITION_TP);
-      g_tDir = (PositionGetInteger(POSITION_TYPE)==POSITION_TYPE_BUY)?+1:-1;
-      g_tR = SH_R(g_tEntry, g_tSL); g_tOpen = (datetime)(long)PositionGetInteger(POSITION_TIME);
     } else if (g_pendTicket == 0) {
       g_swing = SH_UpdateSwing(g_setupDir, g_swing, iHigh(_Symbol,PERIOD_M1,1), iLow(_Symbol,PERIOD_M1,1));
       TryEnter();
@@ -1023,7 +1033,25 @@ void TryArm() {
   }
 }
 
+// Count live positions/orders for this EA's symbol+magic (invariant guard).
+int SH_LiveCount() {
+  int n = 0;
+  for (int i = PositionsTotal()-1; i >= 0; i--) {
+    ulong t = PositionGetTicket(i);
+    if (t > 0 && PositionGetString(POSITION_SYMBOL) == _Symbol &&
+        (long)PositionGetInteger(POSITION_MAGIC) == InpMagic) n++;
+  }
+  for (int i = OrdersTotal()-1; i >= 0; i--) {
+    ulong t = OrderGetTicket(i);
+    if (t > 0 && OrderGetString(ORDER_SYMBOL) == _Symbol &&
+        (long)OrderGetInteger(ORDER_MAGIC) == InpMagic) n++;
+  }
+  return n;
+}
+
 void TryEnter() {
+  // Refuse to place if any position or order for this magic already exists.
+  if (g_pendTicket > 0 || g_posTicket > 0 || SH_LiveCount() > 0) { g_state = DONE; return; }
   double h2=iHigh(_Symbol,PERIOD_M1,3), l2=iLow(_Symbol,PERIOD_M1,3);
   double h1=iHigh(_Symbol,PERIOD_M1,2), l1=iLow(_Symbol,PERIOD_M1,2);
   double h0=iHigh(_Symbol,PERIOD_M1,1), l0=iLow(_Symbol,PERIOD_M1,1);
@@ -1051,8 +1079,8 @@ void TryEnter() {
                                 SymbolInfoDouble(_Symbol,SYMBOL_VOLUME_MIN), InpMaxLot);
   if (lots <= 0.0) { g_state = DONE; return; }
 
-  // context for the ledger
-  g_tDir=g_setupDir; g_tSide=g_sweptSide; g_tSwept=g_sweptLevel; g_tDepth=InpFillDepth;
+  // setup-level context for the ledger (swept level/side/fill-depth)
+  g_tSide=g_sweptSide; g_tSwept=g_sweptLevel; g_tDepth=InpFillDepth;
 
   bool ok;
   if (InpEntryMode == 1)
@@ -1074,6 +1102,40 @@ void CloseTrade(string reason) {
   g_exitReason = reason; g_trade.PositionClose(g_posTicket); g_state = DONE;
 }
 
+// Pull a closed position's own entry price, SL, TP, dir, and open time from history.
+// entry/dir/open come from the IN deal; SL/TP from the opening order of that position.
+// Returns false if the position's IN deal cannot be located.
+bool SH_PosContext(ulong posId, double &entry, double &sl, double &tp, int &dir, datetime &openT) {
+  if (!HistorySelectByPosition(posId)) return false;
+  bool gotIn = false; ulong inOrder = 0;
+  int nd = HistoryDealsTotal();
+  for (int i = 0; i < nd; i++) {
+    ulong d = HistoryDealGetTicket(i);
+    if (d == 0 || (ulong)HistoryDealGetInteger(d, DEAL_POSITION_ID) != posId) continue;
+    if ((ENUM_DEAL_ENTRY)HistoryDealGetInteger(d, DEAL_ENTRY) == DEAL_ENTRY_IN) {
+      entry = HistoryDealGetDouble(d, DEAL_PRICE);
+      dir   = (HistoryDealGetInteger(d, DEAL_TYPE) == DEAL_TYPE_BUY) ? +1 : -1;
+      openT = (datetime)(long)HistoryDealGetInteger(d, DEAL_TIME);
+      inOrder = (ulong)HistoryDealGetInteger(d, DEAL_ORDER);
+      gotIn = true; break;
+    }
+  }
+  if (!gotIn) return false;
+  sl = 0.0; tp = 0.0;
+  int no = HistoryOrdersTotal();
+  for (int i = 0; i < no; i++) {
+    ulong o = HistoryOrderGetTicket(i);
+    if (o == 0) continue;
+    if (o == inOrder || (ulong)HistoryOrderGetInteger(o, ORDER_POSITION_ID) == posId) {
+      double osl = HistoryOrderGetDouble(o, ORDER_SL), otp = HistoryOrderGetDouble(o, ORDER_TP);
+      if (osl > 0.0) sl = osl;
+      if (otp > 0.0) tp = otp;
+      if (o == inOrder) break;
+    }
+  }
+  return true;
+}
+
 void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest &request,
                         const MqlTradeResult &result) {
   if (trans.type != TRADE_TRANSACTION_DEAL_ADD) return;
@@ -1082,19 +1144,32 @@ void OnTradeTransaction(const MqlTradeTransaction &trans, const MqlTradeRequest 
   if ((long)HistoryDealGetInteger(deal, DEAL_MAGIC) != InpMagic) return;
   if ((ENUM_DEAL_ENTRY)HistoryDealGetInteger(deal, DEAL_ENTRY) != DEAL_ENTRY_OUT) return;
 
+  ulong posId = (ulong)HistoryDealGetInteger(deal, DEAL_POSITION_ID);
   double exitPx=HistoryDealGetDouble(deal,DEAL_PRICE), profit=HistoryDealGetDouble(deal,DEAL_PROFIT);
   double swap=HistoryDealGetDouble(deal,DEAL_SWAP), comm=HistoryDealGetDouble(deal,DEAL_COMMISSION);
   double lots=HistoryDealGetDouble(deal,DEAL_VOLUME);
   ENUM_DEAL_REASON dr=(ENUM_DEAL_REASON)HistoryDealGetInteger(deal,DEAL_REASON);
   string reason=(dr==DEAL_REASON_SL)?"sl_hit":(dr==DEAL_REASON_TP)?"tp_hit":
                 (g_exitReason!=""?g_exitReason:"expert");
-  double rmult=(g_tR>0.0)?(((g_tDir>0)?(exitPx-g_tEntry):(g_tEntry-exitPx))/g_tR):0.0;
 
-  SH_LedgerRow(g_ledger, ++g_tradeSeq, _Symbol, g_tDir,
-               (datetime)((long)g_tOpen-(long)g_srvOffsetSec),
+  // Derive entry/sl/tp/dir/open from THIS position — never from stale globals.
+  double entry, sl, tp; int dir; datetime openT;
+  if (!SH_PosContext(posId, entry, sl, tp, dir, openT)) { g_exitReason=""; return; }
+  double R     = SH_R(entry, sl);
+  double rmult = (R > 0.0) ? (((dir > 0) ? (exitPx - entry) : (entry - exitPx)) / R) : 0.0;
+
+  // Setup-level fields are valid only when this is the position we tracked
+  // (the single live setup). Stray positions log a neutral setup context.
+  bool tracked = (posId == g_posTicket);
+  double swept = tracked ? g_tSwept : 0.0;
+  int    side  = tracked ? g_tSide  : 0;
+  double depth = tracked ? g_tDepth : InpFillDepth;
+
+  SH_LedgerRow(g_ledger, ++g_tradeSeq, _Symbol, dir,
+               (datetime)((long)openT       -(long)g_srvOffsetSec),
                (datetime)((long)TimeCurrent()-(long)g_srvOffsetSec),
-               g_tEntry, g_tSL, g_tTP, lots, reason, profit, comm, swap, profit+swap+comm, rmult,
-               g_tSwept, g_tSide, TargetModeStr(), g_tDepth);
+               entry, sl, tp, lots, reason, profit, comm, swap, profit+swap+comm, rmult,
+               swept, side, TargetModeStr(), depth);
   g_exitReason = "";
 }
 
