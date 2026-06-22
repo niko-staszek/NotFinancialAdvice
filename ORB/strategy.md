@@ -10,20 +10,20 @@ transcribed from a video. Informed by the documented ORB literature (Zarattini &
 *"Can Day Trading Really Be Profitable"*, 2023 — 5-min ORB on US equities, RVOL-filtered)
 and by this repo's own prior result on the same family (see §13, IVB).
 
-**Status:** PROVISIONAL — under re-test, 2026-06-22. **(An earlier "REJECTED, Sharpe −0.20"
-verdict was retracted — it was a harness bug, not a result.)** The per-window OOS runs in the
-walk-forward each restart the 14-day RVOL warmup, so the first ~1 month of every 3-month OOS
-window is silently trade-free (~30% dropped), and the per-window SL *selection* overfit.
-Re-run as a **continuous** backtest of the fixed spec default (S0 opposite-end SL, E0 1:1
-exit, RVOL ≥ 1.0) and filtered to the OOS span 2022-10→2026-04: **PF 1.14, Sharpe(t) +1.04,
-+16%, max DD −11%, 53% win — clears the gate.** The EMA8-runner exit (E3) is stronger
-(PF 1.54, Sharpe +2.14, and its short side is also positive). **Not yet "edge":** US100 rose
-**+106%** over the period and the bias-gated design is a bidirectional trend-follower, so this
-may be trend *exposure*. Edge-vs-exposure is being settled by cross-instrument tests
-(US500 / US30 / GER40) + a risk-adjusted buy-and-hold comparison. **Do not deploy.** Evidence:
-`reports/ORB-sl-20260622-103849Z/` (the buggy selection-WF) + full-period ledgers under
-`Common\Files\ORB\` (full_e0 / full_e3 / full_e1_2r). Caveat: `sharpe()` here is a per-trade
-t-statistic, not an annualized equity Sharpe — interpret accordingly.
+**Status:** TESTED — **REJECTED (no generalizable edge)**, 2026-06-22. The path matters:
+(1) an initial walk-forward read REJECT (Sharpe −0.20) but via a **harness bug** — per-window
+OOS runs restart the 14-day RVOL warmup, dropping ~30% of each OOS window; (2) corrected
+**continuous** OOS test (fixed spec default S0/E0/RVOL≥1.0, span 2022-10→2026-04) showed US100
+**PASSES** (PF 1.14, Sharpe(t) +1.04; runner E3 PF 1.54 / +2.14); (3) **cross-instrument is
+decisive — same config + method: US100 passes (+1.04/+2.14) but US500 FAILS (−1.06/−0.04) and
+US30 FAILS (−1.30/+0.42).** Positive on the single most-volatile/most-trending index only,
+negative on the two correlated peers → **not a robust edge** — Nasdaq-specific trend/volatility
+exposure (n=1 instrument = cherry-pick risk). Matches ETR (worked only on gold/BTC, failed the
+basket) and the breakout-family prior. **Do not deploy.** Evidence:
+`reports/ORB-fullperiod-20260622/` (gate_cross_instrument.txt + ledgers). The deterministic
+kernel and the research pipeline (codified gate, headless tester, EA framework) are built,
+validated, and reusable — the *edge* is not there. (`sharpe()` = per-trade t-statistic, not
+annualized equity Sharpe.)
 
 **Goal (this phase):** research-first. Settle whether ORB has real, out-of-sample edge on
 US100 before any FTMO deployment. Success = clears the repo validation gate
