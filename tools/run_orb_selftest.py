@@ -18,7 +18,7 @@ Usage:
     python tools/run_orb_selftest.py --name test_orb_range
 """
 from __future__ import annotations
-import argparse, os, subprocess, sys, time
+import argparse, os, re, subprocess, sys, time
 from pathlib import Path
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -55,7 +55,9 @@ def compile_test(name, data_dir=FTMO_DATA, meditor=MEDITOR):
     time.sleep(2)
     txt = log.read_text(encoding="utf-16", errors="ignore") if log.exists() else ""
     last = txt.strip().splitlines()[-1] if txt.strip() else "no compile log"
-    return ("0 errors" in txt), last
+    m = re.search(r"Result:\s*(\d+)\s*error", txt)   # exact count — "0 errors" is a substring of "30 errors"
+    ok = (m is not None and int(m.group(1)) == 0)
+    return ok, last
 
 
 def run_test(name, data_dir=FTMO_DATA, terminal=TERMINAL, timeout=120):
