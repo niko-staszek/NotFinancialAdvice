@@ -54,9 +54,10 @@ def walk(symbol, start, end, candidates, is_months=12, oos_months=3, run_name="O
     oos_sh = orb_gate.sharpe([float(r["net_pnl"]) for r in stitched])
     verdict = orb_gate.apply_gate(m, oos_sharpe=oos_sh, is_sharpe=oos_sh)
     stitched_path=os.path.join(rep,"oos_stitched.csv")
-    with open(stitched_path,"w",newline="",encoding="utf-8") as f:
-        w=csv.DictWriter(f,fieldnames=list(stitched[0].keys())); w.writeheader(); w.writerows(stitched)
-    audit.add(rep, stitched_path)
+    if stitched:
+        with open(stitched_path,"w",newline="",encoding="utf-8") as f:
+            w=csv.DictWriter(f,fieldnames=list(stitched[0].keys())); w.writeheader(); w.writerows(stitched)
+    # stitched_path already lives inside the report dir — do NOT audit.add it (that self-copies -> WinError 32)
     audit.write_manifest(rep, title=f"{run_name} walk-forward {symbol}",
         summary_lines=[f"OOS trades={m['trades']} net={m['net']:.0f} PF={m['pf']:.2f} "
                        f"maxDD={m['max_dd']:.1%} Sharpe={oos_sh:.2f} "
