@@ -16,6 +16,7 @@ Trading strategy research, backtesting, and automation across forex, crypto, ind
 | [MF](MF/strategy.md) | **Money Flow** — Swing strategy aligning entries with COT large-speculator positioning, the Money Flow indicator, and technical confluence (EMA/SMA cross, Fibonacci, POC) | Minor crosses (primary), majors, XAUUSD, USOIL, indices | H4 / H1 |
 | [DMC](DMC/strategy.md) | **Dumb Money Concepts** — Level-reaction system; a "failure-to-break" at an untested HTF level reverses to the move's origin. Two variants: HTF level swing + Nasdaq market-open scalp. *Spec only — unvalidated.* | US100/NQ, FX, BTCUSD | D/W/M levels, H1/H4 exec |
 | [GMF](GMF/strategy.md) | **Global Macro Flow** — Intermarket capital-flow swing: macro regime → per-asset bias (yields/USD/gold/stocks/VIX) → COT (non-commercials) → auction-market-theory (volume-profile) entry. *Spec only — unvalidated; discretionary, one testable kernel.* | FX, XAUUSD, SPX/NDX, VIX, single stocks | Macro/weekly bias, D/H4 exec |
+| [ORB](ORB/strategy.md) | **Opening Range Breakout** — Bias-gated index breakout of the NY 09:30 cash-open 15-min range, filtered by D1 trend bias + relative volume. SL and exit are compared dimensions (opposite-end vs midpoint vs ATR; 1:1 vs EMA-trail runner), settled by walk-forward. *Spec only — unvalidated.* | US100 (dev), US500, GER40 | M15 (open range), D1 (bias) |
 
 ## How Strategies Connect
 
@@ -55,6 +56,7 @@ NotFinancialAdvice/
   MF/           Money Flow (COT + flow-based swing)
   DMC/          Dumb Money Concepts (HTF level-reaction)
   GMF/          Global Macro Flow (intermarket + COT + auction-market-theory)
+  ORB/          Opening Range Breakout (bias-gated index breakout)
   docs/         Cross-cutting rules & specs (see strategy-validation.md)
   research/     General research & notes
 ```
