@@ -10,9 +10,14 @@ transcribed from a video. Informed by the documented ORB literature (Zarattini &
 *"Can Day Trading Really Be Profitable"*, 2023 — 5-min ORB on US equities, RVOL-filtered)
 and by this repo's own prior result on the same family (see §13, IVB).
 
-**Status:** SPEC ONLY — **UNVALIDATED**. No backtest has been run. No number in this
-document is evidence of edge. Every threshold here is a *starting hypothesis to be
-walk-forward tested*, not a tuned result. Do not size risk against this document.
+**Status:** TESTED — **REJECTED (no OOS edge)**, 2026-06-22. Walk-forward 2021-10→2026-06
+(SL arms S0/S1/S2 on the E0 exit, RVOL=1.0): **PF 0.97, OOS Sharpe −0.20, net −2.7%,
+195 trades, max DD −13.7%, win 49.7%** → fails the gate (Sharpe < 0.5, PF < 1). Evidence:
+`reports/ORB-sl-20260622-103849Z/` (see §13). The deterministic kernel is built and
+validated end-to-end; the *edge* is not there — consistent with the breakout-family prior
+(§13) and IVB. Do not deploy. Exit / bias-EMA / RVOL sweeps are deferred: a base with
+PF 0.97 and negative OOS Sharpe is unlikely to be rescued without overfitting (multiple
+comparisons). The remaining thresholds below are starting hypotheses, not tuned results.
 
 **Goal (this phase):** research-first. Settle whether ORB has real, out-of-sample edge on
 US100 before any FTMO deployment. Success = clears the repo validation gate

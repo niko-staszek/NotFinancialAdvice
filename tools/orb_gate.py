@@ -12,14 +12,17 @@ def read_ledger(path: str) -> list[dict]:
     with open(path, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
-def metrics_from_rows(rows: Iterable[dict]) -> dict:
+def metrics_from_rows(rows: Iterable[dict], balance: float = 10000.0) -> dict:
     nets = [float(r["net_pnl"]) for r in rows]
     n = len(nets); net = sum(nets)
     gross_win = sum(x for x in nets if x > 0); gross_loss = -sum(x for x in nets if x < 0)
     pf = (gross_win / gross_loss) if gross_loss > 0 else float("inf")
-    eq, peak, max_dd = 0.0, 0.0, 0.0
+    # drawdown on the equity curve (balance + cumulative P&L). Dividing by a near-zero
+    # running peak of *bare* cumulative P&L produced absurd values (e.g. -2816%).
+    eq = balance; peak = balance; max_dd = 0.0
     for x in nets:
-        eq += x; peak = max(peak, eq)
+        eq += x
+        if eq > peak: peak = eq
         if peak > 0: max_dd = min(max_dd, (eq - peak) / peak)
     max_single = max((abs(x) for x in nets), default=0.0)
     return dict(trades=n, net=net, pf=pf, max_dd=max_dd,

@@ -143,6 +143,7 @@ Concrete evidence from this repo — extend as runs complete.
 | 2026-06-19 | **IVB** (Initial-Balance Breakout, XAUUSD 2024 in-sample) | No edge: PF 0.79–0.88, DD 74–99%. Sizing bug fixed; still no edge. | Gate #1 (catastrophic DD), §3 catastrophic drawdown. |
 | 2026-06-19 | **ETR** (EMA Trend Rider, XAUUSD) | +34%, PF 1.36 — but **1 trade = ~90% of net**. | Gate #7 (profit concentration), §3 Tesla-trap-adjacent. |
 | 2026-05-19 | **Meta-study** (Algovibes, 131,441 runs) | 65/131,441 survived. Mean reversion dominates; trend/pattern worst. | §1 method, §2 gate, §4 priors. |
+| 2026-06-22 | **ORB** (bias-gated breakout, US100.cash, walk-forward OOS 2021-10→2026-06) | No edge: PF 0.97, OOS Sharpe −0.20, net −2.7%, 195 trades, max DD −13.7%, win 49.7%. Midpoint SL (S1) won 0/14 windows (opposite-end/ATR split the rest). | Gate #2 (Sharpe floor), §4 breakout family weakest. |
 
 ---
 
