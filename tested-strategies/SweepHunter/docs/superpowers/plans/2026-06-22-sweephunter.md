@@ -1456,13 +1456,13 @@ git commit -m "tooling(sweephunter): walk-forward driver + gate + audit report"
 
 - [ ] **Step 1: Determine max available history per symbol** (don't assume — check the tester)
 
-For each of XAUUSD, EURUSD, GBPUSD, USDJPY, USDCHF, US30, US100, US500, BTCUSD: run a 1-month probe backtest at the earliest plausible date and at recent dates to bracket the FTMO M1 history. Record the usable `[start,end]` per symbol. (A symbol with < ~3 years usable is noted as limited.)
+For each of XAUUSD, EURUSD, GBPUSD, USDJPY, USDCHF, US30.cash, US100.cash, US500.cash, BTCUSD: run a 1-month probe backtest at the earliest plausible date and at recent dates to bracket the FTMO M1 history. Record the usable `[start,end]` per symbol. (A symbol with < ~3 years usable is noted as limited.) **FTMO ticker note:** indices carry a `.cash` suffix (`US30.cash`, `US100.cash`, `US500.cash`); FX, metals, and BTCUSD are bare. Verified from ORB's `US100.cash` configs.
 
 - [ ] **Step 2: Run the walk-forward per instrument** (use the real UTC stamp — get it from the shell, scripts can't)
 
 ```bash
 STAMP=$(date -u +%Y%m%d-%H%M%SZ)
-for SYM in XAUUSD EURUSD GBPUSD USDJPY USDCHF US30 US100 US500 BTCUSD; do
+for SYM in XAUUSD EURUSD GBPUSD USDJPY USDCHF US30.cash US100.cash US500.cash BTCUSD; do
   python tools/run_sweephunter_walkforward.py $SYM <start> <end> --stamp $STAMP
 done
 ```
