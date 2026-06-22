@@ -196,10 +196,11 @@ def run_all(
     script_dir: Path,
     terminal: Path,
     data_root: Path,
+    glob: str = "test_pac_*.mq5",
 ) -> TestResults:
-    scripts = sorted(script_dir.glob("test_pac_*.mq5"))
+    scripts = sorted(script_dir.glob(glob))
     if not scripts:
-        print(f"No test_pac_*.mq5 scripts found in {script_dir}")
+        print(f"No {glob} scripts found in {script_dir}")
         return TestResults()
     log_dir = find_mt5_log_dir(data_root)
     print(f"Reading logs from {log_dir}")
@@ -230,6 +231,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="path to terminal64.exe")
     parser.add_argument("--data-root", type=Path, default=DEFAULT_MT5_DATA_ROOT,
                         help="MetaQuotes/Terminal data root")
+    parser.add_argument("--glob", default="test_pac_*.mq5",
+                        help="glob for test scripts (e.g. test_orb_*.mq5)")
     parser.add_argument("--log-file", type=Path, default=None,
                         help="parse this existing MT5 log instead of "
                              "invoking MT5 (offline mode)")
@@ -241,7 +244,7 @@ def main(argv: list[str] | None = None) -> int:
         _report(res)
         return res.exit_code
 
-    res = run_all(args.script_dir, args.terminal, args.data_root)
+    res = run_all(args.script_dir, args.terminal, args.data_root, args.glob)
     _report(res)
     return res.exit_code
 
