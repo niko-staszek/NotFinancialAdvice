@@ -1,7 +1,7 @@
 #ifndef ORB_LEDGER_MQH
 #define ORB_LEDGER_MQH
 int ORB_LedgerOpen(string path){
-  int h=FileOpen(path,FILE_WRITE|FILE_CSV|FILE_ANSI,",");
+  int h=FileOpen(path,FILE_WRITE|FILE_CSV|FILE_ANSI|FILE_COMMON,",");  // COMMON: shared by live + tester (no sandbox)
   if(h!=INVALID_HANDLE)
     FileWrite(h,"trade_id","symbol","dir","ts_open_utc","ts_close_utc","entry","sl","tp",
                 "lots","exit_reason","gross_pnl","commission","swap","net_pnl","r_multiple",

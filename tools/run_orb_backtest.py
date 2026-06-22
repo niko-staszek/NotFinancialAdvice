@@ -23,23 +23,28 @@ def build_tester_ini(symbol, from_date, to_date, expert, set_file, report, label
         f"Report={report}",
         "ReplaceReport=1",
         "ShutdownTerminal=1",
-        f"TesterInputs={set_file}",
+        f"ExpertParameters={set_file}",   # MT5 [Tester] key to load a .set from MQL5\\Profiles\\Tester\\
         "",
     ])
 
 def ledger_path_for(data_dir, label):
-    return str(Path(data_dir) / "MQL5" / "Files" / "ORB" / f"ledger_{label}.csv")
+    # EA writes with FILE_COMMON -> <Terminal>\Common\Files\ (shared by live + tester, no sandbox)
+    return str(Path(data_dir).parent / "Common" / "Files" / "ORB" / f"ledger_{label}.csv")
 
 def run(symbol, from_date, to_date, set_file, label, data_dir=FTMO_DATA, terminal=TERMINAL, timeout=1800):
     report = str(Path(data_dir) / f"orb_report_{label}.htm")
     ini = build_tester_ini(symbol, from_date, to_date, "ORB\\ORB_EA.ex5", set_file, report, label)
     ini_path = Path(data_dir) / f"orb_tester_{label}.ini"
     ini_path.write_text(ini, encoding="utf-16")          # MT5 config inis are UTF-16
-    # the preset referenced by TesterInputs must live in the terminal's Tester profile dir
+    # the preset referenced by ExpertParameters must live in the terminal's Tester profile dir.
+    # Inject InpLedgerLabel=<label> so the EA's ledger filename always matches ledger_path_for(label)
+    # (decouples the on-disk .set from the per-run/-window label).
     tester_presets = Path(data_dir) / "MQL5" / "Profiles" / "Tester"
     tester_presets.mkdir(parents=True, exist_ok=True)
     src_set = Path("ORB/mt5/Presets") / set_file
-    (tester_presets / set_file).write_text(src_set.read_text(), encoding="utf-8")
+    lines = [ln for ln in src_set.read_text().splitlines() if not ln.strip().startswith("InpLedgerLabel=")]
+    lines.append(f"InpLedgerLabel={label}")
+    (tester_presets / set_file).write_text("\n".join(lines) + "\n", encoding="utf-8")
     ledger = ledger_path_for(data_dir, label)
     if os.path.exists(ledger): os.remove(ledger)
     subprocess.run([str(terminal), f"/config:{ini_path}"], check=False, timeout=timeout)
