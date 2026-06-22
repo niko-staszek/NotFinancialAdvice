@@ -163,12 +163,18 @@ git add tools/sync_orb_to_terminal.ps1 && git commit -m "chore(orb): add repo->t
 
 ## Phase 1 — Pure logic includes (TDD)
 
-Every module: write the test script → run it (fail) → implement the `.mqh` → run (pass) → commit. Run a single test module headless with:
-```bash
-pwsh tools/sync_orb_to_terminal.ps1
-python tools/run_mql5_tests.py --script-dir ORB/mt5/Scripts/ORB_Tests --terminal "C:\Program Files\FTMO Global Markets MT5 Terminal\terminal64.exe" --data-root "$env:APPDATA\MetaQuotes\Terminal"
+Every module: write the test script → run it (fail) → implement the `.mqh` → run (pass) → commit.
+
+**Headless test recipe (verified 2026-06-22 on this box).** `terminal64 /Script:` does NOT run a script on this build — use `/config:<ini>` with a `[StartUp] Script=` section. MT5 is single-instance per data dir, so each cold-start must run on a closed terminal; therefore **every `test_orb_*.mq5` MUST end its `OnStart` with**:
+```mql5
+  Sleep(300);        // flush Print() to the log
+  TerminalClose(0);  // headless self-terminate so the next cold-start is clean
 ```
-Expected pass line: `=== N passed, 0 failed, 0 malformed ===` (exit 0).
+All of this is wrapped by `tools/run_orb_selftest.py` (syncs, closes any open terminal, compiles via MetaEditor, cold-starts `/config`, parses MQL5TEST). Run a module with:
+```bash
+python tools/run_orb_selftest.py --name test_orb_<module>
+```
+Expected pass line: `=== TOTAL N passed, 0 failed, 0 malformed ===` (exit 0).
 
 ### Task 1.1: `ORB_Time.mqh` — ET cash-open mapping (load-bearing)
 
@@ -805,7 +811,7 @@ def test_gate_rejects_concentration():
     assert any("concentration" in r.lower() for r in v["reasons"])
 
 def test_gate_pass():
-    nets = [12, -6, 11, -5, 9, -4, 13, -6, 10, -5]*4   # 40 trades, distributed
+    nets = [5, -1] * 20   # 40 trades, net=80, max_dd=-20%, concentration=6.25% — clears all gates
     v = apply_gate(metrics_from_rows(_rows(nets)), oos_sharpe=0.9, is_sharpe=0.8)
     assert v["passed"] is True
 ```
@@ -984,11 +990,14 @@ def test_stitch_concats_oos_rows():
 """ORB walk-forward: rolling IS/OOS windows, sequential arm/grid selection on IS,
 blind OOS, stitch OOS ledgers, apply the gate, write an audit report."""
 from __future__ import annotations
-import csv
+import csv, os, sys
 from datetime import date
 from dateutil.relativedelta import relativedelta   # python-dateutil
-from tools.run_orb_backtest import run
-from tools import orb_gate, audit
+# repo's tools/ is NOT a package — add this dir to sys.path and import siblings directly
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path: sys.path.insert(0, _HERE)
+import orb_gate, audit
+from run_orb_backtest import run
 
 def _d(s): y,m,d = map(int, s.replace(".","-").split("-")); return date(y,m,d)
 def _s(d): return f"{d.year:04d}.{d.month:02d}.{d.day:02d}"
@@ -1062,7 +1071,7 @@ Each run is audited automatically (`reports/ORB-<UTCstamp>/`). Report numbers ON
 - [ ] **Step 2:** Run walk-forward with these three as the candidate set:
 ```bash
 python -c "from tools.run_orb_walkforward import walk; \
-v,r=walk('US100.cash','2021-06-01','2026-06-01',[('S0','ORB_US100_S0.set'),('S1','ORB_US100_S1.set'),('S2','ORB_US100_S2.set')],run_name='ORB-sl'); \
+v,r=walk('US100.cash','2021-10-01','2026-06-01',[('S0','ORB_US100_S0.set'),('S1','ORB_US100_S1.set'),('S2','ORB_US100_S2.set')],run_name='ORB-sl'); \
 print(r); print(v['passed'], v['reasons'])"
 ```
 - [ ] **Step 3:** Inspect the manifest in the printed `reports/ORB-sl-<stamp>/`. Record which SL arm won most windows. That is the locked SL for the next stage. (Do not claim edge yet — this is arm selection.)
