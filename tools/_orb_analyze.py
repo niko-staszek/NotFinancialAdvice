@@ -1,7 +1,7 @@
 """Scratch: analyze ORB walk-forward OOS exits + per-day diag reject reasons."""
 import csv, collections, glob, os
 
-st = list(csv.DictReader(open(r'reports/ORB-sl-20260622-103849Z/oos_stitched.csv')))
+st = list(csv.DictReader(open(r'tested-strategies/ORB/reports/ORB-sl-20260622-103849Z/oos_stitched.csv')))
 print('OOS trades', len(st))
 print('exit_reason', dict(collections.Counter(r['exit_reason'] for r in st)))
 print('dir', dict(collections.Counter(r['dir'] for r in st)))

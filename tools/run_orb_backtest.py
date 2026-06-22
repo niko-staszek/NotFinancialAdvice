@@ -41,7 +41,7 @@ def run(symbol, from_date, to_date, set_file, label, data_dir=FTMO_DATA, termina
     # (decouples the on-disk .set from the per-run/-window label).
     tester_presets = Path(data_dir) / "MQL5" / "Profiles" / "Tester"
     tester_presets.mkdir(parents=True, exist_ok=True)
-    src_set = Path("ORB/mt5/Presets") / set_file
+    src_set = Path("tested-strategies/ORB/mt5/Presets") / set_file
     lines = [ln for ln in src_set.read_text().splitlines() if not ln.strip().startswith("InpLedgerLabel=")]
     lines.append(f"InpLedgerLabel={label}")
     (tester_presets / set_file).write_text("\n".join(lines) + "\n", encoding="utf-8")

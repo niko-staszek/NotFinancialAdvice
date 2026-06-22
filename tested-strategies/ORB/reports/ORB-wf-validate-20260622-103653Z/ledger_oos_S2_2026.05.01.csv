@@ -1,0 +1,2 @@
+trade_id,symbol,dir,ts_open_utc,ts_close_utc,entry,sl,tp,lots,exit_reason,gross_pnl,commission,swap,net_pnl,r_multiple,bias_ema,rvol,or_width,stop_arm,exit_arm
+1,US100.cash,long,1779371620,1779373240,29185.49,29092.81,29278.17,1.07,sl_hit,-99.17,0.0,0.0,-99.17,-1.0,26952.932905863112,1.0434673838263806,93.60000000000218,2,0
