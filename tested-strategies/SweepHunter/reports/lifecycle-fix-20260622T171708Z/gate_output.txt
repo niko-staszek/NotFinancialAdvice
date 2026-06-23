@@ -1,0 +1,11 @@
+SweepHunter lifecycle/logging fix — regression gate (XAUUSD 2024.01.01-2024.06.30, SweepHunter_smoke.set)
+EA build: 0 errors 0 warnings; modules: 53 passed 0 failed
+
+rows:
+111
+DUP ts_open (MUST be empty):
+r_multiple out of [-1.1, 2.1] (MUST be empty):
+sl/tp sidedness wrong (MUST be empty):
+dir balance:
+     55 long
+     56 short

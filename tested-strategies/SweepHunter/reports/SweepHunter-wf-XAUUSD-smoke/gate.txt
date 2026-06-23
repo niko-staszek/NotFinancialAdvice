@@ -1,0 +1,4 @@
+SweepHunter walk-forward XAUUSD (2022.01.01..2023.09.30)
+OOS trades=95 net=-1017 PF=0.84 maxDD=-18.5% OOS_Sharpe=-0.73 IS_Sharpe(avg)=0.11 PASS=False
+- OOS Sharpe -0.73 < 0.5 (noise)
+- profit concentration 53% > 30%

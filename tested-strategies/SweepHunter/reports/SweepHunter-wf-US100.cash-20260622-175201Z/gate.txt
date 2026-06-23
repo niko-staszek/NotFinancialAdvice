@@ -1,0 +1,5 @@
+SweepHunter walk-forward US100.cash (2023.01.01..2026.06.01)
+OOS trades=488 net=-918 PF=0.97 maxDD=-42.2% OOS_Sharpe=-0.19 IS_Sharpe(avg)=-0.65 PASS=False
+- OOS Sharpe -0.19 < 0.5 (noise)
+- max DD -42.2% worse than -30%
+- profit concentration 228% > 30%
