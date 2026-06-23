@@ -1,0 +1,3 @@
+SweepHunter walk-forward EURUSD (2023.01.01..2026.06.01)
+OOS trades=439 net=3087 PF=1.10 maxDD=-20.7% OOS_Sharpe=0.72 IS_Sharpe(avg)=-0.03 PASS=False
+- profit concentration 57% > 30%
