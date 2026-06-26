@@ -1,7 +1,7 @@
 # PropFirmMath — Implementation Plan
 
 Goal: empirically test whether the JJ Simon method is a real edge or survivorship.
-Reduce to one number first — **after-cost per-trade expectancy of the 1-min fade-to-09:29
+Reduce to one number first — **after-cost per-trade expectancy of the 1-min fade-to-09:30
 signal on NQ** — then, only if positive, build the prop-firm wrapper that converts it.
 
 Inputs: [`QUANTIFY.md`](QUANTIFY.md) (rules + params), [`EXTRACTION.md`](EXTRACTION.md) (raw).

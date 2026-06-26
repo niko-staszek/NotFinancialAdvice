@@ -39,7 +39,7 @@ separate is the whole point of an honest quantification.
 
 | Layer | Question | Codeable? | Proven in video? |
 |-------|----------|-----------|------------------|
-| **A. Signal** | Does fading NQ 1-min back to the 9:29 "fair price" have positive expectancy after costs? | Yes (with 2 assumptions) | **No** — no win rate ever stated |
+| **A. Signal** | Does fading NQ 1-min back to the 9:30 open-candle "fair price" have positive expectancy after costs? | Yes (with 2 assumptions) | **No** — no win rate ever stated |
 | **B. Wrapper** | Given a per-trade edge E, do prop-firm rules + portfolio sizing convert it into the claimed return? | Yes (almost as-is) | Internally consistent |
 
 **The "genius/loophole" is Layer B** — cheap eval = a call option on a $2k–5k payout,
