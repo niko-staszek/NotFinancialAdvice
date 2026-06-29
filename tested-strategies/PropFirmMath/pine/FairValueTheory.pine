@@ -16,6 +16,7 @@ counterWickPct = input.float(20.0, "Max counter-wick % of range", minval = 1, ma
 useSizeGate    = input.bool(false, "Require size gate (optional)", group = gD)
 sizeMult       = input.float(1.2, "Size >= x * avg range", minval = 1.0, group = gD)
 sizeLookback   = input.int(5, "Size avg lookback", minval = 1, group = gD)
+colorWhiteI    = input.bool(true, "Color decisive-only (white) candles", group = gD)
 
 gS = "Sessions (ET)"
 tz        = input.string("America/New_York", "Timezone", group = gS)
@@ -160,7 +161,7 @@ white = decisiveFull and not gold
 // Recolor the ACTUAL bars (barcolor draws on the main series → always visible).
 // plotcandle bodies render BEHIND the chart's candles unless the indicator is brought to front,
 // which is why they only showed on hover/select.
-barcolor(gold ? colGold : white ? colWhite : na, title = "Signal candle (white=decisive, gold=A+)")
+barcolor(gold ? colGold : (white and colorWhiteI) ? colWhite : na, title = "Signal candle (white=decisive, gold=A+)")
 
 // ---------------- Recommendation ----------------
 rec = "None"

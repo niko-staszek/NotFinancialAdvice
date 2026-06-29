@@ -71,6 +71,10 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
 - 2026-06-26 — All labels → `label.style_none` (plain text, no bubble), centered on their lines
   (session/FV at block midpoint, BOS/MSB at pivot→break midpoint; S/R text at the right edge),
   textcolor = the line's color. Verified live.
+- 2026-06-26 — Added "Color decisive-only (white) candles" toggle (default on); when off only gold
+  (A+) candles paint. Entry timing clarified: gold candle = trigger, confirmed at its CLOSE
+  (break + decisive both on that candle) → market-enter ⇒ fill at NEXT candle open, target 1.5R
+  (FX Replay "market enter targeting 1.5R"). NB: right=1 pivot confirms 1 bar late.
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 
