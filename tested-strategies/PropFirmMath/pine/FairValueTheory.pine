@@ -4,7 +4,7 @@
 // decisive (displacement) candle (white) + same-candle A+ (gold), ATR table,
 // integrated S/R zones (ported from LonesomeTheBlue "Support Resistance - Dynamic v2").
 // Rules: tested-strategies/PropFirmMath/STRATEGY_RULES.md. Timings verified vs FX Replay.
-indicator("JJ Simon — Fair Value Theory", overlay = true, max_lines_count = 500, max_labels_count = 500)
+indicator("JJ Simon — Fair Value Theory", overlay = true, max_lines_count = 500, max_labels_count = 500, max_boxes_count = 500)
 
 // ---------------- Inputs ----------------
 gP = "Structure (pivots / BOS-MSB)"
@@ -174,6 +174,28 @@ else if inMRWin and decisiveFull and isMSB
 atr    = ta.atr(atrLen)
 bucket = atr > 20 ? "HIGH" : atr >= 7 ? "MID" : "LOW"
 slTp   = atr > 20 ? "50 / 75" : atr >= 7 ? "25 / 37.5" : "16.5 / 24.75"
+
+// ---------------- Trade placement boxes (TP/SL on each A+ signal) ----------------
+gT = "Trade boxes"
+showTrades  = input.bool(true, "Show trade boxes (TP/SL)", group = gT)
+tradesInWin = input.bool(false, "Only in-window (recommended) setups", group = gT)
+tradeLen    = input.int(30, "Trade box length (bars)", minval = 3, group = gT)
+tpBoxCol    = input.color(color.new(color.green, 80), "TP box", group = gT)
+slBoxCol    = input.color(color.new(color.red,   80), "SL box", group = gT)
+
+slPts = atr > 20 ? 50.0 : atr >= 7 ? 25.0 : 16.5
+tpPts = atr > 20 ? 75.0 : atr >= 7 ? 37.5 : 24.75
+if showTrades and gold and (not tradesInWin or rec != "None")
+    isLong = upBreak                                // gold => broke structure; up-break = long
+    entry  = close                                  // signal-candle close; live fill ~ next open
+    sl     = isLong ? entry - slPts : entry + slPts
+    tp     = isLong ? entry + tpPts : entry - tpPts
+    rgt    = bar_index + tradeLen
+    box.new(bar_index, math.max(entry, tp), rgt, math.min(entry, tp), border_color = na, bgcolor = tpBoxCol)
+    box.new(bar_index, math.max(entry, sl), rgt, math.min(entry, sl), border_color = na, bgcolor = slBoxCol)
+    label.new(rgt, tp,    "TP "    + str.tostring(tp,    format.mintick), xloc = xloc.bar_index, style = label.style_none, textcolor = color.green, size = size.small)
+    label.new(rgt, entry, "Entry " + str.tostring(entry, format.mintick), xloc = xloc.bar_index, style = label.style_none, textcolor = color.white, size = size.small)
+    label.new(rgt, sl,    "SL "    + str.tostring(sl,    format.mintick), xloc = xloc.bar_index, style = label.style_none, textcolor = color.red,   size = size.small)
 
 tblPosInput = input.string("bottom_right", "Table position", options = ["top_right", "top_left", "bottom_right", "bottom_left"], group = gA)
 tblPos = tblPosInput == "top_left" ? position.top_left : tblPosInput == "bottom_right" ? position.bottom_right : tblPosInput == "bottom_left" ? position.bottom_left : position.top_right
