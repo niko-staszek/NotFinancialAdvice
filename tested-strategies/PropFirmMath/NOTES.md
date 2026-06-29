@@ -47,6 +47,14 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
   Store-app TV v3.2.0.7916 manually with --remote-debugging-port=9222 — MCP tv_launch had a stale
   hard-coded 3.0.0.7652 path; needed kill+relaunch to enable CDP.) Timings verified vs FX Replay;
   18:00 reopen (not 18:30). White/gold candle paint compiled but no qualifying bar in the snapshot.
+- 2026-06-26 — Indicator **v2** (user feedback): BOS/MSB now drawn as **lines** at the broken
+  level (not triangles); removed raw pivot plots (were confusing duplicate of S/R); **open/FV
+  lines made prominent** + price label; **integrated S/R zones** by porting the user's SRv2
+  (LonesomeTheBlue, MPL-2.0) v5→v6 + removed the standalone dup from chart. Caught+fixed a
+  RUNTIME crash (compiled clean but red-!): v6 port of `find_loc` indexed an empty array — v5
+  relied on an `na`-bound loop skipping; guarded with size check. Re-verified rendering live
+  (proof `pine/verification-render.png`). Minor known nit: S/R right-edge labels overlap the
+  top-right table (cosmetic; lower srLabelLoc or move table).
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 

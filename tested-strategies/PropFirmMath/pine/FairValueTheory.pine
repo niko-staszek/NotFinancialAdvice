@@ -1,7 +1,8 @@
 //@version=6
 // JJ Simon — Fair Value Theory (NQ 1-min helper)
-// Annotator + recommender. Sessions, fair-value lines, continuation/mean-rev windows,
-// pivot BOS/MSB, decisive (displacement) candle (white) + same-candle A+ (gold), ATR table.
+// Sessions, fair-value lines, continuation/mean-rev windows, pivot BOS/MSB (as lines),
+// decisive (displacement) candle (white) + same-candle A+ (gold), ATR table,
+// integrated S/R zones (ported from LonesomeTheBlue "Support Resistance - Dynamic v2").
 // Rules: tested-strategies/PropFirmMath/STRATEGY_RULES.md. Timings verified vs FX Replay.
 indicator("JJ Simon — Fair Value Theory", overlay = true, max_lines_count = 500, max_labels_count = 500)
 
@@ -41,10 +42,12 @@ gC = "Colors"
 colCont  = input.color(color.new(color.aqua,   86), "Continuation tint", group = gC)
 colMR    = input.color(color.new(color.orange, 86), "Mean-rev tint",     group = gC)
 colBlock = input.color(color.new(color.gray,   93), "Block background",  group = gC)
-colWhite = input.color(color.white,        "Decisive body", group = gC)
-colGold  = input.color(color.new(#FFD700,0),"A+ (gold) body", group = gC)
-colFV    = input.color(color.yellow,       "Fair value line", group = gC)
-colOpen  = input.color(color.new(color.gray,30), "Session open line", group = gC)
+colWhite = input.color(color.white,         "Decisive body", group = gC)
+colGold  = input.color(color.new(#FFD700, 0),"A+ (gold) body", group = gC)
+colFV    = input.color(color.yellow,        "Fair value line", group = gC)
+colOpen  = input.color(color.new(color.silver, 0), "Session open line", group = gC)
+colBOS   = input.color(color.new(#2962FF, 0), "BOS line", group = gC)
+colMSB   = input.color(color.new(#FF6D00, 0), "MSB line", group = gC)
 
 // ---------------- Session model ----------------
 minOfDay = hour(time, tz) * 60 + minute(time, tz)
@@ -71,26 +74,25 @@ for i = 0 to 5
             isfv = array.get(sIsFV, i)
             nm   = array.get(sName, i)
             x2t  = time + bl * 60 * 1000
-            line.new(time, open, x2t, open, xloc = xloc.bar_time, color = isfv ? colFV : colOpen, width = isfv ? 2 : 1)
-            label.new(time, high, isfv ? nm + " (FV)" : nm, xloc = xloc.bar_time, yloc = yloc.price, style = label.style_label_down, color = color.new(color.black, 20), textcolor = color.white, size = size.small)
+            line.new(time, open, x2t, open, xloc = xloc.bar_time, color = isfv ? colFV : colOpen, width = isfv ? 2 : 1, style = isfv ? line.style_solid : line.style_dotted)
+            label.new(time, open, (isfv ? nm + " FV " : nm + " ") + str.tostring(open, format.mintick), xloc = xloc.bar_time, yloc = yloc.price, style = label.style_label_down, color = isfv ? color.new(color.olive, 10) : color.new(color.gray, 20), textcolor = color.white, size = size.small)
             activeFV       := open
             activeOpenMin  := st
             activeBlockLen := bl
             activeMRend    := array.get(sMRend, i)
             activeName     := nm
 
-// clear when the active block has elapsed
 if not na(activeFV) and (minOfDay - activeOpenMin) >= activeBlockLen
     activeFV := na
 
-mins        = minOfDay - activeOpenMin
-inBlock     = not na(activeFV) and mins >= 0 and mins < activeBlockLen
-inContWin   = not na(activeFV) and mins >= skipFirstMin and mins < contLen
-inMRWin     = not na(activeFV) and mins >= contLen and mins < activeMRend
+mins      = minOfDay - activeOpenMin
+inBlock   = not na(activeFV) and mins >= 0 and mins < activeBlockLen
+inContWin = not na(activeFV) and mins >= skipFirstMin and mins < contLen
+inMRWin   = not na(activeFV) and mins >= contLen and mins < activeMRend
 
 bgcolor(inContWin ? colCont : inMRWin ? colMR : inBlock ? colBlock : na, title = "Window tint")
 
-// ---------------- Pivots & structure break ----------------
+// ---------------- Pivots & structure break (FX Replay rule: close past recent pivot) ----------------
 ph = ta.pivothigh(leftBars, rightBars)
 pl = ta.pivotlow(leftBars, rightBars)
 var float pH = na
@@ -111,8 +113,12 @@ isBOS = (aboveFV and upBreak) or (belowFV and downBreak)
 isMSB = (aboveFV and downBreak) or (belowFV and upBreak)
 brokeStruct = isBOS or isMSB
 
-plot(pH, "Pivot high", color = color.new(color.red, 55), style = plot.style_linebr)
-plot(pL, "Pivot low",  color = color.new(color.green, 55), style = plot.style_linebr)
+// BOS/MSB drawn as a LINE at the broken structure level
+brokeY = upBreak ? pH : downBreak ? pL : na
+if (isBOS or isMSB) and not na(brokeY)
+    bcol = isBOS ? colBOS : colMSB
+    line.new(bar_index - 4, brokeY, bar_index, brokeY, xloc = xloc.bar_index, color = bcol, width = 2)
+    label.new(bar_index, brokeY, isBOS ? "BOS" : "MSB", xloc = xloc.bar_index, yloc = yloc.price, style = label.style_label_left, color = bcol, textcolor = color.white, size = size.tiny)
 
 // ---------------- Decisive (displacement) candle ----------------
 rng     = high - low
@@ -127,9 +133,6 @@ white = decisiveFull and not gold
 
 bodyCol = gold ? colGold : white ? colWhite : na
 plotcandle(open, high, low, close, title = "Signal body", color = bodyCol, wickcolor = na, bordercolor = bodyCol)
-
-plotshape(isBOS, "BOS", shape.triangleup,   location.belowbar, color.new(color.lime, 0),    size = size.tiny, text = "BOS")
-plotshape(isMSB, "MSB", shape.triangledown, location.abovebar, color.new(color.fuchsia, 0), size = size.tiny, text = "MSB")
 
 // ---------------- Recommendation ----------------
 rec = "None"
@@ -163,3 +166,118 @@ if barstate.islast
     f_cell(0, 7, "Trade", color.white)
     recCol = rec == "None" ? color.gray : str.contains(rec, "BUY") ? color.lime : color.red
     f_cell(1, 7, rec, recCol)
+
+// ================= S/R zones (ported v5->v6 from "Support Resistance - Dynamic v2", © LonesomeTheBlue, MPL-2.0) =================
+gSR = "S/R zones"
+showSR     = input.bool(true,  "Show S/R zones", group = gSR)
+srPrd      = input.int(10, "S/R Pivot Period", minval = 4, maxval = 30, group = gSR)
+srPpsrc    = input.string("High/Low", "S/R Source", options = ["High/Low", "Close/Open"], group = gSR)
+srMaxpp    = input.int(20, "S/R Max Pivots", minval = 5, maxval = 100, group = gSR)
+srChanW    = input.int(10, "S/R Max Channel Width %", minval = 1, group = gSR)
+srMaxsr    = input.int(5,  "S/R Max Levels", minval = 1, maxval = 10, group = gSR)
+srMinStr   = input.int(2,  "S/R Min Strength", minval = 1, maxval = 10, group = gSR)
+srLabelLoc = input.int(20, "S/R Label Location", group = gSR)
+srResCol   = input.color(color.red,  "Resistance Color", group = gSR)
+srSupCol   = input.color(color.lime, "Support Color", group = gSR)
+
+srSrc1 = srPpsrc == "High/Low" ? high : math.max(close, open)
+srSrc2 = srPpsrc == "High/Low" ? low  : math.min(close, open)
+srph = ta.pivothigh(srSrc1, srPrd, srPrd)
+srpl = ta.pivotlow(srSrc2, srPrd, srPrd)
+
+var pivotvals = array.new_float(0)
+if not na(srph) or not na(srpl)
+    array.unshift(pivotvals, not na(srph) ? srph : srpl)
+    if array.size(pivotvals) > srMaxpp
+        array.pop(pivotvals)
+
+prdhighest = ta.highest(300)
+prdlowest  = ta.lowest(300)
+cwidth = (prdhighest - prdlowest) * srChanW / 100
+
+get_sr_vals(ind) =>
+    float lo = array.get(pivotvals, ind)
+    float hi = lo
+    int numpp = 0
+    for y = 0 to array.size(pivotvals) - 1
+        float cpp = array.get(pivotvals, y)
+        float wdth = cpp <= lo ? hi - cpp : cpp - lo
+        if wdth <= cwidth
+            if cpp <= hi
+                lo := math.min(lo, cpp)
+            else
+                hi := math.max(hi, cpp)
+            numpp += 1
+    [hi, lo, numpp]
+
+var sr_up_level = array.new_float(0)
+var sr_dn_level = array.new_float(0)
+sr_strength = array.new_float(0)
+
+find_loc(strength) =>
+    sz = array.size(sr_strength)
+    ret = sz
+    if sz > 0
+        for i = sz - 1 to 0
+            if strength <= array.get(sr_strength, i)
+                break
+            ret := i
+    ret
+
+check_sr(hi, lo, strength) =>
+    ret = true
+    if array.size(sr_up_level) > 0
+        for i = 0 to array.size(sr_up_level) - 1
+            if (array.get(sr_up_level, i) >= lo and array.get(sr_up_level, i) <= hi) or (array.get(sr_dn_level, i) >= lo and array.get(sr_dn_level, i) <= hi)
+                if strength >= array.get(sr_strength, i)
+                    array.remove(sr_strength, i)
+                    array.remove(sr_up_level, i)
+                    array.remove(sr_dn_level, i)
+                else
+                    ret := false
+                break
+    ret
+
+var sr_lines  = array.new_line(11, na)
+var sr_labels = array.new_label(11, na)
+
+if showSR
+    for x = 1 to 10
+        ln = array.get(sr_lines, x)
+        lb = array.get(sr_labels, x)
+        if not na(lb)
+            yv = label.get_y(lb)
+            rate = 100 * (yv - close) / close
+            label.set_text(lb, str.tostring(yv) + " (" + str.tostring(rate, "#.##") + "%)")
+            label.set_x(lb, bar_index + srLabelLoc)
+            label.set_color(lb, yv >= close ? color.red : color.lime)
+            label.set_textcolor(lb, yv >= close ? color.white : color.black)
+            label.set_style(lb, yv >= close ? label.style_label_down : label.style_label_up)
+        if not na(ln)
+            line.set_color(ln, line.get_y1(ln) >= close ? srResCol : srSupCol)
+
+if showSR and (not na(srph) or not na(srpl))
+    array.clear(sr_up_level)
+    array.clear(sr_dn_level)
+    array.clear(sr_strength)
+    for x = 0 to array.size(pivotvals) - 1
+        [hi, lo, strength] = get_sr_vals(x)
+        if check_sr(hi, lo, strength)
+            loc = find_loc(strength)
+            if loc < srMaxsr and strength >= srMinStr
+                array.insert(sr_strength, loc, strength)
+                array.insert(sr_up_level, loc, hi)
+                array.insert(sr_dn_level, loc, lo)
+                if array.size(sr_strength) > srMaxsr
+                    array.pop(sr_strength)
+                    array.pop(sr_up_level)
+                    array.pop(sr_dn_level)
+    for x = 1 to 10
+        line.delete(array.get(sr_lines, x))
+        label.delete(array.get(sr_labels, x))
+    if array.size(sr_up_level) > 0
+        for x = 0 to array.size(sr_up_level) - 1
+            float mid = math.round_to_mintick((array.get(sr_up_level, x) + array.get(sr_dn_level, x)) / 2)
+            rate = 100 * (mid - close) / close
+            array.set(sr_labels, x + 1, label.new(x = bar_index + srLabelLoc, y = mid, text = str.tostring(mid) + " (" + str.tostring(rate, "#.##") + "%)", color = mid >= close ? color.red : color.lime, textcolor = mid >= close ? color.white : color.black, style = mid >= close ? label.style_label_down : label.style_label_up))
+            array.set(sr_lines, x + 1, line.new(x1 = bar_index, y1 = mid, x2 = bar_index - 1, y2 = mid, extend = extend.both, color = mid >= close ? srResCol : srSupCol, style = line.style_dashed, width = 1))
