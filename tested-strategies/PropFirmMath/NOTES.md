@@ -38,6 +38,11 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
 - 2026-06-26 — **v3 FX Replay** (backtest video + PDF deck) ingested → `EXTRACTION_v3_fxreplay.md`;
   wrote consolidated **`STRATEGY_RULES.md`** (now-mechanical Layer-A, all 3 sources); reconciled QUANTIFY.
   **First measured WR: 54% / 158 trades / 1.5R → +0.35R gross, IN-SAMPLE (verified vs transcript).**
+- 2026-06-26 — **TradingView indicator** built: `pine/FairValueTheory.pine` (Pine v6) +
+  spec `docs/superpowers/specs/2026-06-26-fairvalue-indicator-design.md`. Sessions/FV-lines/
+  window-tints/pivot-BOS-MSB/decisive-candle(white)/A+(gold)/ATR-table + live recommendation.
+  Grilled design. **NOT compile-verified** (TradingView Desktop not installed → MCP CDP launch
+  failed; static-reviewed only). Timings verified vs FX Replay; 18:00 reopen (not 18:30).
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 

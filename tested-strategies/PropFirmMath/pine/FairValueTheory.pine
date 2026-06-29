@@ -1,0 +1,165 @@
+//@version=6
+// JJ Simon — Fair Value Theory (NQ 1-min helper)
+// Annotator + recommender. Sessions, fair-value lines, continuation/mean-rev windows,
+// pivot BOS/MSB, decisive (displacement) candle (white) + same-candle A+ (gold), ATR table.
+// Rules: tested-strategies/PropFirmMath/STRATEGY_RULES.md. Timings verified vs FX Replay.
+indicator("JJ Simon — Fair Value Theory", overlay = true, max_lines_count = 500, max_labels_count = 500)
+
+// ---------------- Inputs ----------------
+gP = "Structure (pivots / BOS-MSB)"
+leftBars  = input.int(5, "Pivot left bars",  minval = 1, group = gP)
+rightBars = input.int(1, "Pivot right bars", minval = 1, group = gP)
+
+gD = "Decisive / displacement candle"
+counterWickPct = input.float(20.0, "Max counter-wick % of range", minval = 1, maxval = 50, group = gD) / 100.0
+useSizeGate    = input.bool(false, "Require size gate (optional)", group = gD)
+sizeMult       = input.float(1.2, "Size >= x * avg range", minval = 1.0, group = gD)
+sizeLookback   = input.int(5, "Size avg lookback", minval = 1, group = gD)
+
+gS = "Sessions (ET)"
+tz        = input.string("America/New_York", "Timezone", group = gS)
+useLondon = input.bool(true, "03:00 London",  group = gS)
+useNews   = input.bool(true, "08:30 News",    group = gS)
+useNYAM   = input.bool(true, "09:30 NY AM",   group = gS)
+useNYPM   = input.bool(true, "14:00 NY PM",   group = gS)
+useReopen = input.bool(true, "18:00 Reopen",  group = gS)
+useAsia   = input.bool(true, "20:00 Asia",    group = gS)
+
+gW = "Windows (minutes from open)"
+skipFirstMin = input.int(3,  "Continuation skip first N min", minval = 0, group = gW)
+contLen      = input.int(15, "Continuation window length",    minval = 1, group = gW)
+mrAMlen      = input.int(30, "Mean-rev AM length",            minval = 1, group = gW)
+mrPMlen      = input.int(60, "Mean-rev PM length",            minval = 1, group = gW)
+blkAM        = input.int(90, "AM block length",    group = gW)
+blkPM        = input.int(60, "PM block length",    group = gW)
+blkOther     = input.int(90, "Other block length", group = gW)
+
+gA = "ATR"
+atrLen = input.int(14, "ATR length", minval = 1, group = gA)
+
+gC = "Colors"
+colCont  = input.color(color.new(color.aqua,   86), "Continuation tint", group = gC)
+colMR    = input.color(color.new(color.orange, 86), "Mean-rev tint",     group = gC)
+colBlock = input.color(color.new(color.gray,   93), "Block background",  group = gC)
+colWhite = input.color(color.white,        "Decisive body", group = gC)
+colGold  = input.color(color.new(#FFD700,0),"A+ (gold) body", group = gC)
+colFV    = input.color(color.yellow,       "Fair value line", group = gC)
+colOpen  = input.color(color.new(color.gray,30), "Session open line", group = gC)
+
+// ---------------- Session model ----------------
+minOfDay = hour(time, tz) * 60 + minute(time, tz)
+
+var float activeFV       = na
+var int   activeOpenMin  = na
+var int   activeBlockLen = na
+var int   activeMRend    = na
+var string activeName    = ""
+
+sStart = array.from(180, 510, 570, 840, 1080, 1200)               // 03:00 08:30 09:30 14:00 18:00 20:00
+sName  = array.from("London", "News", "NY AM", "NY PM", "Reopen", "Asia")
+sOn    = array.from(useLondon, useNews, useNYAM, useNYPM, useReopen, useAsia)
+sBlock = array.from(blkOther, blkOther, blkAM, blkPM, blkOther, blkOther)
+sMRend = array.from(blkOther, blkOther, mrAMlen, mrPMlen, blkOther, blkOther)
+sIsFV  = array.from(false, false, true, true, false, false)
+
+for i = 0 to 5
+    if array.get(sOn, i)
+        st = array.get(sStart, i)
+        opened = minOfDay >= st and (na(minOfDay[1]) or minOfDay[1] < st)
+        if opened
+            bl   = array.get(sBlock, i)
+            isfv = array.get(sIsFV, i)
+            nm   = array.get(sName, i)
+            x2t  = time + bl * 60 * 1000
+            line.new(time, open, x2t, open, xloc = xloc.bar_time, color = isfv ? colFV : colOpen, width = isfv ? 2 : 1)
+            label.new(time, high, isfv ? nm + " (FV)" : nm, xloc = xloc.bar_time, yloc = yloc.price, style = label.style_label_down, color = color.new(color.black, 20), textcolor = color.white, size = size.small)
+            activeFV       := open
+            activeOpenMin  := st
+            activeBlockLen := bl
+            activeMRend    := array.get(sMRend, i)
+            activeName     := nm
+
+// clear when the active block has elapsed
+if not na(activeFV) and (minOfDay - activeOpenMin) >= activeBlockLen
+    activeFV := na
+
+mins        = minOfDay - activeOpenMin
+inBlock     = not na(activeFV) and mins >= 0 and mins < activeBlockLen
+inContWin   = not na(activeFV) and mins >= skipFirstMin and mins < contLen
+inMRWin     = not na(activeFV) and mins >= contLen and mins < activeMRend
+
+bgcolor(inContWin ? colCont : inMRWin ? colMR : inBlock ? colBlock : na, title = "Window tint")
+
+// ---------------- Pivots & structure break ----------------
+ph = ta.pivothigh(leftBars, rightBars)
+pl = ta.pivotlow(leftBars, rightBars)
+var float pH = na
+var float pL = na
+if not na(ph)
+    pH := ph
+if not na(pl)
+    pL := pl
+
+upBreak   = not na(pH) and close > pH and close[1] <= pH
+downBreak = not na(pL) and close < pL and close[1] >= pL
+
+aboveFV = not na(activeFV) and close > activeFV
+belowFV = not na(activeFV) and close < activeFV
+
+// away from FV = BOS (continuation); toward FV = MSB (reversal)
+isBOS = (aboveFV and upBreak) or (belowFV and downBreak)
+isMSB = (aboveFV and downBreak) or (belowFV and upBreak)
+brokeStruct = isBOS or isMSB
+
+plot(pH, "Pivot high", color = color.new(color.red, 55), style = plot.style_linebr)
+plot(pL, "Pivot low",  color = color.new(color.green, 55), style = plot.style_linebr)
+
+// ---------------- Decisive (displacement) candle ----------------
+rng     = high - low
+cwick   = close >= open ? open - low : high - open       // wick against the close direction
+decisive = rng > 0 and (cwick / rng) <= counterWickPct
+avgRng  = ta.sma(high - low, sizeLookback)
+sizeOK  = not useSizeGate or (high - low) >= sizeMult * nz(avgRng[1])
+decisiveFull = decisive and sizeOK
+
+gold  = decisiveFull and brokeStruct
+white = decisiveFull and not gold
+
+bodyCol = gold ? colGold : white ? colWhite : na
+plotcandle(open, high, low, close, title = "Signal body", color = bodyCol, wickcolor = na, bordercolor = bodyCol)
+
+plotshape(isBOS, "BOS", shape.triangleup,   location.belowbar, color.new(color.lime, 0),    size = size.tiny, text = "BOS")
+plotshape(isMSB, "MSB", shape.triangledown, location.abovebar, color.new(color.fuchsia, 0), size = size.tiny, text = "MSB")
+
+// ---------------- Recommendation ----------------
+rec = "None"
+if inContWin and decisiveFull and isBOS
+    rec := aboveFV ? "Continuation BUY" : "Continuation SELL"
+else if inMRWin and decisiveFull and isMSB
+    rec := aboveFV ? "Reversion SELL" : "Reversion BUY"
+
+// ---------------- ATR + table ----------------
+atr    = ta.atr(atrLen)
+bucket = atr > 20 ? "HIGH" : atr >= 7 ? "MID" : "LOW"
+slTp   = atr > 20 ? "50 / 75" : atr >= 7 ? "25 / 37.5" : "16.5 / 24.75"
+
+var table tbl = table.new(position.top_right, 2, 8, border_width = 1, frame_color = color.gray, frame_width = 1)
+f_cell(col, row, txt, txtcol) => table.cell(tbl, col, row, txt, text_color = txtcol, text_size = size.small, bgcolor = color.new(color.black, 30))
+if barstate.islast
+    f_cell(0, 0, "Fair Value Theory", color.yellow)
+    f_cell(1, 0, na(activeFV) ? "—" : activeName, color.yellow)
+    f_cell(0, 1, "ATR(" + str.tostring(atrLen) + ")", color.white)
+    f_cell(1, 1, str.tostring(atr, "#.0") + "  " + bucket, bucket == "HIGH" ? color.red : bucket == "MID" ? color.orange : color.lime)
+    f_cell(0, 2, "SL / TP (pts)", color.white)
+    f_cell(1, 2, slTp, color.white)
+    f_cell(0, 3, "Decisive", color.white)
+    f_cell(1, 3, decisiveFull ? "✓" : "✗", decisiveFull ? color.lime : color.gray)
+    f_cell(0, 4, "BOS", color.white)
+    f_cell(1, 4, isBOS ? "✓" : "✗", isBOS ? color.lime : color.gray)
+    f_cell(0, 5, "MSB", color.white)
+    f_cell(1, 5, isMSB ? "✓" : "✗", isMSB ? color.lime : color.gray)
+    f_cell(0, 6, "Window", color.white)
+    f_cell(1, 6, inContWin ? "Continuation" : inMRWin ? "Mean-rev" : inBlock ? "Block" : "—", color.white)
+    f_cell(0, 7, "Trade", color.white)
+    recCol = rec == "None" ? color.gray : str.contains(rec, "BUY") ? color.lime : color.red
+    f_cell(1, 7, rec, recCol)
