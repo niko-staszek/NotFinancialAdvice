@@ -49,6 +49,25 @@ colOpen  = input.color(color.new(color.silver, 0), "Session open line", group = 
 colBOS   = input.color(color.new(#2962FF, 0), "BOS line", group = gC)
 colMSB   = input.color(color.new(#FF6D00, 0), "MSB line", group = gC)
 
+gL = "Line styles & widths"
+fvStyleI   = input.string("Solid",  "Fair-value style",   options = ["Solid", "Dashed", "Dotted"], group = gL)
+fvWidthI   = input.int(2, "Fair-value width",   minval = 1, maxval = 4, group = gL)
+openStyleI = input.string("Solid",  "Session-open style", options = ["Solid", "Dashed", "Dotted"], group = gL)
+openWidthI = input.int(1, "Session-open width", minval = 1, maxval = 4, group = gL)
+bosStyleI  = input.string("Solid",  "BOS style",          options = ["Solid", "Dashed", "Dotted"], group = gL)
+bosWidthI  = input.int(2, "BOS width",          minval = 1, maxval = 4, group = gL)
+msbStyleI  = input.string("Solid",  "MSB style",          options = ["Solid", "Dashed", "Dotted"], group = gL)
+msbWidthI  = input.int(2, "MSB width",          minval = 1, maxval = 4, group = gL)
+srStyleI   = input.string("Dashed", "S/R style",          options = ["Solid", "Dashed", "Dotted"], group = gL)
+srWidthI   = input.int(1, "S/R width",          minval = 1, maxval = 4, group = gL)
+
+f_lstyle(s) => s == "Solid" ? line.style_solid : s == "Dashed" ? line.style_dashed : line.style_dotted
+fvStyle   = f_lstyle(fvStyleI)
+openStyle = f_lstyle(openStyleI)
+bosStyle  = f_lstyle(bosStyleI)
+msbStyle  = f_lstyle(msbStyleI)
+srStyle   = f_lstyle(srStyleI)
+
 // ---------------- Session model ----------------
 minOfDay = hour(time, tz) * 60 + minute(time, tz)
 
@@ -74,7 +93,7 @@ for i = 0 to 5
             isfv = array.get(sIsFV, i)
             nm   = array.get(sName, i)
             x2t  = time + bl * 60 * 1000
-            line.new(time, open, x2t, open, xloc = xloc.bar_time, color = isfv ? colFV : colOpen, width = isfv ? 2 : 1, style = isfv ? line.style_solid : line.style_dotted)
+            line.new(time, open, x2t, open, xloc = xloc.bar_time, color = isfv ? colFV : colOpen, width = isfv ? fvWidthI : openWidthI, style = isfv ? fvStyle : openStyle)
             label.new(time, open, (isfv ? nm + " FV " : nm + " ") + str.tostring(open, format.mintick), xloc = xloc.bar_time, yloc = yloc.price, style = label.style_label_down, color = isfv ? color.new(color.olive, 10) : color.new(color.gray, 20), textcolor = color.white, size = size.small)
             activeFV       := open
             activeOpenMin  := st
@@ -96,11 +115,15 @@ bgcolor(inContWin ? colCont : inMRWin ? colMR : inBlock ? colBlock : na, title =
 ph = ta.pivothigh(leftBars, rightBars)
 pl = ta.pivotlow(leftBars, rightBars)
 var float pH = na
+var int   pHbar = na
 var float pL = na
+var int   pLbar = na
 if not na(ph)
     pH := ph
+    pHbar := bar_index - rightBars
 if not na(pl)
     pL := pl
+    pLbar := bar_index - rightBars
 
 upBreak   = not na(pH) and close > pH and close[1] <= pH
 downBreak = not na(pL) and close < pL and close[1] >= pL
@@ -114,11 +137,14 @@ isMSB = (aboveFV and downBreak) or (belowFV and upBreak)
 brokeStruct = isBOS or isMSB
 
 // BOS/MSB drawn as a LINE at the broken structure level
-brokeY = upBreak ? pH : downBreak ? pL : na
-if (isBOS or isMSB) and not na(brokeY)
+brokeY    = upBreak ? pH : downBreak ? pL : na
+brokeFrom = upBreak ? pHbar : downBreak ? pLbar : na
+if (isBOS or isMSB) and not na(brokeY) and not na(brokeFrom)
     bcol = isBOS ? colBOS : colMSB
-    line.new(bar_index - 4, brokeY, bar_index, brokeY, xloc = xloc.bar_index, color = bcol, width = 2)
-    label.new(bar_index, brokeY, isBOS ? "BOS" : "MSB", xloc = xloc.bar_index, yloc = yloc.price, style = label.style_label_left, color = bcol, textcolor = color.white, size = size.tiny)
+    // line connects the pivot that formed the level to the candle that broke it
+    line.new(brokeFrom, brokeY, bar_index, brokeY, xloc = xloc.bar_index, color = bcol, width = isBOS ? bosWidthI : msbWidthI, style = isBOS ? bosStyle : msbStyle)
+    // label sits ABOVE the line (label_down points down from its anchor)
+    label.new(bar_index, brokeY, isBOS ? "BOS" : "MSB", xloc = xloc.bar_index, yloc = yloc.price, style = label.style_label_down, color = bcol, textcolor = color.white, size = size.tiny)
 
 // ---------------- Decisive (displacement) candle ----------------
 rng     = high - low
@@ -289,4 +315,4 @@ if showSR and (not na(srph) or not na(srpl))
             float mid = math.round_to_mintick((array.get(sr_up_level, x) + array.get(sr_dn_level, x)) / 2)
             rate = 100 * (mid - close) / close
             array.set(sr_labels, x + 1, label.new(x = bar_index + srLabelLoc, y = mid, text = str.tostring(mid) + " (" + str.tostring(rate, "#.##") + "%)", color = mid >= close ? color.red : color.lime, textcolor = mid >= close ? color.white : color.black, style = mid >= close ? label.style_label_down : label.style_label_up))
-            array.set(sr_lines, x + 1, line.new(x1 = bar_index, y1 = mid, x2 = bar_index - 1, y2 = mid, extend = extend.both, color = mid >= close ? srResCol : srSupCol, style = line.style_dashed, width = 1))
+            array.set(sr_lines, x + 1, line.new(x1 = bar_index, y1 = mid, x2 = bar_index - 1, y2 = mid, extend = extend.both, color = mid >= close ? srResCol : srSupCol, style = srStyle, width = srWidthI))

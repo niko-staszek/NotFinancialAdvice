@@ -63,6 +63,11 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
   to front. Switched to `barcolor()` (recolors the actual bars → always on top). Trade-off: tints
   the whole candle not just the body (fine — decisive counter-wick ≤20%). Verified gold A+ candles
   now visible without hover.
+- 2026-06-26 — Line tweaks (user): session-open line **solid** (was dotted); **BOS/MSB lines now
+  connect pivot→break** (track pivot bar via `bar_index - rightBars`) so the broken level is
+  visible, with label **above** the line; **all lines editable** — added "Line styles & widths"
+  input group (style+width per FV/open/BOS/MSB/S/R). FV-line purpose: it's the 9:30/2pm anchor that
+  drives every decision (above/below → BUY/SELL, BOS-vs-MSB direction, the recommendation).
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 
