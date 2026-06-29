@@ -84,6 +84,12 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
   bar → the bar price first touches TP or SL, colored green(TP win)/red(SL loss) + "TP"/"SL" mark.
   Both-hit-same-bar = SL (conservative); force-close after `maxHold` bars. (Pine gotcha: declare
   array vars as `var x = array.new_int(0)` — `var int x` forces scalar type → compile error.)
+- 2026-06-26 — Trade-box fixes: (1) zero-width box bug — resolution ran on the entry bar so a
+  trade whose gold-candle wick already reached SL/TP drew a 0-width box (only the "SL" label
+  showed); fixed with `bar_index > eb` guard (entry is at close → only later bars resolve).
+  (2) Defaulted "Only in-window" ON so trades fire only on actual strategy setups (continuation
+  3–15min, MR after) — stops out-of-window continuation trades. ATR sizing confirmed correct
+  (per-trade 3-bucket: >20→50/75, 7–20→25/37.5, <7→16.5/24.75; discrete, not continuous).
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 

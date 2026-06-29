@@ -178,7 +178,7 @@ slTp   = atr > 20 ? "50 / 75" : atr >= 7 ? "25 / 37.5" : "16.5 / 24.75"
 // ---------------- Trade outcome boxes (open -> TP/SL close) ----------------
 gT = "Trade boxes"
 showTrades  = input.bool(true, "Show trade boxes", group = gT)
-tradesInWin = input.bool(false, "Only in-window (recommended) setups", group = gT)
+tradesInWin = input.bool(true, "Only in-window (recommended) setups", group = gT)
 maxHold     = input.int(240, "Max bars to hold (force-close)", minval = 10, group = gT)
 tpBoxCol    = input.color(color.new(color.green, 75), "TP (win) box", group = gT)
 slBoxCol    = input.color(color.new(color.red,   75), "SL (loss) box", group = gT)
@@ -212,7 +212,7 @@ if showTrades
         een   = array.get(tEntry, i)
         hitTP = long ? high >= etp : low <= etp
         hitSL = long ? low <= esl : high >= esl
-        if hitTP or hitSL or (bar_index - eb >= maxHold)
+        if bar_index > eb and (hitTP or hitSL or (bar_index - eb >= maxHold))
             won = hitTP and not hitSL               // both same bar -> count as SL (conservative)
             lvl = won ? etp : hitSL ? esl : close
             box.new(eb, math.max(een, lvl), bar_index, math.min(een, lvl), border_color = na, bgcolor = won ? tpBoxCol : slBoxCol)
