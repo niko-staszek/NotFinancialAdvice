@@ -80,6 +80,10 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
   price labels; direction = break direction (upBreak=long). Toggle "Only in-window (recommended)
   setups" restricts to actionable rec-fired trades (default OFF = all gold candles, which is noisy
   — likely flip default later). `max_boxes_count=500`. Geometry via max/min handles long/short.
+- 2026-06-26 — Trade boxes now **resolve**: track open trades in arrays, draw ONE box from entry
+  bar → the bar price first touches TP or SL, colored green(TP win)/red(SL loss) + "TP"/"SL" mark.
+  Both-hit-same-bar = SL (conservative); force-close after `maxHold` bars. (Pine gotcha: declare
+  array vars as `var x = array.new_int(0)` — `var int x` forces scalar type → compile error.)
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 

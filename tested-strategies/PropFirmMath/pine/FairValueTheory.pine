@@ -175,27 +175,55 @@ atr    = ta.atr(atrLen)
 bucket = atr > 20 ? "HIGH" : atr >= 7 ? "MID" : "LOW"
 slTp   = atr > 20 ? "50 / 75" : atr >= 7 ? "25 / 37.5" : "16.5 / 24.75"
 
-// ---------------- Trade placement boxes (TP/SL on each A+ signal) ----------------
+// ---------------- Trade outcome boxes (open -> TP/SL close) ----------------
 gT = "Trade boxes"
-showTrades  = input.bool(true, "Show trade boxes (TP/SL)", group = gT)
+showTrades  = input.bool(true, "Show trade boxes", group = gT)
 tradesInWin = input.bool(false, "Only in-window (recommended) setups", group = gT)
-tradeLen    = input.int(30, "Trade box length (bars)", minval = 3, group = gT)
-tpBoxCol    = input.color(color.new(color.green, 80), "TP box", group = gT)
-slBoxCol    = input.color(color.new(color.red,   80), "SL box", group = gT)
+maxHold     = input.int(240, "Max bars to hold (force-close)", minval = 10, group = gT)
+tpBoxCol    = input.color(color.new(color.green, 75), "TP (win) box", group = gT)
+slBoxCol    = input.color(color.new(color.red,   75), "SL (loss) box", group = gT)
 
 slPts = atr > 20 ? 50.0 : atr >= 7 ? 25.0 : 16.5
 tpPts = atr > 20 ? 75.0 : atr >= 7 ? 37.5 : 24.75
+
+var tBar   = array.new_int(0)
+var tEntry = array.new_float(0)
+var tTP    = array.new_float(0)
+var tSL    = array.new_float(0)
+var tLong  = array.new_bool(0)
+
+// open a trade on a gold A+ signal
 if showTrades and gold and (not tradesInWin or rec != "None")
-    isLong = upBreak                                // gold => broke structure; up-break = long
-    entry  = close                                  // signal-candle close; live fill ~ next open
-    sl     = isLong ? entry - slPts : entry + slPts
-    tp     = isLong ? entry + tpPts : entry - tpPts
-    rgt    = bar_index + tradeLen
-    box.new(bar_index, math.max(entry, tp), rgt, math.min(entry, tp), border_color = na, bgcolor = tpBoxCol)
-    box.new(bar_index, math.max(entry, sl), rgt, math.min(entry, sl), border_color = na, bgcolor = slBoxCol)
-    label.new(rgt, tp,    "TP "    + str.tostring(tp,    format.mintick), xloc = xloc.bar_index, style = label.style_none, textcolor = color.green, size = size.small)
-    label.new(rgt, entry, "Entry " + str.tostring(entry, format.mintick), xloc = xloc.bar_index, style = label.style_none, textcolor = color.white, size = size.small)
-    label.new(rgt, sl,    "SL "    + str.tostring(sl,    format.mintick), xloc = xloc.bar_index, style = label.style_none, textcolor = color.red,   size = size.small)
+    long = upBreak                                  // gold => broke structure; up-break = long
+    array.push(tBar, bar_index)
+    array.push(tEntry, close)
+    array.push(tTP, long ? close + tpPts : close - tpPts)
+    array.push(tSL, long ? close - slPts : close + slPts)
+    array.push(tLong, long)
+
+// resolve open trades when price touches TP or SL (or force-close after maxHold)
+if showTrades
+    i = 0
+    while i < array.size(tBar)
+        long  = array.get(tLong, i)
+        etp   = array.get(tTP, i)
+        esl   = array.get(tSL, i)
+        eb    = array.get(tBar, i)
+        een   = array.get(tEntry, i)
+        hitTP = long ? high >= etp : low <= etp
+        hitSL = long ? low <= esl : high >= esl
+        if hitTP or hitSL or (bar_index - eb >= maxHold)
+            won = hitTP and not hitSL               // both same bar -> count as SL (conservative)
+            lvl = won ? etp : hitSL ? esl : close
+            box.new(eb, math.max(een, lvl), bar_index, math.min(een, lvl), border_color = na, bgcolor = won ? tpBoxCol : slBoxCol)
+            label.new(bar_index, lvl, won ? "TP" : hitSL ? "SL" : "×", xloc = xloc.bar_index, yloc = yloc.price, style = label.style_none, textcolor = won ? color.green : color.red, size = size.small)
+            array.remove(tBar, i)
+            array.remove(tEntry, i)
+            array.remove(tTP, i)
+            array.remove(tSL, i)
+            array.remove(tLong, i)
+        else
+            i += 1
 
 tblPosInput = input.string("bottom_right", "Table position", options = ["top_right", "top_left", "bottom_right", "bottom_left"], group = gA)
 tblPos = tblPosInput == "top_left" ? position.top_left : tblPosInput == "bottom_right" ? position.bottom_right : tblPosInput == "bottom_left" ? position.bottom_left : position.top_right
