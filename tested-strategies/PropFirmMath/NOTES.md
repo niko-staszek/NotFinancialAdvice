@@ -58,6 +58,11 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
 - 2026-06-26 — Indicator **polish**: table → **bottom-right** (configurable input; clears both the
   legend and S/R labels), added **Fair Value price row**, colored Window cell to match its tint,
   softened window tints. Re-verified render live; proof refreshed. Indicator considered DONE for v1.
+- 2026-06-26 — Fixed "painted candles only show on hover": `plotcandle` bodies render BEHIND the
+  chart's main candles (TV z-order), so signal candles were hidden unless the indicator was brought
+  to front. Switched to `barcolor()` (recolors the actual bars → always on top). Trade-off: tints
+  the whole candle not just the body (fine — decisive counter-wick ≤20%). Verified gold A+ candles
+  now visible without hover.
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 
