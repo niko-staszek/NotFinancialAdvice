@@ -94,7 +94,7 @@ for i = 0 to 5
             nm   = array.get(sName, i)
             x2t  = time + bl * 60 * 1000
             line.new(time, open, x2t, open, xloc = xloc.bar_time, color = isfv ? colFV : colOpen, width = isfv ? fvWidthI : openWidthI, style = isfv ? fvStyle : openStyle)
-            label.new(time, open, (isfv ? nm + " FV " : nm + " ") + str.tostring(open, format.mintick), xloc = xloc.bar_time, yloc = yloc.price, style = label.style_label_down, color = isfv ? color.new(color.olive, 10) : color.new(color.gray, 20), textcolor = color.white, size = size.small)
+            label.new(time + bl * 30 * 1000, open, (isfv ? nm + " FV " : nm + " ") + str.tostring(open, format.mintick), xloc = xloc.bar_time, yloc = yloc.price, style = label.style_none, textcolor = isfv ? colFV : color.silver, size = size.small)
             activeFV       := open
             activeOpenMin  := st
             activeBlockLen := bl
@@ -143,8 +143,8 @@ if (isBOS or isMSB) and not na(brokeY) and not na(brokeFrom)
     bcol = isBOS ? colBOS : colMSB
     // line connects the pivot that formed the level to the candle that broke it
     line.new(brokeFrom, brokeY, bar_index, brokeY, xloc = xloc.bar_index, color = bcol, width = isBOS ? bosWidthI : msbWidthI, style = isBOS ? bosStyle : msbStyle)
-    // label sits ABOVE the line (label_down points down from its anchor)
-    label.new(bar_index, brokeY, isBOS ? "BOS" : "MSB", xloc = xloc.bar_index, yloc = yloc.price, style = label.style_label_down, color = bcol, textcolor = color.white, size = size.tiny)
+    // plain text centered on the line (no bubble)
+    label.new(int((brokeFrom + bar_index) / 2), brokeY, isBOS ? "BOS" : "MSB", xloc = xloc.bar_index, yloc = yloc.price, style = label.style_none, textcolor = bcol, size = size.small)
 
 // ---------------- Decisive (displacement) candle ----------------
 rng     = high - low
@@ -285,9 +285,8 @@ if showSR
             rate = 100 * (yv - close) / close
             label.set_text(lb, str.tostring(yv) + " (" + str.tostring(rate, "#.##") + "%)")
             label.set_x(lb, bar_index + srLabelLoc)
-            label.set_color(lb, yv >= close ? color.red : color.lime)
-            label.set_textcolor(lb, yv >= close ? color.white : color.black)
-            label.set_style(lb, yv >= close ? label.style_label_down : label.style_label_up)
+            label.set_textcolor(lb, yv >= close ? srResCol : srSupCol)
+            label.set_style(lb, label.style_none)
         if not na(ln)
             line.set_color(ln, line.get_y1(ln) >= close ? srResCol : srSupCol)
 
@@ -314,5 +313,5 @@ if showSR and (not na(srph) or not na(srpl))
         for x = 0 to array.size(sr_up_level) - 1
             float mid = math.round_to_mintick((array.get(sr_up_level, x) + array.get(sr_dn_level, x)) / 2)
             rate = 100 * (mid - close) / close
-            array.set(sr_labels, x + 1, label.new(x = bar_index + srLabelLoc, y = mid, text = str.tostring(mid) + " (" + str.tostring(rate, "#.##") + "%)", color = mid >= close ? color.red : color.lime, textcolor = mid >= close ? color.white : color.black, style = mid >= close ? label.style_label_down : label.style_label_up))
+            array.set(sr_labels, x + 1, label.new(x = bar_index + srLabelLoc, y = mid, text = str.tostring(mid) + " (" + str.tostring(rate, "#.##") + "%)", textcolor = mid >= close ? srResCol : srSupCol, style = label.style_none))
             array.set(sr_lines, x + 1, line.new(x1 = bar_index, y1 = mid, x2 = bar_index - 1, y2 = mid, extend = extend.both, color = mid >= close ? srResCol : srSupCol, style = srStyle, width = srWidthI))

@@ -68,6 +68,9 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
   visible, with label **above** the line; **all lines editable** — added "Line styles & widths"
   input group (style+width per FV/open/BOS/MSB/S/R). FV-line purpose: it's the 9:30/2pm anchor that
   drives every decision (above/below → BUY/SELL, BOS-vs-MSB direction, the recommendation).
+- 2026-06-26 — All labels → `label.style_none` (plain text, no bubble), centered on their lines
+  (session/FV at block midpoint, BOS/MSB at pivot→break midpoint; S/R text at the right edge),
+  textcolor = the line's color. Verified live.
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 
