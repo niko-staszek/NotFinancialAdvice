@@ -167,11 +167,12 @@ His worked instances (to reproduce):
 - `0.33 × 0.33 ≈ 1/9`; payout $2000; eval $100 → spend $900 / withdraw $2000 ≈ **2x**, plus $2000 residual. `[STATED]`
 - `avg_cost_to_funded $333`, EV payout $1000 → **3x**. `[STATED]` Target 3x spend (good runs 4–6x, bad ~2.7x).
 
-Risk of ruin across `N` independent evals:
+Risk of ruin — **JJ's formula, which assumes `N` independent evals** (real accounts are
+block-correlated → this understates RoR; see §2.4 and [`STRATEGY_RULES.md`](STRATEGY_RULES.md) §8b):
 ```
 P(zero payouts) = (1 − p_pass·p_payout)^N
 ```
-- `0.9^50 ≈ 0.005` → <1% RoR on 50 accounts. `[STATED, reproduces]`
+- `0.9^50 ≈ 0.005` → <1% RoR on 50 accounts. `[STATED, reproduces]` (independence-optimistic)
 - Target RoR **≤5% starting, ~0.5% now.** `[STATED]`
 
 Bankroll sizing:
@@ -218,12 +219,12 @@ $100k/mo math: 150k/5k = **30 payouts/mo** (~1/day) → **30×150k = $4.5M** all
 1. **Layer A after-cost expectancy ≤ 0** → whole thesis dead, regardless of wrapper. *Primary test.*
 2. Reproduced `p_pass` ≪ 25% under realistic firm rules → eval economics negative.
 3. Matched-R:R claim false (1:1.5 does **not** beat other R:R on pass rate) → core "loophole" mechanic is folklore.
-4. `(P_fail)^N` RoR understated because account outcomes are **correlated** (same signal, same day, same instrument → not independent) → real RoR ≫ stated. **Likely the biggest hidden flaw.**
+4. `(P_fail)^N` assumes **independent** accounts. JJ avoids the catastrophic case (one setup copied onto all ~40) but DOES copy-trade in **~5-account clusters** across several setups/day, layering same-direction evals into winners → outcomes are **block-correlated** (within-cluster ≈ correlated; across-cluster positive via same strategy/instrument/day), not independent → real RoR > stated (less than a naive all-40 copy, but independence still flatters it). Model block/effective-ρ. **Likely the biggest hidden flaw.**
 5. Costs alone (20–40 trades/day × spread+commission) exceed the thin reversion edge.
 
 ## 3. Honest read (post-v2)
 - **Layer B is genuine, codeable, correct math** — bulk cheap optionality + Kelly + variance shaping. The real insight.
-- **Layer B's independence assumption is its weak point**: 40 accounts trading the *same* NQ signal on the *same* day are highly correlated, so `(P_fail)^N` flatters RoR. Must model correlation (ρ).
+- **Layer B's independence assumption is its weak point**: JJ does NOT copy one setup onto all ~40 accounts (the catastrophic case he rejects); he copy-trades in **~5-account clusters**, spreads different setups across the day, and layers same-direction evals into already-winning trades. So accounts are **block-correlated, not independent** — `(P_fail)^N` still flatters RoR, just less than a full copy. Model cluster/effective-ρ (Phase 3.3).
 - **Layer A is now fully mechanical** (v3/FX Replay defined the triggers — see [`STRATEGY_RULES.md`](STRATEGY_RULES.md)) and has its **first measured win rate: 54% aggregate over 158 trades at 1.5R → +0.35R gross expectancy, in-sample** (FX Replay manual backtest, verified). This clears the 40% break-even hurdle **gross**.
 - **But "gross in-sample" ≠ works.** No OOS/walk-forward, **no costs deducted** (the killer for a 1.5R/25-pt-stop 1-min NQ scalp), dataset is hand-picked regime windows, and the optimized 62%/2.46PF is in-sample time-of-day fitting. JJ separately says live edge is only "1–5%" / breaks even live `[v2]`.
 - The make-or-break is unchanged, just sharper: **does the ≥54% gross survive realistic costs and hold OOS?** That is PLAN.md Gate 1.

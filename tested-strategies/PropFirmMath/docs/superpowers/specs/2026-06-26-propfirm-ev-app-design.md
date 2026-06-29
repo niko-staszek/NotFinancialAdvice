@@ -85,8 +85,10 @@ ror_correlated(pipeline, n, rho)    = one-factor Gaussian copula:
 - `rho` default **0.5**, slider range **0–0.9**. At `rho=0`, `ror_correlated == ror_independent`
   (continuity — this is JJ's number). As `rho→1`, P(all fail) → `(1-pipeline)` (n correlated
   accounts collapse toward a single bet).
-- Rationale: 40 accounts trading the SAME NQ signal on the SAME day are correlated, so JJ's
-  independent `(P_fail)^N` understates real ruin risk. App shows **both, side by side**.
+- Rationale: accounts are NOT independent — JJ copy-trades in ~5-account clusters across different
+  setups/day and layers into winners (he rejects all-40-on-one-setup), so outcomes are block-correlated.
+  His independent `(P_fail)^N` understates real ruin risk. App shows **both, side by side** (`rho`
+  models the effective/cluster correlation).
 
 **Test oracles:** `ror_independent(0.1, 50) ≈ 0.00515` (his "0.9^50 < 1%"); `ror_correlated(p,n,0)`
 ≈ `ror_independent(p,n)` within 1e-6; `ror_correlated` monotonically increases in `rho`.

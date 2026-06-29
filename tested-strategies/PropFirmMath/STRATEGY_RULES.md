@@ -121,6 +121,24 @@ without a same-bar break (or vice-versa) is a lower-probability/skip. This is th
 - SL distance × {1,2,3} contracts engineered so each ≈ **$1,000 risk/trade** `[fx-pdf][fx-test L304–19]`.
   This is the link into Layer B (per-account $ risk = contracts; point distances fixed).
 
+## 8b. Multi-account orchestration (how the portfolio actually trades) `[v1][v2]`
+NOT copy-trading one setup onto all accounts — JJ calls copying all accounts at once "one of the
+worst things you can do ever while trading" (variance / correlated lump risk). `[v1 L1690–1697]` The
+real mechanic:
+- **Each account ~once per day, on a DIFFERENT setup.** "trade each account once per day instead of
+  copy trading all of them once… if you have five accounts, you want to trade five different setups." `[v2 L249–254]`
+- **Copy-trade only in small clusters (~5 at once), never all 40.** "I have 40 accounts, I'm copy
+  trading five at once… maximum exposure to the edge before it dies." `[v2 L273–276]` → ~40 accounts
+  worked across several setups/day, ~5 per setup, so any single trade risks only the cluster, not the fleet.
+- **Layer same-direction evals into a WINNER ("follow the good trades").** Once a funded account is
+  in profit, add evals in the same direction at staggered entries — "unique positions," what one
+  trader does as a single scaled position spread across ~5 accounts. Evals only join trades already
+  proving good → tilts pass-hungry accounts toward winners. `[v1 L344–348, L389–393]`
+- **Layer-B RoR consequence:** block-correlated, not independent and not fully copied — `(P_fail)^N`
+  overstates safety (less than a naive all-40 copy). Model cluster/effective-ρ.
+- Copy-trading only advised once you KNOW pass rate / payout chance / avg payout AND RoR<5% (≳$10k
+  bankroll); else trade one account, bank payouts, then scale. `[v2 L214–239]`
+
 ## 9. Filters / optimizations (materially changed results — but IN-SAMPLE)
 - **Skip first 3 min after 09:30** (continuations): first-3-min = +2R/28 trades vs +36R all `[fx-test L1554–72]`. PM session: timing didn't matter `[fx-test L654–58]`.
 - **Mean reversions: only first 30 min of NY open**; skip 10:00–11:00 `[fx-test L1424–31]`.

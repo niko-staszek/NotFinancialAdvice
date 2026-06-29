@@ -58,7 +58,7 @@ Build the per-trade simulator. **This phase alone can kill the project.** (v2 de
 ## Phase 3 — Portfolio EV + risk of ruin
 - **3.1 wrapper/portfolio** — per-eval EV, `avg_cost_to_funded = eval_cost/p_pass`, return multiple, aggregate over N accounts.
 - **3.2 risk of ruin** — `(1 − p_pass·p_payout)^N`, **AND** a correlated variant.
-- **3.3 CORRELATION (critical)** — 40 accounts trade the *same* NQ signal same day → outcomes correlated, so independent `(P_fail)^N` flatters RoR (QUANTIFY §2.4). Model a shared daily factor; report RoR under ρ∈{0, 0.3, 0.6, 0.9}. **This is the most likely real-world flaw.**
+- **3.3 CORRELATION (critical)** — accounts are NOT independent: JJ copy-trades in **~5-account clusters** across several setups/day and layers same-direction evals into winners (he rejects copying one setup onto all 40). → **block correlation** (within-cluster ≈1, across-cluster positive via same strategy/instrument/day). Independent `(P_fail)^N` flatters RoR (QUANTIFY §2.4). Model a block/shared-factor structure; report RoR under cluster-ρ ∈ {0, 0.3, 0.6, 0.9} with cluster size ≈5. **Most likely real-world flaw.**
 - **3.4 Kelly** — eval count vs bankroll; ¼/½ Kelly. Reproduce $5k→$17k / $100k-mo=$4.5M-alloc checkpoints.
 - **Run → `reports/portfolio-<stamp>/`.**
 
