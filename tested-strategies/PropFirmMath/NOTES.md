@@ -41,8 +41,12 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
 - 2026-06-26 — **TradingView indicator** built: `pine/FairValueTheory.pine` (Pine v6) +
   spec `docs/superpowers/specs/2026-06-26-fairvalue-indicator-design.md`. Sessions/FV-lines/
   window-tints/pivot-BOS-MSB/decisive-candle(white)/A+(gold)/ATR-table + live recommendation.
-  Grilled design. **NOT compile-verified** (TradingView Desktop not installed → MCP CDP launch
-  failed; static-reviewed only). Timings verified vs FX Replay; 18:00 reopen (not 18:30).
+  Grilled design. **COMPILE-VERIFIED clean (zero errors) + renders correctly on NQ 1-min** via
+  TradingView MCP — table (ATR→bucket→SL/TP, active session, window, BOS/MSB), session labels,
+  window tints, pivot BOS all confirmed live; proof `pine/verification-render.png`. (Launched the
+  Store-app TV v3.2.0.7916 manually with --remote-debugging-port=9222 — MCP tv_launch had a stale
+  hard-coded 3.0.0.7652 path; needed kill+relaunch to enable CDP.) Timings verified vs FX Replay;
+  18:00 reopen (not 18:30). White/gold candle paint compiled but no qualifying bar in the snapshot.
 - Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
   commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 
