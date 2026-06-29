@@ -13,12 +13,16 @@ sizing via contract count, ~20 trades/day, no BE/partials; **(B) wrapper** = buy
 evals as call-options on $2k–5k payouts, Kelly-sized, RoR=(1−p_pass·p_payout)^N, grow funded
 to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer B.
 
-## Two source videos
+## Three sources → consolidated ruleset in `STRATEGY_RULES.md`
 - **v1** interview (Titans of Tomorrow) → `EXTRACTION.md`. Paraphrase; some errors.
-- **v2** JJ's OWN explainer "$1.2M/12mo" (`3L8xdh3oPm4`) → `EXTRACTION_v2.md`. **Authoritative.**
-  Corrected v1: fair price **9:30** (not 9:29); **11:00 = cutoff** (no "longer hold"); $1.2M/12mo
-  (not $1.5M/18mo); **live edge only "1–5%", breaks even live**. Defined BoS/displacement, exact
-  25/38 1:1.5, contract sizing, A+/A/B grading, A+ WR ≈70–80%, session clock, his own backtest recipe.
+- **v2** JJ's OWN explainer "$1.2M/12mo" (`3L8xdh3oPm4`) → `EXTRACTION_v2.md`. Corrected v1:
+  fair price **9:30**, **11:00 cutoff**, $1.2M/12mo, **live edge only "1–5%"**; defined BoS/displacement.
+- **v3** FX Replay backtest (`SNO1wqJTq5A`) + their PDF deck → `EXTRACTION_v3_fxreplay.md`,
+  `transcript/pdf_fairvalue_text.txt`, `transcript/pdf_page{2,3}.png`. **Most mechanical + first real
+  WR data.** Defined: displacement = **counter-wick ≤20%** (size optional, FX Replay dropped it);
+  **decisive + break must be SAME candle**; MSB(reversal) vs BOS(continuation); **ATR-bucketed SL/TP**
+  (50/75, 25/37.5, 16.5/24.75; TP=37.5 not 38); fair value = **9:30 AND 2pm**; skip first 3min;
+  follow-up trades (re-entries + 2nd-move) **excluded from their test** = trigger-3 tag.
 
 ## Decisions
 - Treat as 2 separable bets — the loophole (B) is real math but worthless if (A)'s after-cost
@@ -30,22 +34,27 @@ to $10k → withdraw $5k → repeat, target 3x eval spend. The "genius" is Layer
 ## State / done
 - 2026-06-26 — **v1** transcript fetched+cleaned (16.5k w) → `transcript/`, `EXTRACTION.md`;
   QUANTIFY.md + PLAN.md (TDD, kill-gates) written.
-- 2026-06-26 — **v2** (JJ's own explainer `3L8xdh3oPm4`, 7.4k w) fetched+cleaned →
-  `EXTRACTION_v2.md`; reconciled into QUANTIFY.md (v2 RECONCILIATION block + patched §A2/A4/A5/A6/A7
-  + param table) and PLAN.md. Signal now **~80% codable** (triggers defined).
+- 2026-06-26 — **v2** reconciled into QUANTIFY/PLAN (fair price 9:30, 11:00 cutoff, triggers defined).
+- 2026-06-26 — **v3 FX Replay** (backtest video + PDF deck) ingested → `EXTRACTION_v3_fxreplay.md`;
+  wrote consolidated **`STRATEGY_RULES.md`** (now-mechanical Layer-A, all 3 sources); reconciled QUANTIFY.
+  **First measured WR: 54% / 158 trades / 1.5R → +0.35R gross, IN-SAMPLE (verified vs transcript).**
+- Also (prior, parallel sub-project): **EV-app design spec committed** (`docs/superpowers/specs/2026-06-26-propfirm-ev-app-design.md`,
+  commit 1581157) — Streamlit+SQLite calculator+tracker; approved, **awaiting user spec review → writing-plans**.
 
 ## Rejected / dead ends
 - v1's "11:00–14:00 longer hold" trade — v2 confirms it **does not exist** (11:00 = hard cutoff).
+- Displacement SIZE threshold as a *required* gate — FX Replay dropped it ("too discretionary"),
+  got 54% WR without it → size is **optional/unproven**, not required (test as toggle).
 
 ## Open threads / next
-1. **Phase 0.1 — data source decision (NEEDS USER):** real NQ/MNQ futures 1-min vs MT5
-   NAS100 CFD proxy. Cost fidelity drives the whole verdict; proxy spread ≠ futures.
-2. TDD core/ (sessions + **9:30** fair price + 11:00 cutoff, structure=BoS+displacement, costs)
-   → Phase 1 signal → **Gate 1**. Test all-setups vs **A+-only** (v2: A+≈70–80%, blend unknown).
-3. **Biggest analytical risk to test:** Layer B's `(P_fail)^N` assumes independent accounts,
-   but 40 accounts on same NQ signal same day are correlated → real RoR ≫ stated. Phase 3.3 → ρ.
+1. **Phase 0.1 — data source decision (NEEDS USER):** real NQ/MNQ futures 1-min vs MT5 NAS100 proxy.
+   Cost fidelity drives the verdict; proxy spread ≠ futures.
+2. TDD core/ → Phase 1 signal → **Gate 1, now sharper: reproduce ≥~54% gross, then SURVIVE COSTS + OOS**
+   (FX Replay = in-sample, hand-picked windows, no costs). Costs are the killer for a 1.5R/25-pt scalp.
+3. **Measure separately:** base vs +follow-ups (trigger-3); size-gate on/off (user's 1.2–1.5×avg idea).
+4. Layer B's `(P_fail)^N` ignores account correlation → Phase 3.3 model ρ.
 
-## Load-bearing gaps — 2 left after v2 (must sweep — see QUANTIFY §A4)
-- Swing/structure detection threshold (pivot lookback `L`) — JJ never gives bar count.
-- Displacement-candle cutoff (`m`× body, `w`% wick) — JJ qualitative ("bigger + no wicks").
-- (Resolved by v2: fair price, direction, triggers, R:R, sizing, sessions. WR A+≈70–80%; A/B still measure.)
+## Load-bearing gaps — RESOLVED by v3 (only fine-tuning left)
+- Displacement = **counter-wick ≤20%** (was the big gap) ✓; size = optional toggle (user's m×avg). 
+- Decisive + break **same candle** (new critical refinement). Swing-point still needs pivot `L` formalize.
+- Remaining unknowns are now empirical not definitional: **costs, OOS, follow-ups, size-gate value.**

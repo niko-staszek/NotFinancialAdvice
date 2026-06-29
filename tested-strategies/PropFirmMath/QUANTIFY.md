@@ -37,9 +37,12 @@ Plus minor: min "points-in-favor" to take a reversion, fair-price-zone width, A/
 The video sells one "loophole" but it is mechanically two separable layers. Keeping them
 separate is the whole point of an honest quantification.
 
-| Layer | Question | Codeable? | Proven in video? |
+> **Current mechanical ruleset → [`STRATEGY_RULES.md`](STRATEGY_RULES.md)** (consolidates v1/v2/v3
+> FX Replay; the triggers below are now fully mechanized there). This doc keeps the analysis + EV math.
+
+| Layer | Question | Codeable? | Proven? |
 |-------|----------|-----------|------------------|
-| **A. Signal** | Does fading NQ 1-min back to the 9:30 open-candle "fair price" have positive expectancy after costs? | Yes (with 2 assumptions) | **No** — no win rate ever stated |
+| **A. Signal** | Does fading NQ 1-min back to the 9:30 open-candle "fair price" have positive expectancy after costs? | Yes | **FX Replay measured 54% WR / +0.35R gross, in-sample** (158 trades) → positive GROSS; **costs + OOS untested** |
 | **B. Wrapper** | Given a per-trade edge E, do prop-firm rules + portfolio sizing convert it into the claimed return? | Yes (almost as-is) | Internally consistent |
 
 **The "genius/loophole" is Layer B** — cheap eval = a call option on a $2k–5k payout,
@@ -221,5 +224,6 @@ $100k/mo math: 150k/5k = **30 payouts/mo** (~1/day) → **30×150k = $4.5M** all
 ## 3. Honest read (post-v2)
 - **Layer B is genuine, codeable, correct math** — bulk cheap optionality + Kelly + variance shaping. The real insight.
 - **Layer B's independence assumption is its weak point**: 40 accounts trading the *same* NQ signal on the *same* day are highly correlated, so `(P_fail)^N` flatters RoR. Must model correlation (ρ).
-- **Layer A is now ~80% codable** (v2 defined the triggers) but **still unproven**. JJ himself says the **live edge is only "1–5%" and breaks even on live** — the entire system depends on prop-firm leverage amplifying a razor-thin edge that costs can erase. v2's only WR number (A+ 70–80%) is hedged and grade-cherry-picked.
-- Everything still reduces to one measurable number: **after-cost per-trade expectancy of the 9:30-fade signal at 1:1.5.** v2 makes it buildable; whether it's > 0 is unknown until run.
+- **Layer A is now fully mechanical** (v3/FX Replay defined the triggers — see [`STRATEGY_RULES.md`](STRATEGY_RULES.md)) and has its **first measured win rate: 54% aggregate over 158 trades at 1.5R → +0.35R gross expectancy, in-sample** (FX Replay manual backtest, verified). This clears the 40% break-even hurdle **gross**.
+- **But "gross in-sample" ≠ works.** No OOS/walk-forward, **no costs deducted** (the killer for a 1.5R/25-pt-stop 1-min NQ scalp), dataset is hand-picked regime windows, and the optimized 62%/2.46PF is in-sample time-of-day fitting. JJ separately says live edge is only "1–5%" / breaks even live `[v2]`.
+- The make-or-break is unchanged, just sharper: **does the ≥54% gross survive realistic costs and hold OOS?** That is PLAN.md Gate 1.
