@@ -118,11 +118,21 @@ JJ's own video shows continuations recur all session. Verified quotes (transcrip
   reversion to fair → *"this move up was unfair, so I was going to trade another reversion"* (L611–614) →
   and when price breaks away again (fair price having reset on consolidation) a **fresh continuation** is
   valid → "continuation with the trend after the reversion period" (user's chart obs, JJ video ~14:05).
-- **Implication for our model:** the hard "continuation only in 3–15 min window" gate is too strict.
-  Continuation = a displacement/BOS **away from the current (possibly reset) fair price**, tradeable
-  whenever it occurs; the 3–15 min window only reliably contains the *first* one. The fair-price RESET
-  rule (when does FV update to a new consolidation?) is the missing piece to fully mechanize this — it is
-  still under-specified in all sources and is the key open question for the build. `[OPEN]`
+- **Implication for our model:** continuation = a displacement/BOS away from the **current (dynamic)
+  fair price**, **per-session-open** (9:30/2pm/6pm/8pm — "one continuation + one reversal per session"),
+  each gated to that session's first ~10–15 min; NOT recurring within a session. "With-the-trend later" =
+  the separate **news-drift** mode. `[channel sweep]`
+
+### 6c. Fair-price RESET rule — RESOLVED by the 19-video channel sweep (was the #1 open question)
+Full detail + quotes: [`EXTRACTION_channel.md`](EXTRACTION_channel.md) §A1–A4. Fair value is **dynamic**:
+- Default anchor = **9:29 ET candle BODY** (ignore wicks). *"9:29 is not always the fair price."*
+- **Resets only on: news, session opens, AND an intraday volume-spike consolidation** — if an unfair move
+  spikes on volume and **consolidates at a new level instead of reverting, redraw FV to that consolidation**
+  ("most recent consolidation = fair price"). Two candidates → mark the middle. No reset on fake news.
+- **News split:** expected news → fade to the **8:29 candle body** (his highest-WR trade); unexpected/tweet/
+  regime → **continuation + reset** FV to the post-news consolidation; news SL/TP arbitrary (not 25/38).
+- **Sizing beyond ATR:** signal-candle body **>25 pts → halve contracts, 50/76**; confidence-scaled
+  ("risk higher when win-chance higher"); closer to FV → size down + bigger runway. TP **38** = his round of 1.5×25.
 
 ## 7. Exits — ATR-bucketed, fixed 1.5R, NO management `[fx-pdf][fx-test L282–98]`
 | 1-min ATR | SL (pts) | TP (pts) | NQ contracts for ~$1k risk |

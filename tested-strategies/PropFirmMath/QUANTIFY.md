@@ -132,6 +132,17 @@ after costs** on NQ at 20 trades/day? If A+ really runs 70–80% but A/B drag th
 This layer is codeable almost verbatim. It consumes Layer A's trade distribution and the
 firm's rule set; it outputs pass rate, payout probability, EV, and risk of ruin.
 
+> **Channel-sweep corrections (see [`EXTRACTION_channel.md`](EXTRACTION_channel.md) §B):**
+> - **Kelly and `(1−p·p)^N` RoR are OUR modeling — JJ never states them.** His RoR is qualitative; his
+>   stated target is "**3× the investment**." Keep our formulas but label them as our analysis, not his.
+> - **~30 accounts** (one trade each), not 40. **"$10k→withdraw $5k" → actually +$3k → withdraw 50% → leave
+>   half → recursion**; payout = **5 winning days ≥$150**. Copy-trade only >$50k/mo (his method = none).
+> - **Eval optimizes pass-rate ONLY; funded optimizes payout_rate × payout_size** (1:1.5 eval vs 1:2–1:5 funded)
+>   — two separate measurements from the signal backtest.
+> - **The dominant real-world risk is NOT signal RoR — it's the firm-ban CEILING:** make ~50–100k → banned or
+>   force-moved to a tiny live account that deletes the sim balance. Model this (rotate firms before thresholds;
+>   max 3 accounts/firm; EOD-trailing locks 4pm vs intraday-trailing danger). Firm tiers: S=Topstep/TradiFy/Lucid.
+
 ### B1. Firm rule model (parameterize per firm)
 - `target` — profit target to pass eval (e.g. $3000 on a tier). `[STATED example]`
 - `max_loss` / **trailing drawdown** — the binding constraint; on futures it **trails up and locks at end of day**. `[STATED]` Must model intraday-trailing vs EOD-lock exactly — the whole static-risk + matched-R:R design exists to exploit this.

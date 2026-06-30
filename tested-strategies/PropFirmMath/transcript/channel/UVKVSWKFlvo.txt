@@ -1,0 +1,330 @@
+I made over 1.3 million dollars from
+prop firms in the last 12 months. This
+is my trading strategy explained in just
+10 minutes. All right, I'm going to go
+over 5 days from this week of the New
+York AM session. And what I'm looking
+for in my strategy is to mark out the
+price of the pre-open. Now, I'm going to
+wait for a continuation away from this
+price. I believe that this is the fair
+price.
+This is something I studied in college,
+and fair price is basically the price
+before the session open, because when
+the session opens, there's an influx of
+volume from institutions that are
+willing to trade unfairly. So, they pump
+up the price or they'll dump the price
+away from a fair price. And you can sort
+of analyze that with volume. So, just
+like looking at this here, for example,
+session opens right here, crazy increase
+in volume, huge move up.
+Now, you got to think to yourself, are
+we really changing the fair value price
+of Nasdaq futures? Because we're pricing
+companies here. So, are we really
+changing the fair price of these
+companies just because the session
+opened? Well, not really, which is why
+the first trade I take is a continuation
+of the influx of volume, usually because
+it's just a sum of the overnight orders
+that are executed on the opening candle,
+and it creates a very good bias. And if
+you have your bias right when you're
+trading props, you're going to make a
+lot of money in the long run. After
+that, I will just trade a reversion back
+to what I believe to be the fair price,
+which is pretty much just the session
+open. Fair prices only
+ever changed by news and by session
+opens. Now, session open's not going to
+actually change the fair price, but
+it'll change the real price, which is
+over here on the right side. So, it'll
+change the price of the future. That's
+why I revert it. So, just be aware did
+news cause this move or was it like a
+session open? What caused it? Unfair,
+fair, news. All the videos are on my
+page. So, I'll just get into it really
+quickly here what I would do for all 5
+days this week. All right, so the first
+day is Friday. I have the pre-open price
+marked here.
+First candle is green, but very
+slightly.
+Anyways, second candle clearly breaks up
+and closes above all of these previous
+ones. So, I would just take a very quick
+continuation long.
+The candle is 29 points, so I would do a
+50 point stop and a 76 point take
+profit. My usual rule for that is if the
+candle's over 25 points, then I don't do
+my 25 stop 38 profit. I would divide
+size by two and I'll do 50 and 76. So,
+that creates a pretty easy continuation
+trade right there. If for some reason
+you miss this first one, it's also fine
+to get in right here. For continuation
+trade, I'm just trading the direction of
+the open. So, in this case, the opening
+price is here and it opens and closes
+above structure here. Also, this one
+opens and closes above this opening
+candle here. So, these would be my two
+entries for continuation longs on this
+day.
+Now, for reversion, I just trade back to
+the pre-open price, as always. Entry
+would just be off of a break of
+structure. So, I'm looking through here,
+waiting for the first break of
+structure, and the first one we see is
+right here.
+This candle breaks below this structure
+and this structure, and there's no wick
+on the bottom, so it's a pretty strong
+displacement and break of structure
+candle. I always do 25 and 38 for these
+take profits. Sometimes I'll target
+more. In this case, you're even getting
+100 points to fair price, so this is a
+very, very profitable trade for you to
+take all the way back to the opening
+price.
+Some people wanted to trade
+continuations here, away from this. I
+would probably not do that. I only like
+to take continuation longs right when
+session opens, because that is when the
+unfair moves happen. After that, I'm
+just looking for reverses to this price
+here. It moves up more, but I don't see
+an entry back here. It moves all the way
+down, and I don't really see a break of
+structure here to get back to fair
+price.
+After that, lots of consolidation here,
+just proving that this was indeed the
+fair price throughout the day. More
+consolidation, more, more, more, and
+then the market eventually closes right
+here. So, there was no news on this day,
+which means it opened and it closed at
+the exact same price, as expected,
+because nothing changed the fair price
+of futures, let alone the market open.
+So, when it moved up more than 100
+points up, I'm so excited to short that,
+because no news has caused anything that
+should change the fair value pricing of
+companies of Nasdaq. And the futures are
+just the future price of Nasdaq. So,
+might as well just trade a reversion
+back to the fair price. Now, let's go
+over Thursday. Thursday is a little bit
+different. In this case, we had news at
+8:30. If you haven't seen my news video,
+go check that out, but I'll just keep
+that in here for example. News came out
+at 8:30. News is basically like another
+session open. You can take continuation
+long since news was green. Pretty much
+same trade as the open. Anything you
+want to do there would be totally fine.
+After that, I would trade a reversion
+back to the pre-news price. So, instead
+of coming back to the pre-open price on
+this example, I would trade back to the
+pre-news price.
+This is because eight-folder This is
+because red folder news at 8:30 is
+always priced in, in my opinion, which
+means that moves like this are very,
+very unfair.
+Then, whenever the market opens or break
+structure back down to the downside, I
+am very interested in shorting back to
+the pre-news price. In this example, you
+would have gotten wicked out on market
+open. I do recommend going break even if
+the market's going to open while you're
+in a trade, just because you have crazy
+wicks like this, just filled with the
+overnight volume. In this example, there
+was lots of green momentum coming into
+the open, especially since news was
+green. And then, when the market opened,
+it had a very large green candle, wicks
+you out before coming to your take
+profit. If for some reason you got
+wicked out here, like I did, shouldn't
+have taken the trade. I just re-entered
+here when it broke structure again down
+to the downside. Now, let's go over
+Wednesday. Wednesday, we didn't have any
+8:30 a.m. news. We had the market open
+at 9:30, and I would just take a very
+quick continuation short. Again,
+50-point candle, so I would do a
+50-point stop and a 76-point take
+profit. This is just my risk
+pretty much my standard risk management
+protocol is a 1:1.5, just because prop
+firms are minus 2,000 to plus 3,000,
+meaning it's a 1:1.5 to pass your eval.
+So, I just separate my trades in a
+1:1.5, makes passing
+very much easier.
+Anyways, just take a very quick
+continuation short cuz the opening
+candle is huge and red. If you didn't
+get this one for some reason, you can
+also enter there. It's kind of the same
+thing, but first one just gives me
+uh I'm selling a little bit higher, so
+it's like slightly more likely to win,
+so I'll always take that. After that, I
+would believe that pre-open price is
+probably fair price, and then I would go
+long off break of structure. First one I
+see is right here. Usual target 38
+points. Unfortunately, misses by 2 and
+1/2 points.
+Then after that, I would reenter on the
+next break of structure, which is this
+one right here. This one hits 38 points
+by 1.5 points. So, very glad to have won
+that. Last trade would be this one right
+here.
+Lose, unfortunately. And then this one
+right here, win. After that, I'm just
+done trading once it hits 11:00 a.m.
+because the volume dies out.
+So,
+uh very interesting day today.
+Unfortunately, did not revert during the
+market open. It kind of reverted all the
+way here when the market was finally
+closing, but
+still no reversion on open, but win,
+loss, win, loss, win. So, I mean, still
+incredibly winning at a 1.5 risk to
+reward as well. Even on days it doesn't
+fully revert, you're still getting some
+of that that action back up towards the
+fair price.
+Next, let's go over Tuesday. Very good
+day for reversion, as usual. I will just
+mark out the pre-open price.
+In this day,
+very large wick rejecting long, so I
+would probably just go short as soon as
+the opening candle forms.
+You could do 25 points, and you get
+saved by uh one point right there. The
+body of the opening candle is 18 points,
+so risk management says, "Go with a
+25-point stop, 38-point take profit."
+And there you go, you hit a win right
+there. After that, let's just trade it
+back to the pre-open price.
+Enter off the first break of structure
+we see, which is right here, because
+this is structure here.
+38-point take profit gets hit right
+there.
+After that, you could continue to short.
+You could enter here. There is no
+structure broken here or here, but it is
+optional for you to short. I would
+probably have waited until it actually
+breaks structure to short. And for the
+first break of structure, let's see, it
+is right here.
+So, first break of structure, just
+always stick to the rules.
+And in this case, you are getting 181
+points in your favor to fair price. That
+is an insane amount of points.
+Uh with one contract, I don't even know
+how much that is, like 3.6k. That's a a
+ton of money. So, very very insane
+perfect reversion there on this day.
+After 11:00 a.m., I am done trading as
+well, but I'll let a position play out
+if I'm still in one. So, when it breaks
+structure here, I will send one two
+contracts short and just let it play
+out. Now, I will go over Monday. Monday
+was a bank holiday, but I still like to
+trade them if there's an influx in
+volume
+when the market opens. Just because that
+means there's still going to be an
+unfair move. So, here I'll just mark out
+the pre-open price.
+There is an influx in volume just cuz
+you can see the 9:30 a.m. candle that's
+larger than most of these candles.
+I would do a continuation long, just
+enter right here, 38 points. Definitely
+don't go for 76 here because it's bank
+holiday and it it's very unlikely to
+continue that far away from a fair
+price.
+Also, I only take continuations in like
+the first 10-15 minutes because when the
+unfair initial opening move stops, I
+definitely want to be shorting for
+reversion.
+Anyways, fair price is here, quick move
+up, unfair. I would take a short off
+break of structure. First break of
+structure that I see is this one right
+here. And it's giving 33 and 1/2 points,
+so target 38 points. Very quick trade
+right there.
+It does move down even farther, so if
+you wanted to scalp a a little quick
+long back to fair price, you could. And
+then this was the tweet and this was the
+tweet as well. So,
+tweets are traded a lot differently, but
+I hope this was a very good informative
+video on how you can trade the strategy.
+I hope simplifying it made it a lot
+easier to understand. Last thing I'll
+mention is I have a free website here.
+I'll put it in the description. You
+insert your trading stats, total wins,
+total trades, wins, average win, average
+loss, calculate EV, and then based on
+your stats, it will tell you the optimal
+prop you can trade with. So, based on my
+stats, if I trade this account, I'm
+going to make $225 per eval I purchase,
+but if I buy this one, I'm going to lose
+$186 per eval I purchase. I'm even going
+to lose on this eval and this eval. So,
+hopefully this website, which is free
+and in the description, is going to help
+you trade on the optimal prop firm.
+Thank you guys for watching. If you want
+to join the free Discord in the
+description, we can talk about my
+website there or talk about the
+strategy, send you trades, all that sort
+of stuff. So, uh go hit that up and if
+you want proof of my payouts and stuff,
+go check out any of my other videos like
+uh I'm going to link one here. It's my
+news trading video. Proof screen
+recorded in the first 15 seconds of
+that. But, hopefully you enjoyed the
+video and have a good one.
