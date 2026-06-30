@@ -1,0 +1,1332 @@
+What's up everyone? Today we're going to
+be back testing my continuation and
+reversion strategy just for the month of
+May. Side note, the strategy does change
+monthtomonth a little bit based on the
+market conditions. If it's drifting to
+all-time highs, if it's dumping,
+correcting, or stagnating in the middle,
+I take a little bit of a different entry
+model, but I'm just going to do May
+right now. All right, we are on May 1st.
+I'm not going to be doing any 8:30 a.m.
+news trades because I am not able to
+look at the actual values of them from
+here, but I'm just going to be doing
+market opens for New York AM
+continuation, reversion, all that sort
+of stuff. So, first one, opening candle
+33 points. I'm automatically going to do
+half my normal contracts and it's going
+to buy just because
+opening candle is green and just that's
+sort of how you do continuation trades.
+Let me see if I can just free take
+profit stop loss and buy.
+I'm just going to risk 500, go for 750
+every single trade. Um, back testing is
+a little bit different than live, but
+I'm going to give it my best shot. I
+don't really do it anymore. So, here's
+the first one. Let's speed it up. All
+right, there we go. Take profit.
+[clears throat]
+Now, I am going to mark out what I think
+is the fair price, which is just the
+pre-open price. And let's see what it
+does in terms of a reversion.
+I'm going to wait for a break of
+structure. Uh, because we're at alltime
+highs, I want to wait for a break of
+structure to have it like really be
+ready to short. I don't want to short
+off displacement. So, I'll just wait
+till structure breaks, which it does
+right here. And in this case, I'm just
+going to use I'm going to see how many
+points there are. So, just looking at
+the right side, there is over 100
+points. So, um actually, I'll just use
+I'll just use a one contract for every
+single one
+no matter what. It [clears throat] is
+going to be a little bit less
+profitable, but just keep everything
+standard, same risk. And then I'll
+switch contracts. I'll only do the half
+contract on opening
+opening one. And that one loses, but
+that's fine. Now, I'm going to stop at
+11 a.m. But let's see if there's any
+other shorts presented. Now, I'm going
+to bring my fair price back up to here
+because we had a volume spike and it
+continued up instead of coming back to
+the fair price. So, I can change fair
+price a little bit throughout the day if
+you did not know that.
+I change fair price throughout the day
+based on most recent consolidation.
+Now, let's wait for a break of structure
+with no wick because we're at all time
+highs here. I really want a a very
+strong short. Um, and it looks like we
+get the break of structure, no wick at
+the bottom.
+and looks like a pretty standard shorts.
+Actually, I'm going to change it. I'm
+just going to do half. So, you can
+change the amount of contracts you use
+based on how many points to the fair
+price. It is something I do. I wasn't
+sure if I was going to tell people that
+on YouTube. I was just going to say
+everyone just do the same thing as
+always. But this is a little
+optimization you can do to help increase
+your win rate. Might as well. There you
+go. So, that's the continuation. That is
+the reversion. Very good day today.
+Let's see if it does go back to AM. It
+doesn't. I don't [clears throat] think
+it will just because there's a bunch of
+consolidation here and then it moved up
+farther. So I would think this is the
+new fair price and then yes, let's go. I
+was correct. All right, so now we are on
+to Monday New York AM. Some sort of news
+that I obviously don't know what that
+was. I don't have news up, but this
+definitely looks like a very fair price.
+Lots of consolidation and the market is
+about to open. Let's see if we take any
+continuation. So this would be a great
+time to do continuation short. I'm just
+going to do one contract because no need
+to cut in half. The opening candle was
+not very large.
+So just the standard - 500 plus 750
+[clears throat]
+gets really close
+and unfortunate loss, but it got very
+close uh as expected. So now we'll just
+look for a reversion since the
+continuation was not a win. Going to
+need it to move quite a bit away. It
+doesn't look like it's going to because
+it's Monday, but let's see if we can get
+a decent amount of points in our favor.
+Uh, it's going to be a while.
+[clears throat] Okay, there we go. I am
+down at 11. So, let's see if I do get an
+entry before 11. Just wait for the
+structure to break. Wick, but no break.
+I want to close below.
+And there we go. So, this one seems
+good. Fair price is probably this. This
+one's from the previous day. I don't
+need that. So, just take this one and
+then you can see how many points we're
+getting. We're getting about 50, maybe
+60. So, just standard one contract and
+then go for 760, 750, whatever, 500 stop
+loss. And then we'll see if this one
+wins.
+Oh my gosh. One tick away. There we go.
+One tick away and then it wins. Uh,
+definitely done for the day at 11. And
+this is a crazy no volume day. Probably
+no volume day is why the continuation
+loss, but who really knows? All right,
+we are now on Tuesday. Let's see what
+the opening candle does. Okay, it is
+green, but there's a huge wick on top.
+So, my bias is going to be longs, but
+I'm not going to buy right now just
+because of the huge wick.
+And if it closes above the Oh,
+it's going to say if it closes above, I
+will buy. It closed literally at the
+same exact one. So, I'm just going to
+wait one more candle. Okay, this one's
+green. I'm I'm going to buy here just
+with one contract. It's probably fine.
+Don't need a bigger stop here.
+&gt;&gt; [clears throat]
+&gt;&gt; and then we'll see what this one does.
+Okay, this one wins. Now I'm going to
+wait for a reversion back to this price.
+Just this consolidation here. Let's see
+what we get.
+Okay, there we go. Break structure.
+Everything seems good to go except for
+the fact that news is coming out at 10.
+I'm going to do 0.5 contracts because
+I'm getting exactly 750 to the fair
+price. So, [clears throat] perfect.
+And then news comes out. I would move
+stop to break even, but I'm in draw
+down, so I don't need to
+let it play out. Okay, some movements
+and it goes the wrong way. Well, it was
+worth a try. Entry seemed fine. Uh, it
+was at alltime highs, so never the best
+short all-time highs, but entry very
+good. Just standard break of structure
+and then unfortunately not enough
+movement in our favor. I will look for
+one more if it breaks this consolidation
+here.
+Yep, there it goes. I'm [clears throat]
+gonna do one because fair price is most
+likely not this consolidation or this
+one right here.
+And then we are getting enough points to
+go for 750 500. And we'll see what this
+one does.
+Going down
+almost.
+Well, unfortunate loss. It did revert to
+this pair price. So I guess now we know
+this is the pair price going forward.
+But that doesn't help us unfortunately.
+Did not revert all the way. So on to the
+next day. All right. Now we are on
+Wednesday. Let's see what the opening
+candle does. Okay. Opening candle is
+red. Continuation shorts might be an
+option here. Um
+they're not the best option though. I
+think fair price is quite higher. It is
+likely about here. Reason for that is
+there was two green pieces of news
+overnight and you're at the very very
+bottom of a move. I would be very
+careful to short the absolute bottom. I
+would like it if it opens here 100% to
+short back to this. I'm just treating
+this as a fair price because it's the
+consolidation after this news. So, I
+would not short if it breaks if it goes
+up. Okay,
+I'm going to [clears throat] buy with
+0.5.
+Opening candle was 43. So, buy with 0.5
+getting 7050. Okay, exactly to where I
+thought fair price was. So, we'll just
+let that play out then. Okay, there's a
+win. Um, and now I'm actually going to
+think about a No, I'm not going to think
+about a short. I was going to think
+about a short, but instead of the
+opening being the fair price, I honestly
+think the pair price is now up here or
+here. Like, it's one of these two, not
+the open, because when it opened, the
+overnight orders were short, but then it
+quickly reversed on and closed above and
+broke structure to the upside. And plus,
+we had two green news and high time
+frame biases to fail this move here. So,
+I am long biased. I might not even
+revert this. I'm gonna wait for Okay,
+lots of consolidation in there. So, 100%
+fair price there.
+Uh we'll see if it moves up to where I
+can take Oh, I could even maybe I can
+buy if it goes down farther.
+Uh it doesn't look like it. Okay, it's
+about to hit 11 and it's just
+consolidating in the bare price and now
+it's drifting.
+Yeah. So, I'd be done for today. Just
+one continuation. More of a macro play.
+All right. Now, for Thursday, it looks
+like it's opening in the middle of the
+overnight range. So, it is probably
+opening at a fair price. I'll just mark
+out the open. And
+all right, shorts seem like they would
+be good to take with 17 point candle.
+So, I'll just do one one contract here.
+I have to drag to 500 750
+and we'll see what this one does. This
+one loses. Very large wicks this day.
+Let's see.
+Um,
+if we get a good displacement, I'll buy.
+Okay. Well, there's the displacement,
+but it got back to fair price instantly.
+Origin did not see an entry there. Uh,
+are we at all time high? Yeah. Okay. So,
+now to short, I want to break the
+structure just because it's at all time
+highs.
+So, we'll see.
+Alltime highs consolidation. Is it going
+to break structure?
+Give it a minute.
+Okay, give it another minute.
+Uh, is that structure? Nope.
+If you don't know what structure is,
+there should be like a good free YouTube
+video on it, but it's basically whenever
+there's a wick just like that, and it's
+lower than these two. So, it's
+structure. Just wait for a close below
+it. Here we go. There's a close below,
+but there's a huge wick. Um, I would
+not short that one probably. Let me see.
+Okay, I might go for a really long
+trade. The back testing P&amp;L is going to
+be way different than proper P&amp;L and
+live P&amp;L.
+Um, but I'm just trying to get you guys
+the strategy.
+Uh, so the results are not going to be
+totally accurate. Okay, there we go.
+Breakup structure. No wick. I'm ready to
+short.
+Like even days like this, if I was on a
+specific account, I would even go for
+this. But it's hard to do that in back
+testing. Like I feel like it it can
+easily revert all the way because it's
+just drifting at all time highs
+unfairly. It's hard to do that on a prop
+firm funded account, Eval account. Like
+depending on your account, this is an
+optional play that you could do. Okay,
+there we go. So, if I wanted to maximize
+my account balance, I would do longer
+trades like that. I could also just
+literally just do 38 points. I don't
+know. I don't know what's best for back
+testing, but I'm just going to show
+everyone the pass rate and that sort of
+stuff. And I guess I'll take long trades
+like that if I see them.
+Uh, this one I took exactly at 11, so
+I'm very grateful it broke structure
+then instead of later. All right, now
+I'm on Friday, but I actually saw that
+there's red boulder news and it is
+actually going to give the results. I'm
+not sure if they have tweets here in FX
+Replay, but I'm going to actually just
+trade the news like I would usually so I
+can give you guys an extra session.
+Okay, let's see if we take a
+continuation. Continuation long seems
+fine here just because it was green and
+then this candle sort of confirming good
+displacement. I'll just do one contract.
+I'll change this to 750. The thing is
+here I'm optimizing for prop firms pass
+rate because I'm doing a 1 to 1.5. Like
+there's better strategies if you're
+trading this on live. Okay, perfect. Now
+green news prices there. Let's see if I
+get a reversion.
+breaking structure almost. There we go.
+Sell one. Okay, exactly 750 to fair
+price. Perfect. 500 here and then just
+play that one out. Should win because
+it's free news price. Yep, there we go.
+Nice and easy. Now, let's see what New
+York AM does at 930. Don't want to skip
+it by accident.
+Okay, green candle. So, 100% long bias
+today. Like very very very very strong.
+Um we took alltime highs in the morning.
+So, this is the alltime high. So, first
+of all, we're very close to that. Second
+of all, the opening candle is green.
+Third of all, news is green. So, I am
+very ready. Okay, there we go. I was
+going to say I'm very ready to long. So,
+that does it for me.
+Uh, same risk as usual. Play it. And
+there we go. Take profit. Uh, fair price
+here. Consolidation here after news as
+well. There was consolidation here, but
+when open came, it got all the way back
+up to here and then consolidated here.
+So, it changed fair price up to here.
+Now, let's see if I can get a reversion
+off this just break of structure. Maybe.
+Nope. Okay, new fair price would be up
+here because there's a volume spike and
+it went away from what I thought was the
+fair price.
+A little bit more of an in-depth bare
+price explanation through these back
+test videos, but that is always good.
+Um, no breakup structure. It's like at
+the same level. We'll see if it does.
+Okay, so it climbs up again further. So,
+I moved our price up to here.
+Okay.
+Well, it reverted. Great. Uh, I kind of
+missed the displacement entry by
+clicking too fast. But, uh, it's
+definitely better to wait for breaking
+structure at all time highs.
+Let's see. Are we going to get structure
+break? Nope. And it hits 11. So, on to
+the next day. All right. Now, we are on
+Monday the 11th. It is at a very, very
+fair price. The gap is like slightly
+above. So, it's in the middle of the
+overnight range. I guess it's more
+slightly to the bottom. And then we can
+fill this move up here. So before even
+seeing the opening candle, I'm just
+going to guess long bias, but obviously
+we'll see. Hey, there we go.
+Opening candle size 37. So let's do 0.5.
+There we go. Just like usual.
+And that was quick. Very nice. Easy. I
+think this is probably a fair price, but
+we'll see if
+Okay. Wow.
+It's moving.
+Okay, I missed the entry again. Whoops.
+Uh I should have entered right there.
+But uh and there's not 75 points in my
+favor. So just going to do one contract
+and then go for 760 750
+500
+and we'll see what that does. There we
+go.
+Crazy volume this day. Uh we'll see what
+happens.
+Let's see. Almost to 11
+also. Okay. What am I doing? I just
+missed another one by clicking too fast.
+Okay. Well, that was a mistake. Um,
+okay. I should have taken this with 75
+35 to 50, but I mean, I'll just get in
+here and take it uh with one. So, I'll
+do 30.
+All these numbers are confusing me while
+I'm doing this over here. I'll just do
+the smaller one. It doesn't matter.
+Okay, they both won. Back to the fair
+price. Pretty easy trade. And it is
+10:30. Let's see if we get another
+opportunity before 11.
+Uh almost.
+And
+okay, it's about to break structure.
+We'll see if it closes.
+Wick.
+Green candle. Green. Green. Green. Okay.
+I'm done. All right. Now we are on
+Tuesday. High time frame bias is long.
+So let's expect a long drift on this
+day. Um now let's see what open does.
+Okay. Open very large red candle. Uh I
+would just take a continuation short
+with 0.5 contracts
+just because open candle bigger than 25
+as we always do
+and unfortunately lose but that's
+normal. Um let's see what it does from
+here. Mark out fair price there and
+we'll see if we can get a reversion.
+Okay, there's the reversion but no
+breakup structure. So,
+okay, I'm getting ready to long.
+That's displacement. U but we're only
+doing break of structure in this video.
+There's a break of this structure right
+here. It's not the best for sure, but it
+is still a structure being broken.
+I probably should have sized down.
+Whoops. But let's play it. There we
+[clears throat] go. They both would have
+won. All right. So, there's the
+reversion.
+Yeah, it's continuing down. Opening
+candle is red. So, good short bias
+indicated by that. Let's see. There
+might be one more attempt. Oh I
+missed it again.
+Uh, this was supposed to be the attempt.
+I can still do 0.5. It's still far
+enough away.
+But yeah, that was supposed to be the
+reversion there
+and unfortunately lose. Maybe one more
+time before 11. Let's see if it breaks
+up. Nope. Okay, no break up. So, I am
+done. It's just dumping. Okay, on to the
+next day. All right, so it's opening
+about in the middle of the range. High
+time frame could be either way. And
+let's do opening candle says to short.
+So, I'm going to short with 0.5
+contracts. And all these are NQ, by the
+way. [clears throat and cough]
+All right, there's the win. Now I'm
+going to revert to pre-open price.
+That's a good displacement, but I'm just
+going to wait for break structure. Give
+it a bit. Give it more time. More time.
+Okay. Well, good reversions, but no
+entry for break of structure yet. Huge
+wicks. Okay. If it breaks from this
+consolidation, if it breaks down, I'm
+going to adjust fair price to here. If
+it breaks up, I'm going to buy back to
+the opening price.
+Okay, time to buy. And let's see how
+many points are we getting. Oh, we're
+getting a lot of points. So, I'll do 0.5
+buy. And then let it play out.
+And there we go. Nice easy win. I guess
+I'll let it play a bit more. See if we
+get any opportunity at 11. No. Okay.
+So, it just consolidates more at fair
+price. Perfect. Really great reversion
+there just off the first break of
+structure. On to the next day. Here we
+are on Thursday the 14th. High time
+frame bias probably just longs. It's a
+little bit to the bottom side of the
+overnight range. Uh so going to expect a
+long drift today and then we have
+alltime highs up there to claim
+possibly. Let's see what it does. First
+candle red. Okay, that's weird.
+Oh, that's better. It is 26 points. So I
+would still do the 0.5. Um the opening
+candle slash this one. I guess you could
+also consider for the the special sizing
+the half size. There we go. Easy
+continuation as always. Uh just the
+reason for this one is a broken close
+above this previous structure. No wick
+on top, two wicks projecting shorts,
+high time frame long. So everything
+lines up except the opening candle which
+is more than enough for me to take it.
+Definitely not the best. Obviously you
+want to do in the direction of the open,
+but some days it's very artificially
+created if you if you know what I mean.
+Uh now let's just look for a reversion
+back to this price. Probably a fair
+price. Also consolidation here might be
+fair. We can consider that in a second.
+But I'm definitely going to have one
+attempt for sure. Let's see. That's
+displacement, but no break structure
+yet.
+There's the breakup structure. And let's
+do 0.5 contracts just so we get a larger
+stop and the same takeprofit
+and then play it out. There we go. Easy.
+[clears throat]
+Maybe one more attempt. We'll see what
+it does.
+Okay, I'm moving fair price up to here.
+I have a green with this area here. So,
+it's either here or here. So, I put it
+in the middle of them. Uh because my
+whole goal here is to have a bias. Okay.
+It didn't break below. It broke to the
+even with it. So, not a strong breakup
+structure there. Is it going to hit 11
+or we going to get one more short?
+Almost. Any breaking structure? Yep.
+Structure breaks. Um, so you could
+consider one right here.
+There's a pretty large wick at the
+bottom. Is it alltime highs? Yeah.
+I mean, it's 50/50. If there's a large
+wick, you can wait for the next candle
+to confirm.
+Okay. That one's indecisive. Okay.
+I really don't want to trade after 11
+because it always just drifts straight
+up. Yeah, nothing here. It's probably
+just going to drift. Yeah, whenever it
+hits alltime highs, it's just a drift.
+So, it's hard to short that unless it
+actually breaks structure before 11.
+This one's it's decent, but the huge
+wick at the bottom kind of scares me.
+Right now, we are on Friday the 15th.
+Let's see.
+Okay, red candle.
+We'll look for some continuation shorts
+if I get an entry. This one's an
+optional entry. It's a 34 point candle.
+Uh opening candle is very small though.
+19 only 19 points. I would prefer it to
+close below structure.
+Yeah, that one that one should work.
+Just do one.
+It is a 50 point candle. Okay, this
+one's this one's really weird. Okay. Uh
+the reason why I'm a bit hesitant is
+it's at the all-time low of the last 24
+hours. And it's never good to be
+shorting the absolute bottom.
+Opening candle is red. It did close
+below structure. I'll just sell with
+one. I'm more
+trading off like a quick continuation
+rather than a bias like the larger ones.
+Okay. Oh, it didn't work anyway. So,
+that's all right. Whatever. On to the
+reversion, which is always a bit better.
+There's the fair price. Now, let's see.
+Do we ever Okay. Break a structure,
+but like three points in our favor.
+Let's [clears throat] wait. There's
+another break. And this one seems good.
+Just do one.
+750 500. There we go. Let that run. And
+okay,
+I guess it lost.
+Yeah, it lost before it won, I think. I
+don't know. It went too fast. I was Yep.
+Okay. Well, it lost right before
+winning. Unfortunate. Um, but great
+reversion trade in general. Maybe
+possibility for a short. Yep. The
+structure here just got broken. Sell one
+750
+and 500.
+That was pretty easy.
+Uh maybe one more before 11 if it jumps
+up or down.
+Okay, it's consolidating at fair price.
+So, we are done for this day. All right,
+now we're on Monday the 18th. Let's see
+what sort of action we're getting. There
+was no news. I mean, this was obviously
+some sort of news, but it wasn't
+planned. So, we'll see how it reacts to
+this area right here. Opening candle red
+and high time frame um high time frame
+short just to fill this move up here.
+So, pretty strong short bias going in
+today because we have to revert this
+move here. I don't know if this is
+caused by a tweet like an actual thing
+that could change fair price because
+it's a back test, but does make it a
+little harder. But whatever, we'll just
+follow the strategy exactly like it
+says. Okay, I'm going to use one
+contract for short instead of path. And
+there we go. Break a structure. So
+750 500.
+Play it out. Oh man, I lost. Um I could
+consider one more maybe. Okay, I'm
+probably going to take one more.
+We are at what I think might be a fair
+price, which is this.
+So, it's not the best, but I'm just
+going to take a very quick continuation.
+The opening candle was quite small, so
+I'm just going to stick with a smaller
+size, even if this candle was large, and
+just hope that we can get there pretty
+quickly. Okay.
+Yeah. Well, that was not the best trade
+for sure.
+What was I doing?
+Okay, looking back, that was dumb. This
+candle was 26 points. The opening candle
+was very small. I don't know. Maybe you
+could have done 50, 75, and then one
+pretty easily. But I don't know.
+I always get a little bit 50/50 when the
+opening candle's really small, but then
+the candles themselves are printing
+large. It just throws me off because I
+feel like the opening candle is
+obviously the one with the most volume.
+So, it does throw me off sometimes, but
+I just try and stick with the same thing
+every time. So, probably just fine to
+get destroyed.
+I guess because it went down but as
+expected for sure but just got stopped
+out every time.
+All right, I can send in a buy here with
+0.5
+just because there's a lot of points in
+our favor.
+Hey, okay, perfect. Just easy break
+structure. At least reversion is paying
+us when uh continuation somehow losing
+two continuations when it's only going
+down. I don't know. Whatever. reversion
+pays. Oh, that's not a breakup
+structure.
+Oh my gosh, it's working. The versions
+are great, but the continuation trolled
+today. We'll see if we get one more
+attempt here before 11. Oh yeah,
+definitely going to get another shot.
+This one seems pretty good just by half
+the contract. Okay, it was not pretty
+good. It was It was bad. Whatever.
+That's not the worst. I just didn't like
+that this wick did not close above.
+But it hits 11. No more structure being
+broken. on to the next day. All right,
+Tuesday the 19th. High time frame bias
+definitely longs because it's at the
+very bottom. Hopefully opening candle is
+green. Then we'll have a very good
+continuation long. Hey, there we go.
+We're in breakup structure. A little bit
+of a wick, but the high time frame bias
+makes up for that. There's take profit.
+Pretty easy mark out price.
+More movement up. I'm going to short
+when it breaks structure. There we go. I
+can sell.5 just because I have so many
+points in my favor that going for 38 is
+kind of like it's it's good too but just
+too few.
+Hey, there we go. That was pretty easy
+continuation reversion just break of
+structure as always. A+ setup for sure.
+Uh let's see if we get
+anything else. More movement up. If it
+breaks structure down, I'll short again.
+No structure in there.
+Uh it did break structure. Uh okay. I
+kind of want to short again. back to
+here. How many points is that? Uh,
+exactly 75. So, let's do it.
+Hey, there we go.
+Anything else before 11? Because it's
+really early. Three wins so early on.
+Uh, okay. Wow. I'm actually going to
+buy. This is a crazy volume day. Let's
+see. Right there. First break of
+structure. Buy with five seems fine.
+Okay. Stopped out.
+One more buy. It breaks above. Okay,
+that was maybe irresponsible. I'll do
+one more though
+if it can break and close above
+structure.
+Oh,
+trying to look at the time as well. I
+don't want it to hit 11.
+Oh man, I really want to buy. Hey, there
+we go. Last attempt for today. I do take
+a lot of trades just because I feel like
+I know it's going to revert. Okay, there
+we go. Back to fair price. I just feel
+like I know it's going to revert. So, if
+I get stopped out, I'm ready to go on
+another account. That's how I'm getting
+through so many trades per day.
+Obviously, some setups are better than
+others when you have really good price
+action and no wicks, but I'm pretty much
+taking everything. So, very good day
+that day. All right, now Wednesday the
+20th, high time frame bias probably
+short. Let's see what opening is,
+though. Okay, opening's green.
+Um, I wouldn't buy right now just
+because it hasn't broke above any any
+structure. So, it is 9:30, but it didn't
+break and close above any structure. So,
+I'm not going to buy yet. I'm going to
+wait for a confirmation meeting just to
+break in the close above. Hey, there we
+go.
+Um,
+okay.
+[clears throat] I'm probably going to do
+one contract
+because that candle was only 15 points.
+So, um, not the half contract size.
+Okay, that's a bit off, but I don't
+care.
+Wow.
+Oh
+Well, that got back to fair price pretty
+fast.
+And then I just missed a long entry.
+Whoops. Um, okay. You should have bought
+here. The candle's 26 point 50. Okay. 50
+point candle. Do a 50 point stop for
+sure. And then 75 take profit.
+Uh, I don't know if there's any way I
+can enter this. Okay. Okay. Basically,
+what I like is that the opening candle
+was green
+and this one was green as well. Lots of
+wicks rejecting shorts and a broken
+close above structure. So, I do like
+Yeah. Okay, there we go. Whoops. I
+should have taken that. And then I
+reversed fair price and I missed that as
+well. But there was no break structure
+there, so it's fine. Let's see if I do
+get a Okay, tons of consolidation around
+fair price. Very obvious fair price
+there.
+Okay, what are what is this volume? 84
+points. Okay, that
+I don't want to make assumptions, but
+I'm pretty sure this is a Trump tweet.
+And I think new fair price be here. Let
+me just double check.
+Okay, yep, that's a Trump tweet.
+Basically, I can tell because the volume
+increased out of nowhere at a random
+time and then it just started
+consolidating after. So, this is a new
+fair price. I would possibly
+You know what? I'm going to take an
+interesting trade here. I'm just gonna
+buy. Uh the reason for this, I would
+prefer to have a much larger stop-loss.
+Like I probably should have bought with
+Okay, let me let me try something
+interesting for you guys. I'm going to
+try this.
+I'm going to keep the same risk over
+here and I'm going to show you guys a
+news news dripped trade. This is what
+happens when Trump tweets and I'm buying
+at like just the price after the tweet.
+Consolidation after the tweet and we
+have alltime highs is a really good
+target. Okay, I guess it's never mind.
+Ignore that. Um I'm just going to news
+drift this Trump tweet. See what happens
+because I'm actually kind of interested.
+Might take a really long time and speed
+it up, but I just want to see if it
+drifts long over the course of the day.
+So it did drift long and then of course
+one point away from my take profit. Uh,
+if it hits 2 pm, then I'll just keep
+holding.
+Yeah, news drift trades are are are
+quite interesting. Okay, good drift.
+It's going to hit four and then I'll
+just exit because that's when the
+propers make you exit. Oh my god, edged
+again. Okay, well, I'm just going to
+have to exit here because it's four and
+the prop is going to make you exit.
+Well, I guess four was like one point
+away from taking take profit, but
+whatever. Yeah, so that's how you do a
+news drift trade. Uh, basically like
+incredibly large takeprofit stop loss.
+just let it run and see what happens.
+More often than not, it's going to win.
+So that's how you can use a bias. So
+that kind of messed up the risk
+management, but just ignore that. On to
+the next day. All right, Thursday. We
+are opening out the bottom. So high time
+frame is long. Let's see if we get an
+entry. Okay, first candle red.
+Second candle red.
+Okay, that's a break and a close above.
+I'm still not going to do it, though.
+I'm not going to do it. Uh because
+there's a very large wick up here.
+So, I don't want to go against the wick
+plus the opening candle being red. I
+guess we'll see if I was right or wrong
+for doing that. Um, okay. It's just
+chopping.
+Okay, I was wrong.
+Whoops. Whatever. Now, let's just see if
+I get entry back to this consolidation
+off of breaking structure or reversion.
+Okay, break structure and we're getting
+50 points. So, I'll just do one
+contract. It's going to be a pretty
+quick trade. See if we can get a nice
+quick reversion there. 750,500.
+Okay. Wow.
+Interesting.
+Nothing you can do about that. Yes. Uh
+yeah, that's just weird. Very, very
+weird wick when it clearly wanted to go
+down. Whatever. Uh possible longs here.
+If it breaks and closes above. Okay, it
+breaks and closes above, but it's
+already back. So, I'm probably done for
+today.
+Yeah, more consolidation of the fair
+price.
+That's a bad day.
+Is it? Oh, it's a Thursday. That's
+weird. Bad days are usually Mondays.
+Whatever. Uh, just lots of
+consolidation. No real moves. And then
+it did a real move. We had a a great
+setup, but then weird wick. Whatever. On
+to the next one. All right. We are now
+on Friday high time frame. probably a
+little bit short just because it's
+toward the upper side of that range
+overnight.
+Okay, open candle's green. So, I'm just
+going to buy then and the size is 37.5.
+So, we'll choose 0.5 contract buy
+and then let it play out. That was easy.
+Now, fair price just this consolidation
+here prior to open all this stuff here
+probably like there somewhere.
+Uh let's see. Do we get any short
+positions? because I really want to go
+short. That's not bad. Good
+displacement. Um,
+probably could not. Oh, there we go. How
+many points is this? Okay. Well, there's
+like no points. If I was to go for 38,
+let's see how far I need it to go.
+I needed to hit the low of the opening
+candle. Let me think. Is this possible?
+This is obviously a tweet uh because
+it's a random price movement at 8:12
+a.m. The consolidation after the tweet
+is this area here.
+So this is like the middle of that area.
+You know what? I'm just going to do it.
+It's 30 points. I'll just go for 38.
+We'll see what it does.
+If you're on a live account, you would
+put your fair price here. You put your
+target here. But we're on proper, so
+that is why I am putting it a little bit
+below because I'm trying to just follow
+minus 500 plus 750 each time instead of
+optimization for a live account. It's
+obviously different. What is that? Okay,
+so it's obviously different and that's
+why my account balance is not going to
+be as high as it could be because I'm
+optimizing for prop firms, but I'm
+testing back testing it for you guys
+here in a live account format. Hey,
+there we go.
+Okay.
+Uh, let's see if we get anything else
+before 11.
+[clears throat] Maybe one final short.
+We'll see if it breaks structure down.
+Oh, huge wick.
+I would be careful. And it's 11. We're
+done. On to the next. All right. Monday
+the 25th. This is Memorial Day, so it's
+going to be a bank call day, but I still
+trade it the same. Um, as long as
+there's volume. So, yep, there's volume.
+Six point opening candle. Okay, you bet.
+We are doing one contract instead of
+half a contract. Same risk as usual.
+75500. Even though it is a bank holiday,
+I still think it's going to work. Same.
+There we go. And then market fair prices
+there. Let's see what we get.
+Constructure. Is it going to break?
+Hey, there we go. That one
+750 500.
+Let it play out
+a little bit farther down, please. There
+we go. All right, that was easy for bank
+holiday.
+Two and two and 0. Uh oh What am I
+doing? I still long by clicking too
+fast. Uh, okay, never mind. It's only 15
+points. It's 100% going to win, but Oh,
+yep. But not enough points in our favor
+to even take that.
+And that looks like a tweet. On to the
+next day. Right now, we are on Tuesday.
+It's opening in the middle of the
+overnight range again. So, it's probably
+opening pretty fairly. Let's just see
+what it does. Okay, short bias. Let's
+see. Should I just take short right now?
+Honestly, I think I'm going to uh let me
+check. So, very large wick to the top.
+100% rejecting long. So, there's zero
+way I'm longing, which probably means
+I'm going to short. Um I just don't like
+that I wasn't able to enter here. I
+guess it's good that I didn't enter here
+though because this wick would have
+stopped me out probably. Uh yeah, I can
+probably go short. Just fill this this
+recent move up. So the high time frame
+is kind of in the middle, but we're
+always balanced to revert the most
+previous move. So I'll just go short and
+then the size of the opening candle 18
+point. So one is probably fine.
+I'll do 550 and see what happens.
+Okay, nice continuation short. Uh fair
+prices.
+Fair price is most likely this
+consolidation here.
+And what am I doing? Oh my god, I just
+missed a buy. What am I doing?
+Oh What? Whatever. Uh, how can I
+fix this? How can I fix this? Um, I'm
+just going to put this to 750.
+What am I doing? I was just going to put
+infinite stop loss because I want this
+money. I know it's no win.
+Okay. Well, yeah, I was supposed to
+enter there. So, we'll count that,
+right? Break a structure reversion.
+Easy.
+Allow it.
+This is no breaker structure, by the
+way, since this is not a structure.
+I like that the way came back here
+instead of the open, right? So, I'm
+agreeing that fair price is probably
+here, but let's see what it does for the
+rest of the day. No structure broken.
+Still no structure being broken.
+I'm going to miss it if I go on that
+speed. Okay. Are we at all time highs?
+Yes. Okay. So, it's it's at all time
+highs, which means it moves far
+unfairly. So, I am getting ready to
+short.
+I feel like I've been shorting in all of
+these videos, on all these days.
+Uh, give it a bit more. Let's see if it
+breaks structure before 11. I really
+hope it does.
+Oh, there we go. Uh, I'm going to do 0.5
+just because there's so many points in
+my favor. Like, I can even put this down
+here. This is what I do on a live
+account, by the way. I would probably do
+something like this on a live account
+and then just print infinite profit. But
+it's unfunded, so I'll just do minus
+500. And then on Eval, there's the
+consistency rule. So, uh, I'm just going
+to go for 1500 because you don't want to
+win more than half of your thing in one
+day because consistency rule.
+Let's see what it does. Whenever it's at
+all time highs, you can take really long
+reversions, which is amazing. It prints
+profit. There you go. Print.
+And it's past 11. Did I enter before 11?
+Yes, I did. Rules all followed. On to
+the next. All right. Here we are on
+Wednesday. High time frame could be
+short. I remember this was fake news.
+Fake news is very weird when you're
+doing fair pricing theory. Um, basically
+just pretend it didn't happen. So, uh,
+you want to pretend that this stuff
+never happened. Just pretend that the
+chart kept going like this. Uh, because
+that is fake news and that's not real
+price action. Uh, so we'll just leave it
+like that for today. Let's see what this
+does anyways. Okay, red, very large
+candle, 50 points. So, definitely half
+the contract there. I'll let that play
+out. See what it does. Okay, there's a
+win. Very easy mark out fair price.
+Probably this consolidation right there.
+Now let's see if we can go long anywhere
+off break of structure. All right,
+structure broken.
+Uh 100 points favor by.
+Okay, lose unfortunately. Structure
+broken again. One more.
+Oh, okay. Scam.
+Why is it not reverting?
+Okay. Uh, I missed an entry. What am I
+doing? I'm clicking too fast.
+Uh, the entry should have been this.
+I guess we can just watch it together.
+Oh
+Okay. Well, it hit 11 and it lost.
+[clears throat] So, we'll have to take
+away one win. We'll have to take off
+500.
+Whatever. Seems like a pretty good
+entry, though. If I entered here, I
+would have won. Wait, hold on. Let me
+just double check.
+Did this break structure? Yes, this
+broke this structure. So, I should have
+bought here and then it would have Would
+it have to hit 75? Hold on.
+This is important to know. Yes, it would
+have. Okay, so it would have won. Not
+Yeah, pretty close, but would have won.
+There's the entry to the tick. Barely a
+win. So, I guess we have to add 750 to
+the profit at the end. All right, we are
+back to Thursday the 28th. Uh, slight
+problem. While I was fast forwarding, I
+accidentally skipped news. There was
+news at 8:30. It showed me the little
+red thing, but it went away now that I
+skipped it. Uh, but yeah, you should
+have taken a news continuation and had
+the easiest win ever, but I skipped it
+by accident. Whatever. Let's see what
+the open does. Okay, [clears throat]
+this is interesting. Let me check high
+time frame.
+Uh, is that all time high? Oh, that's
+from yesterday. I can delete this
+though. So, it's it's honestly in the
+middle of all of that. I don't like
+opening longs because I'm my goal now is
+to revert it to pre-news. So, I only
+want to take continuations to pre-news.
+I think the opening candle might have
+been affected by the fact that news was
+green and caused a fake long candle and
+also it failed to close above that. Let
+me just double check.
+Okay, there we go. I'm just going to
+sell.5 [clears throat] to get back to
+the previous price.
+Um,
+I guess it's fine that I'm not
+Yeah, it's fine that I'm overshooting
+because it's not on live. Remember, if I
+was on live, my profit target would be
+exactly the previous price,
+but it's on a prop. So, okay, there we
+go. We hit pre-news. Now, I could
+consider long for a few reasons. The
+first reason is the bias is definitely
+long because the opening was green and
+news was green. My time frame is sort of
+50/50. So, ignore that. But news was
+green and opening was green. So, I
+really do want to buy. I honestly think
+I'm just going to do it here because it
+just broke structure and the stop loss
+is like good to be below. So, it's sort
+of like a bias trade. That was close.
+Hey, there we go. Okay. No luck
+involved. Perfect. Just like a standard
+bias trade.
+uh because this was green and this was
+green and if I think this is a fair
+price then from here over time fair
+price changes right and I feel like it's
+going to change in the positive
+direction because news was green and
+open was green so that is why I did that
+um newest fair price I'm just going to
+say it's here consolidation here this
+okay this looks like a tweet though
+oh did I miss a reversion probably this
+is definitely a tweet actually just
+because it's a 106 point candle at 10
+10:12 a.m. which never happens. So
+clearly a tweet. Oh, news rift. Remember
+news rift trade. Uh let's see how many
+should I do. I can do 0.2 again.
+Yeah, that's probably fine.
+And remember to follow the 75500 rule as
+always. This one might take a really
+long time as well. But just the news
+strip, same as last one. Trump tweeted,
+just ride the green. Also open the
+screen. News hero is green and Trump was
+green. So, and there's all time highs.
+So, this is 100% going to win.
+Did I jinx it?
+Okay, one point away. Why are all my
+news drip trades one point away? Oh my.
+Okay, hold on. Maybe I should stop it.
+Oh, one point away again.
+Wait, am I past?
+Shoot, I went past
+market close. Whoops. Okay, well, you
+get the idea. Did it add money? Okay,
+whatever. Hopefully that's money. Yeah.
+So I get I mean you get you get the
+idea. Opening was green, news was green,
+Trump tweet was green. So I just want to
+buy and then drift. And then you need a
+big stop if you want to drift so that
+you're not uh losing your expectation if
+you get stopped out. One more day for
+May, I think. 2930. Yeah. All right. We
+are now on the 29th. Um and then
+obviously the weekend will end May, but
+we are at alltime highs. So probably
+just going to have a long bias. But
+anyways, let's see what the opening
+candle does on the one minute. It is
+Okay, it is 50/50, but it is green,
+which is good. Now, if it closes above,
+I'll just buy. Yeah. Okay, I assume so.
+Um, and then the size of the candle is
+29. So, I'll just do 0.5, I guess. And
+then just let it drift.
+A little bit of a difference between
+like the drift and the scalp trades. Um,
+there we go. Pretty easy. Now,
+I'm uh I'm going to short back to the
+pre-open price, but I'm going to wait
+for break structure because we're all
+time high. So, no displacement.
+[clears throat]
+And the entry is going to be
+right there. Break structure. Boom. 0.5.
+Just because you have enough points in
+your favor. Uh, if I was on a live
+account or a funded account, which
+doesn't have consistency rule, you could
+target more. Same thing on Eval. Like,
+technically, I could just go for I don't
+know why I'm not going for a thousand.
+What have I been doing? Okay.
+Uh, I'm not sure why why I was not doing
+that earlier.
+Um, you can go for 500, you can go for
+750, you can go for 1,000, you can go
+for 1,500, but don't go for more than
+1500 on eBunded.
+It's okay to go for more because they
+don't have consistency, but make sure
+you know the rules. Okay. Uh, pretty
+easy reversion there. Um, so I love
+these I love these reversions. Like just
+there are so many points in my favor
+like this 100 points exactly and you can
+have such small stops like 25 points and
+you just have to win a little bit more
+than like 20% to be profitable. So, I
+mean, it's like so it's so profitable.
+You just have to make sure you don't get
+caught up in the days where it goes like
+this
+because then if you short here, here,
+here, here, and you kind of cook. But it
+doesn't do that too often. Don't worry.
+All right. I think that was all of May
+because next is the weekend. Um, let me
+see if we can pull up the stats. All
+right. So, let's take a look at the
+performance of the strategy over May.
+This is just a standard equity curve.
+Um, but the the strategy is optimized
+for reduced draw down so you don't blow
+your profit account challenge as much.
+Um, so to lose a 50k account, you have
+to lose $2,000, which is 4%. And as you
+can see, we never hit 4%. So you would
+have not lost an account um for that
+month. I think
+I can just do dollars.
+Okay. Well, I guess if you have draw on
+streaks, so I'm not sure why it's
+calculating like this. Uh, so you would
+have lost it like backtoback days here.
+I don't know why it's calculating like
+this. Whatever. Um, but yeah, no, no
+instant $2,000 draw down streak. Math
+draw down 120, whatever. So, you're
+never going to blow an account in one
+day, which is always great.
+And in terms of the performance, 67% win
+rate. Uh, definitely not enough trades
+to consider it like a solid
+uh win rate, but obviously the strategy
+works. Just pretty good profit and loss
+on
+the month. Expectancy profit factors.
+Great. Uh, I'm going to plug into my
+website at the end and I'll show you
+exactly what Prop Firm is optimal for
+me. I guess I kind of use them all
+because I'm trying to scale. Uh,
+performance calendar. Interesting. One,
+two, three, four, five, six red days.
+Not bad considering tons of trades every
+day. That's obviously why it's going to
+average out to be green because the
+strategy wins. Okay. 2.67 trades per
+day. Uh, I'm definitely more aggressive
+on my own accounts because I'm taking a
+bunch of displacements. So that lowers
+my win rates, but it increases the
+amount of trades I can take and then I
+make more money because I'm taking
+profitable trades on props. But my win
+rate's personally lower because I take
+slightly worse trades.
+Um, but yeah, this is a good amount of
+trades for New York session
+[clears throat] for a beginner who only
+has one or two accounts and you just
+want to take it slow and only take the
+best setups, which is what I was showing
+you in this video. Important to have low
+max draw down, especially on prop firms.
+That is why I created the strategy
+specifically for prop firms in terms of
+the risk management uh that I just
+showed you which is why we never hit
+minus 2k uh in one day and pretty good
+positive expectancy. Uh it's looking
+quite linear. So everything as expected.
+All right. So I took 56 trades and I won
+37 of them.
+Average win was just I'll just do 750
+and then average loss 500 because that's
+what I pretty much what I follow for all
+of them and it wants me to use this one.
+U so I'm getting pretty good EB on the
+100k top step no fee with consistency
+rule based on these stats. Um obviously
+I'm profitable in all the prop firms but
+you should put in your own stats. So I
+would never buy the MFX 25K to only make
+1,300 when I could buy this and make
+like five times as much. So hopefully
+this can help you guys as well. I'll put
+it in the description. All right. So I
+hope you guys enjoyed the back test.
+That should have given you a little bit
+of more information about my risk
+management protocol on prop firms seeing
+as how we are barely ever hitting max
+draw on up $2,000 except for consecutive
+days and as well you are seeing very
+good equity curves. So just try and
+replicate exactly what I did to the best
+of your ability. Obviously this should
+be optimized different risk on different
+prop firms definitely different risk on
+a live account. Tons of optimizations
+you can do, but this should get you
+incredibly profitable results if you're
+just able to replicate pretty much what
+I

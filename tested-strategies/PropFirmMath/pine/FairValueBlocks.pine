@@ -1,0 +1,85 @@
+//@version=6
+// JJ Simon Fair Value — SIMPLE blocks. Marks each trading block's start + end (vertical lines),
+// the fair-value line (block open price), the continuation vs reversion windows, and the
+// session-open candle. Cheat-sheet companion to SIMPLE_RULES.md. NQ 1-min.
+indicator("FVT — Simple Blocks", overlay = true, max_lines_count = 500, max_labels_count = 500)
+
+tz      = input.string("America/New_York", "Timezone")
+contLen = input.int(15, "Continuation window (minutes from open)", minval = 1)
+
+gS = "Blocks (ET)"
+useNews = input.bool(true, "08:30 News",   group = gS)
+useAM   = input.bool(true, "09:30 NY AM",  group = gS)
+usePM   = input.bool(true, "14:00 NY PM",  group = gS)
+useEve  = input.bool(true, "18:00 Reopen", group = gS)
+useAsia = input.bool(true, "20:00 Asia",   group = gS)
+
+gC = "Colors"
+colLine = input.color(color.new(color.gray, 0),    "Block start/end line", group = gC)
+colFV   = input.color(color.yellow,                "Fair-value line",      group = gC)
+colCont = input.color(color.new(color.aqua, 90),   "Continuation tint",    group = gC)
+colRev  = input.color(color.new(color.orange, 90), "Reversion tint",       group = gC)
+colOpen  = input.color(color.new(#2962FF, 0),      "Session-open candle",  group = gC)
+colWhite = input.color(color.white,                "Decisive candle",      group = gC)
+colGold  = input.color(color.new(#FFD700, 0),      "A+ (gold) candle",     group = gC)
+
+gP = "Decisive / A+ candle"
+leftBars       = input.int(5, "Pivot left bars",  minval = 1, group = gP)
+rightBars      = input.int(1, "Pivot right bars", minval = 1, group = gP)
+counterWickPct = input.float(20.0, "Max counter-wick % of range", minval = 1, maxval = 50, group = gP) / 100.0
+
+minOfDay = hour(time, tz) * 60 + minute(time, tz)
+
+var float fv      = na
+var int   openMin = na
+var int   blkLen  = na
+
+sStart = array.from(510, 570, 840, 1080, 1200)            // 08:30 09:30 14:00 18:00 20:00
+sName  = array.from("News", "NY AM", "NY PM", "Reopen", "Asia")
+sOn    = array.from(useNews, useAM, usePM, useEve, useAsia)
+sLen   = array.from(90, 90, 60, 90, 90)                   // block length in minutes
+
+isOpenBar = false
+for i = 0 to 4
+    if array.get(sOn, i)
+        st = array.get(sStart, i)
+        if minOfDay >= st and (na(minOfDay[1]) or minOfDay[1] < st)
+            bl   = array.get(sLen, i)
+            endT = time + bl * 60 * 1000
+            // vertical line at block START and block END (x1==x2 + extend.both = vertical)
+            line.new(time, low, time, high, xloc = xloc.bar_time, extend = extend.both, color = colLine, style = line.style_dotted)
+            line.new(endT, low, endT, high, xloc = xloc.bar_time, extend = extend.both, color = colLine, style = line.style_dotted)
+            // fair-value line across the block, at the open price
+            line.new(time, open, endT, open, xloc = xloc.bar_time, color = colFV, width = 2)
+            label.new(time, open, array.get(sName, i) + " " + str.tostring(open, format.mintick), xloc = xloc.bar_time, yloc = yloc.price, style = label.style_none, textcolor = colFV, size = size.small)
+            fv      := open
+            openMin := st
+            blkLen  := bl
+            isOpenBar := true
+
+if not na(fv) and (minOfDay - openMin) >= blkLen
+    fv := na
+
+mins   = minOfDay - openMin
+inCont = not na(fv) and mins >= 0 and mins < contLen
+inRev  = not na(fv) and mins >= contLen and mins < blkLen
+bgcolor(inCont ? colCont : inRev ? colRev : na, title = "Block window")
+
+// ----- decisive (white) candle + same-candle structure break = A+ (gold) candle -----
+ph = ta.pivothigh(leftBars, rightBars)
+pl = ta.pivotlow(leftBars, rightBars)
+var float pH = na
+var float pL = na
+if not na(ph)
+    pH := ph
+if not na(pl)
+    pL := pl
+brokeStruct = (not na(pH) and close > pH and close[1] <= pH) or (not na(pL) and close < pL and close[1] >= pL)
+crange   = high - low
+cwick    = close >= open ? open - low : high - open      // wick against the close
+decisive = crange > 0 and (cwick / crange) <= counterWickPct
+gold     = decisive and brokeStruct
+white    = decisive and not gold
+
+// candle color: gold (A+) > white (decisive) > session-open marker
+barcolor(gold ? colGold : white ? colWhite : isOpenBar ? colOpen : na, title = "Signal candle")
