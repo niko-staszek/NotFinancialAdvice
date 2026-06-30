@@ -19,7 +19,14 @@ colLine = input.color(color.new(color.gray, 0),    "Block start/end line", group
 colFV   = input.color(color.yellow,                "Fair-value line",      group = gC)
 colCont = input.color(color.new(color.aqua, 90),   "Continuation tint",    group = gC)
 colRev  = input.color(color.new(color.orange, 90), "Reversion tint",       group = gC)
-colOpen = input.color(color.new(color.yellow, 0),  "Session-open candle",  group = gC)
+colOpen  = input.color(color.new(#2962FF, 0),      "Session-open candle",  group = gC)
+colWhite = input.color(color.white,                "Decisive candle",      group = gC)
+colGold  = input.color(color.new(#FFD700, 0),      "A+ (gold) candle",     group = gC)
+
+gP = "Decisive / A+ candle"
+leftBars       = input.int(5, "Pivot left bars",  minval = 1, group = gP)
+rightBars      = input.int(1, "Pivot right bars", minval = 1, group = gP)
+counterWickPct = input.float(20.0, "Max counter-wick % of range", minval = 1, maxval = 50, group = gP) / 100.0
 
 minOfDay = hour(time, tz) * 60 + minute(time, tz)
 
@@ -58,5 +65,21 @@ inCont = not na(fv) and mins >= 0 and mins < contLen
 inRev  = not na(fv) and mins >= contLen and mins < blkLen
 bgcolor(inCont ? colCont : inRev ? colRev : na, title = "Block window")
 
-// mark the session-open (fair-price) candle
-barcolor(isOpenBar ? colOpen : na, title = "Session-open candle")
+// ----- decisive (white) candle + same-candle structure break = A+ (gold) candle -----
+ph = ta.pivothigh(leftBars, rightBars)
+pl = ta.pivotlow(leftBars, rightBars)
+var float pH = na
+var float pL = na
+if not na(ph)
+    pH := ph
+if not na(pl)
+    pL := pl
+brokeStruct = (not na(pH) and close > pH and close[1] <= pH) or (not na(pL) and close < pL and close[1] >= pL)
+crange   = high - low
+cwick    = close >= open ? open - low : high - open      // wick against the close
+decisive = crange > 0 and (cwick / crange) <= counterWickPct
+gold     = decisive and brokeStruct
+white    = decisive and not gold
+
+// candle color: gold (A+) > white (decisive) > session-open marker
+barcolor(gold ? colGold : white ? colWhite : isOpenBar ? colOpen : na, title = "Signal candle")
