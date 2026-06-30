@@ -106,6 +106,24 @@ without a same-bar break (or vice-versa) is a lower-probability/skip. This is th
   - **Engine: tag follow-ups separately ("trigger 3") so we measure base vs base+followups** — exactly
     as FX Replay advise ("collect the data to confirm"). Resolves your observation directly.
 
+### 6b. JJ's ACTUAL continuation logic (his own words — corrects the "2 setups/day" simplification) `[v2]`
+The "continuation 3–15 min then reversion = 2 setups" model is FX Replay's **base simplification**.
+JJ's own video shows continuations recur all session. Verified quotes (transcript2):
+- **"high time frame mean reversion, low time frame continuation"** (L83–84). "Continuation" = TWO things:
+  - (a) the **opening** continuation of the first unfair (overnight-order) move — early only: *"you don't
+    want to look for continuations too far after the open"* (L548–552).
+  - (b) a **low-timeframe ENTRY style** used on EVERY trade (incl. reversions): *"by continuation I just
+    mean like this series of green candles"* (L592–606). Bias = HTF reversion to fair; entry = LTF momentum.
+- It is a **repeating cycle**, not one continuation + one reversion: unfair move → continuation away →
+  reversion to fair → *"this move up was unfair, so I was going to trade another reversion"* (L611–614) →
+  and when price breaks away again (fair price having reset on consolidation) a **fresh continuation** is
+  valid → "continuation with the trend after the reversion period" (user's chart obs, JJ video ~14:05).
+- **Implication for our model:** the hard "continuation only in 3–15 min window" gate is too strict.
+  Continuation = a displacement/BOS **away from the current (possibly reset) fair price**, tradeable
+  whenever it occurs; the 3–15 min window only reliably contains the *first* one. The fair-price RESET
+  rule (when does FV update to a new consolidation?) is the missing piece to fully mechanize this — it is
+  still under-specified in all sources and is the key open question for the build. `[OPEN]`
+
 ## 7. Exits — ATR-bucketed, fixed 1.5R, NO management `[fx-pdf][fx-test L282–98]`
 | 1-min ATR | SL (pts) | TP (pts) | NQ contracts for ~$1k risk |
 |---|---|---|---|
